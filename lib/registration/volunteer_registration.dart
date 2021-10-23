@@ -3,7 +3,7 @@ import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:flutter/material.dart';
 
-class DonorRegistration extends StatelessWidget {
+class VolunteerRegistration extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -12,20 +12,20 @@ class DonorRegistration extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: DonorRegistrationScreen(),
+      home: VolunteerRegistrationScreen(),
     );
   }
 }
 
-class DonorRegistrationScreen extends StatefulWidget {
+class VolunteerRegistrationScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _DonorRegistrationScreen();
+    return _VolunteerRegistrationScreen();
   }
 }
 
-class _DonorRegistrationScreen extends State<DonorRegistrationScreen> {
+class _VolunteerRegistrationScreen extends State<VolunteerRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -41,10 +41,10 @@ class _DonorRegistrationScreen extends State<DonorRegistrationScreen> {
                 child: CommonStyles.layoutBackgroundShape(),
                 //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
               ),
-              Align(
+              const Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 80),
+                    padding: EdgeInsets.only(top: 80),
                     child: Text(
                       "Closing Time!",
                       style: TextStyle(
@@ -77,12 +77,10 @@ class LoginFormWidget extends StatefulWidget {
 class _LoginFormWidgetState extends State<LoginFormWidget> {
   final _formKey = GlobalKey<FormState>();
   var _userPersonNameController = TextEditingController(text: "kamal");
-  var _userRestaurantNameController = TextEditingController(text: "KripyKreme");
   var _userEmailController = TextEditingController(text: "kamal@gmail.com");
   var _userContactNumberController = TextEditingController(text: "07926166413");
-  var _userStreetNameController = TextEditingController(text: "Watford");
-  var _userPostalCodeController = TextEditingController(text: "WD187NJ");
-  var _emailFocusNode = FocusNode();
+  var _vehicleNumberController = TextEditingController(text: "UBP10AB");
+
   var _passwordFocusNode = FocusNode();
   bool _autoValidate = false;
 
@@ -99,14 +97,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               children: <Widget>[
                 _buildIntroText(),
                 _buildPersonName(context),
-                _buildRestaurantName(context),
                 _buildEmailField(context),
                 _buildContactNumberField(context),
-                _buildAddressField(context),
-                _buildStreetNameField(context),
-                _buildPostalCodeField(context),
-                //_buildFoodNameField(context),
-                //_buildFoodDescField(context),
+                _buildVehicleTypeField(context),
+                _buildVehicleNumberField(context),
                 _buildSubmitButton(context),
                 //_buildLoginOptionText(),
                 //_buildSocialLoginRow(context),
@@ -119,26 +113,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     );
   }
 
-  Widget __buildTwitterButtonWidget(BuildContext context) {
-    return Expanded(
-      flex: 1,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: RaisedButton(
-            color: Color.fromRGBO(16, 161, 250, 1.0),
-            child: Image.asset(
-              "assets/images/ic_twitter.png",
-              width: 25,
-              height: 25,
-            ),
-            onPressed: () {},
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0))),
-      ),
-    );
-  }
-
-
 
   Widget _buildIntroText() {
     return Column(
@@ -146,7 +120,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         Padding(
           padding: const EdgeInsets.only(top: 5, bottom: 30),
           child: Text(
-            "Food Donor Registration",
+            "Volunteer Registration",
             style: TextStyle(
                 color: Colors.black54,
                 fontSize: 16.0,
@@ -168,10 +142,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     );
   }
 
-
   Widget _buildPersonName(BuildContext context)
   {
-  return Padding(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
       child: TextFormField(
         controller: _userPersonNameController,
@@ -187,25 +160,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       ),
     );
   }
-
-  Widget _buildRestaurantName(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
-        controller: _userRestaurantNameController,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) {
-          FocusScope.of(context).requestFocus(_passwordFocusNode);
-        },
-        validator: (value) {
-          str : _emailValidation(value.toString());
-        },
-        decoration: CommonStyles.textFormFieldStyle("Business/Entity Name", ""),
-      ),
-    );
-  }
-
 
   Widget _buildEmailField(BuildContext context) {
     return Padding(
@@ -235,31 +189,12 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     }
   }
 
-
-  Widget _buildFoodNameField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
-        //controller: _userFoodNameController,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) {
-          FocusScope.of(context).requestFocus(_passwordFocusNode);
-        },
-        validator: (value) {
-          str : _emailValidation(value.toString());
-        },
-        decoration: CommonStyles.textFormFieldStyle("Food Name", ""),
-      ),
-    );
-  }
-
   Widget _buildContactNumberField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
       child: TextFormField(
         controller: _userContactNumberController,
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
         onFieldSubmitted: (_) {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
@@ -272,29 +207,39 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     );
   }
 
-  Widget _buildAddressField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Text(
-            'Address',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-
-    );
+  Widget _buildVehicleTypeField(BuildContext context) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+    Expanded(
+    child: Row(
+    children: [
+        Radio(
+        value: 1, groupValue: 'null', onChanged: (index) {}),
+    Expanded(
+    child: Text('Bike'),
+    )
+    ],
+    ),
+    flex: 1,
+    ),
+    Expanded(
+    child: Row(
+    children: [
+    Radio(
+    value: 1, groupValue: 'null', onChanged: (index) {}),
+    Expanded(child: Text('Car'))
+    ],
+    ),
+    flex: 1,
+    )]);
   }
 
-  Widget _buildStreetNameField(BuildContext context) {
+  Widget _buildVehicleNumberField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
       child: TextFormField(
-        controller: _userStreetNameController,
+        controller: _userContactNumberController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
         onFieldSubmitted: (_) {
@@ -303,47 +248,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         validator: (value) {
           str : _emailValidation(value.toString());
         },
-        decoration: CommonStyles.textFormFieldStyle("Street Name", ""),
+        decoration: CommonStyles.textFormFieldStyle("Vehicle Number", ""),
       ),
     );
   }
-
-  Widget _buildPostalCodeField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
-        controller: _userPostalCodeController,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) {
-          FocusScope.of(context).requestFocus(_passwordFocusNode);
-        },
-        validator: (value) {
-          str : _emailValidation(value.toString());
-        },
-        decoration: CommonStyles.textFormFieldStyle("Postal Code", ""),
-      ),
-    );
-  }
-
-  Widget _buildFoodDescField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
-        //controller: _userFoodDescController,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) {
-          FocusScope.of(context).requestFocus(_passwordFocusNode);
-        },
-        validator: (value) {
-          str : _emailValidation(value.toString());
-        },
-        decoration: CommonStyles.textFormFieldStyle("Food Description", ""),
-      ),
-    );
-  }
-
 
   Widget _buildSubmitButton(BuildContext context) {
     return Padding(
@@ -380,11 +288,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   void _clearAllFields() {
     setState(() {
       _userPersonNameController = TextEditingController(text: "");
-      _userRestaurantNameController = TextEditingController(text: "");
       _userEmailController = TextEditingController(text: "");
       _userContactNumberController = TextEditingController(text: "");
-      _userStreetNameController = TextEditingController(text: "");
-      _userPostalCodeController = TextEditingController(text: "");
+      _vehicleNumberController = TextEditingController(text: "");
     });
   }
 

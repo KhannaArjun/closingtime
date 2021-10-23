@@ -1,11 +1,13 @@
+import 'package:closingtime/registration/donor_registration.dart';
 import 'package:closingtime/registration/sign_in.dart';
+import 'package:closingtime/registration/volunteer_registration.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MainScreen());
+  runApp(SignIn());
 }
 
 class MainScreen extends StatelessWidget {
@@ -71,11 +73,13 @@ class MainScreen extends StatelessWidget {
         child: CustomRaisedButton(
           height: 50,
           child: const Text(
-            "Donor",
+            "Food Donor",
             style: TextStyle(
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorRegistration()));
+          },
         ),
       ),
     );
@@ -96,7 +100,9 @@ class MainScreen extends StatelessWidget {
             style: TextStyle(
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerRegistration()));
+          },
         ),
       ),
     );
@@ -113,7 +119,7 @@ class MainScreen extends StatelessWidget {
           height: 50,
 
           child: const Text(
-            "Recipient",
+            "Food Recipient",
             style: TextStyle(
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),

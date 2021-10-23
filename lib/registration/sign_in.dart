@@ -1,6 +1,9 @@
+import 'package:closingtime/food_donor/food_donor_dashboard.dart';
+import 'package:closingtime/main_screen.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 
@@ -39,7 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
               Container(
                 height: MediaQuery.of(context).size.height * 0.45,
                 width: double.infinity,
-                decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
+                child: CommonStyles.layoutBackgroundShape(),
+                //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
               ),
               Align(
                   alignment: Alignment.topCenter,
@@ -54,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   )),
               Positioned(
-                top: 230,
+                top: 240,
                 left: 10,
                 right: 10,
                 child: LoginFormWidget(),
@@ -305,14 +309,16 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
           onPressed: () {
-            _signUpProcess(context);
+            //_signInProcess(context);
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorDashboard()));
+
           },
         ),
       ),
     );
   }
 
-  void _signUpProcess(BuildContext context) {
+  void _signInProcess(BuildContext context) {
 
     final form = _formKey.currentState;
     if (form!.validate()) {
@@ -343,6 +349,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             TextSpan(
+              recognizer: TapGestureRecognizer()..onTap = ()
+              {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainScreen()));
+              },
               text: 'Register',
               style: TextStyle(
                   fontWeight: FontWeight.w800,
