@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:closingtime/food_donor/food_donor_dashboard.dart';
-import 'package:closingtime/main_screen.dart';
+import 'package:closingtime/main.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/network/entity/login_model.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
