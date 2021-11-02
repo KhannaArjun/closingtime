@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:closingtime/food_donor/food_donor_dashboard.dart';
 import 'package:closingtime/main_screen.dart';
+import 'package:closingtime/network/api_service.dart';
+import 'package:closingtime/network/entity/login_model.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
@@ -309,8 +313,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
           onPressed: () {
-            //_signInProcess(context);
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorDashboard()));
+            _signInProcess(context);
+            // Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorDashboard()));
 
           },
         ),
@@ -323,6 +327,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       //Do login stuff
+      loginApiCall();
     } else {
       setState(() {
         _autoValidate = true;
@@ -362,6 +367,27 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ],
         ),
       ),
+    );
+  }
+
+  void loginApiCall() {
+    Map body = {
+      'email':_userEmailController.value.text,
+      'password':_userPasswordController.value.text
+    };
+
+    Future<LoginModel> loginModel = ApiService.login(body);
+
+    loginModel.then((value) {
+      if (!value.userId!.isEmpty)
+        {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorDashboard()));
+        }
+      else
+        {
+          print("Error");
+        }
+    }
     );
   }
 }

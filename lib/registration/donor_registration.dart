@@ -1,3 +1,5 @@
+import 'package:closingtime/network/api_service.dart';
+import 'package:closingtime/network/entity/donor/donor_registration%7C_model.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
@@ -41,10 +43,10 @@ class _DonorRegistrationScreen extends State<DonorRegistrationScreen> {
                 child: CommonStyles.layoutBackgroundShape(),
                 //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
               ),
-              Align(
+              const Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 80),
+                    padding: EdgeInsets.only(top: 80),
                     child: Text(
                       "Closing Time!",
                       style: TextStyle(
@@ -370,6 +372,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       //Do login stuff
+      donorRegistrationApiCall();
     } else {
       setState(() {
         _autoValidate = true;
@@ -410,5 +413,30 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         ),
       ),
     );
+  }
+
+  void donorRegistrationApiCall()
+  {
+    Map body =
+      {
+        "name": _userPersonNameController.value.text,
+        "business_name": _userRestaurantNameController.value.text,
+        "email": _userEmailController.value.text,
+        "password": _userPersonNameController.value.text,
+        "contact_number": _userContactNumberController.value.text,
+        "street_name": _userStreetNameController.value.text,
+        "postcode": _userPostalCodeController.value.text
+      };
+
+    try
+    {
+      Future<FoodDonorRegistration> donorRegistrationResp = ApiService.donorRegistration(body);
+      print(donorRegistrationResp);
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+    }
   }
 }

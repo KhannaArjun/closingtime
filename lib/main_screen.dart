@@ -5,6 +5,7 @@ import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 void main() {
   runApp(SignIn());
@@ -17,7 +18,8 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '',
-      home: Scaffold(
+      home: LoaderOverlay(
+        child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           elevation: 0,
@@ -58,7 +60,7 @@ class MainScreen extends StatelessWidget {
           ),
         ),
       )),
-    );
+      ));
   }
 
 

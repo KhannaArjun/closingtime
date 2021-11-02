@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
 
 class CommonStyles {
   static textFormFieldStyle(String label, String hint) {
@@ -36,4 +38,27 @@ class CommonStyles {
       ),
     );
   }
+
+// Widget showDialog(BuildContext context)
+// {
+//   return showDialog(
+//     context: context,
+//     builder: (context) => Center(
+//       child: Container(
+//         width: 60.0,
+//         height: 60.0,
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(4.0),
+//         ),
+//         child: Padding(
+//           padding: const EdgeInsets.all(12.0),
+//           child: CupertinoActivityIndicator(),
+//         ),
+//       ),
+//     )
+//   );
+
+//  }
+
 }

@@ -1,3 +1,4 @@
+import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
 import 'package:closingtime/food_donor/donate_food.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:flutter/material.dart';
@@ -22,23 +23,34 @@ class _FoodDonorDashboard extends StatelessWidget {
 
   final String title;
 
-  List setData()
+  List<FoodDonatedData> setData()
   {
-    List list = [];
+    List<FoodDonatedData> foodDonatedList = [];
 
-    list.add("1");
-    list.add("2");
-    list.add("3");
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
+    foodDonatedList.add(FoodDonatedData("Donuts", "Fresh Donuts", "4", ""));
 
-    return list;
+
+    return foodDonatedList;
 
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0x00000000),
       appBar: AppBar(title: Text(title)),
       body: Center(
+
         child: _buildFoodList(setData(), context),
 
       ),
@@ -98,20 +110,41 @@ class _FoodDonorDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildFoodList(List list, BuildContext context) {
-    return ListView.builder(
+  Widget _buildFoodList(List<FoodDonatedData> list, BuildContext context) {
+    return Container(
+    decoration: BoxDecoration(
+      color: Color(0x00000000)
+    ),
+        child: ListView.builder(
       padding: const EdgeInsets.all(10.0),
       itemCount: list.length,
       itemBuilder: (context, i) {
 
-        return _buildRow(list[i]);
-      },
+        return _itemCard(context, list[i]);
+      }),
     );
   }
 
-  Widget _buildRow(String str) {
-    return ListTile(
-      title: Text(str),
-    );
+  Widget _itemCard(BuildContext context, FoodDonatedData foodDonatedData)
+  {
+    return Container(
+      height: 150,
+        child: Card(
+      color: Colors.white,
+      elevation: 20,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: ListTile(
+            onTap: () {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text(foodDonatedData.foodName + ' pressed!'),
+              ));
+            },
+            title: Text(foodDonatedData.foodDesc),
+            subtitle: Text(foodDonatedData.quantity),
+            leading: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    "https://images.unsplash.com/photo-1547721064-da6cfb341d50")))));
   }
 }
