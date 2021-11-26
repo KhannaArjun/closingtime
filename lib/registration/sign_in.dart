@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:closingtime/food_donor/donor_dashboard.dart';
 import 'package:closingtime/food_donor/food_donor_dashboard.dart';
 import 'package:closingtime/main.dart';
 import 'package:closingtime/network/api_service.dart';
@@ -7,8 +9,12 @@ import 'package:closingtime/network/entity/login_model.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
+import 'package:closingtime/utils/constants.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'donor_registration.dart';
 
 
 class SignIn extends StatelessWidget {
@@ -33,6 +39,8 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
+bool _progressBarActive = false;
+
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
@@ -41,15 +49,17 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
+          child: Container(
           child: Stack(
             children: <Widget>[
+
               Container(
                 height: MediaQuery.of(context).size.height * 0.45,
                 width: double.infinity,
                 child: CommonStyles.layoutBackgroundShape(),
                 //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
               ),
-              Align(
+              const Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 80),
@@ -62,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   )),
               Positioned(
-                top: 240,
+                top: 270,
                 left: 10,
                 right: 10,
                 child: LoginFormWidget(),
@@ -70,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      ),
+      ),),
     );
   }
 }
@@ -102,11 +112,12 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             elevation: 10,
             child: Column(
               children: <Widget>[
+
                 _buildIntroText(),
                 _buildEmailField(context),
                 _buildPasswordField(context),
-                _buildForgotPasswordWidget(context),
-                _buildSignInButton(context),
+                //_buildForgotPasswordWidget(context),
+                _progressBarActive == true? CommonStyles.loadingBar(context):_buildSignInButton(context),
                 //_buildLoginOptionText(),
                 //_buildSocialLoginRow(context),
               ],
@@ -116,6 +127,18 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         ],
       ),
     );
+  }
+
+
+  buildShowDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        });
   }
 
   Widget _buildSocialLoginRow(BuildContext context) {
@@ -226,21 +249,29 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },
         validator: (value) {
-          str : _emailValidation(value.toString());
+          str : if (!_emailValidation(value.toString()))
+          {
+            return "Please enter valid email";
+          }
+          return null;
         },
         decoration: CommonStyles.textFormFieldStyle("Email", ""),
       ),
     );
   }
-
-  String _emailValidation(String value) {
-    bool emailValid =
-    RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
-    if (!emailValid) {
-      return "Enter valid email address";
-    } else {
-      return "";
+  bool _emailValidation(String value) {
+    bool emailValid = false;
+    if (value != null && value.isNotEmpty)
+    {
+      emailValid =
+          RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
     }
+    else
+    {
+      emailValid = false;
+    }
+
+    return emailValid;
   }
 
   Widget _buildPasswordField(BuildContext context) {
@@ -253,7 +284,13 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         onFieldSubmitted: (_) {
           FocusScope.of(context).requestFocus(_emailFocusNode);
         },
-        validator: (value) => _userNameValidation(value.toString()),
+        validator: (value) {
+          str :  if (value == null || value.isEmpty)
+          {
+            return "Please enter password";
+          }
+          return null;
+        },
         obscureText: _isPasswordVisible,
         decoration: InputDecoration(
           labelText: "Password",
@@ -314,6 +351,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ),
           onPressed: () {
             _signInProcess(context);
+
+            //loginApiCall();
             // Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorDashboard()));
 
           },
@@ -356,7 +395,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             TextSpan(
               recognizer: TapGestureRecognizer()..onTap = ()
               {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainScreen()));
+                //Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainScreen()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorRegistration()));
               },
               text: 'Register',
               style: TextStyle(
@@ -370,24 +410,54 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     );
   }
 
-  void loginApiCall() {
+
+  void loginApiCall()
+  {
+
+    setState(() {
+      _progressBarActive = true;
+    });
+
+
     Map body = {
       'email':_userEmailController.value.text,
       'password':_userPasswordController.value.text
     };
 
-    Future<LoginModel> loginModel = ApiService.login(body);
+    Future<LoginModel> loginModel = ApiService.login(jsonEncode(body));
 
     loginModel.then((value) {
-      if (!value.userId!.isEmpty)
+
+      setState(() {
+        _progressBarActive = false;
+      });
+      print(value.data.toString());
+
+      if(value.data.userId != null)
         {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorDashboard()));
+          if (value.data.userId.isNotEmpty)
+          {
+            storeUserData(value.data.userId);
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DonorDashboard()));
+          }
+          else
+          {
+            print("Error");
+            Constants.showToast("Please try again");
+          }
         }
-      else
-        {
-          print("Error");
-        }
+      else{
+        Constants.showToast(value.message);
+
+      }
+
+
     }
     );
+  }
+
+  storeUserData(value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(Constants.user_id, value);
   }
 }

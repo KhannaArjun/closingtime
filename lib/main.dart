@@ -1,6 +1,7 @@
 import 'package:closingtime/registration/donor_registration.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/registration/volunteer_registration.dart';
+import 'package:closingtime/splash_screen.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 void main() {
-  runApp(SignIn());
+  runApp(SplashScreenApp());
 }
 
 class MainScreen extends StatelessWidget {
@@ -36,16 +37,15 @@ class MainScreen extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(5.0, 60.0, 5.0,0.0),
+                padding: const EdgeInsets.fromLTRB(10.0, 60.0, 5.0,0.0),
                 child: const Text(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-                      "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut ",
+                  "“Feel what it’s like to truly starve, and I guarantee that you’ll forever think twice about wasting food.“",
                     style: TextStyle(
-                      color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+                      color: Colors.black, fontSize: 18, fontStyle: FontStyle.italic),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(5.0, 40.0, 5.0,0.0),
+                padding: const EdgeInsets.fromLTRB(5.0, 60.0, 5.0,0.0),
                 child: const Text(
                   "I'm a,",
                   style: TextStyle(

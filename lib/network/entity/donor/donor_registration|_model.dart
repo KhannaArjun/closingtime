@@ -1,63 +1,79 @@
-import 'package:json_annotation/json_annotation.dart';
+// To parse this JSON data, do
+//
+//     final loginModel = loginModelFromJson(jsonString);
+
+import 'package:meta/meta.dart';
+import 'dart:convert';
+
+FoodDonorRegistration foodDonorRegistrationFromJson(String str) => FoodDonorRegistration.fromJson(json.decode(str));
+
+String foodDonorRegistrationToJson(FoodDonorRegistration data) => json.encode(data.toJson());
 
 class FoodDonorRegistration {
-  Data? _data;
-  bool _error = false;
-  String _message = "";
+  FoodDonorRegistration({
+    required this.data,
+    required this.error,
+    required this.message,
+  });
 
-  FoodDonorRegistration({required Data data, required bool error, required String message}) {
-    this._data = data;
-    this._error = error;
-    this._message = message;
-  }
+  Data data;
+  bool error;
+  String message;
 
-  Data? get data => _data;
+  factory FoodDonorRegistration.fromJson(Map<String, dynamic> json) => FoodDonorRegistration(
+    data: Data.fromJson(json["data"]),
+    error: json["error"],
+    message: json["message"],
+  );
 
-  set data(Data? data) => _data = data;
-
-  bool get error => _error;
-
-  set error(bool error) => _error = error;
-
-  String get message => _message;
-
-  set message(String message) => _message = message;
-
-  FoodDonorRegistration.fromJson(Map<String, dynamic> json) {
-    _data = json['data'] != null ? new Data.fromJson(json['data']) : null;
-    _error = json['error'];
-    _message = json['message'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this._data != null) {
-      data['data'] = this._data!.toJson();
-    }
-    data['error'] = this._error;
-    data['message'] = this._message;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    "data": data.toJson(),
+    "error": error,
+    "message": message,
+  };
 }
 
 class Data {
-  String? _userId = "";
+  Data({
+    required this.businessName,
+    required this.contactNumber,
+    required this.email,
+    required this.name,
+    required this.postcode,
+    required this.streetName,
+    required this.userId,
+  });
 
-  Data({required String userId}) {
-    this._userId = userId;
-  }
+  String businessName;
+  String contactNumber;
+  String email;
+  String name;
+  String postcode;
+  String streetName;
+  String userId;
 
-  String? get userId => _userId;
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
+    businessName: json["business_name"],
+    contactNumber: json["contact_number"],
+    email: json["email"],
+    name: json["name"],
+    postcode: json["postcode"],
+    streetName: json["street_name"],
+    userId: json["user_id"],
+  );
 
-  set userId(String? userId) => _userId = userId;
+  Map<String, dynamic> toJson() => {
+    "business_name": businessName,
+    "contact_number": contactNumber,
+    "email": email,
+    "name": name,
+    "postcode": postcode,
+    "street_name": streetName,
+    "user_id": userId,
+  };
 
-  Data.fromJson(Map<String, dynamic> json) {
-    _userId = json['user_id'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['user_id'] = this._userId;
-    return data;
+  @override
+  String toString() {
+    return 'Data{businessName: $businessName, contactNumber: $contactNumber, email: $email, name: $name, postcode: $postcode, streetName: $streetName, userId: $userId}';
   }
 }

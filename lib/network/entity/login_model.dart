@@ -1,33 +1,74 @@
-class LoginModel
-{
-  String? _message;
-  bool _error = false;
-  String? _userId;
+// To parse this JSON data, do
+//
+//     final loginModel = loginModelFromJson(jsonString);
 
-  LoginModel({required String message, required bool error, required String userId}) {
-    this._message = message;
-    this._error = error;
-    this._userId = userId;
-  }
+import 'package:meta/meta.dart';
+import 'dart:convert';
 
-  String? get message => _message;
-  set message(String? message) => _message = message;
-  bool get error => _error;
-  set error(bool error) => _error = error;
-  String? get userId => _userId;
-  set userId(String? userId) => _userId = userId;
+LoginModel loginModelFromJson(String str) => LoginModel.fromJson(json.decode(str));
 
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    _message = json['message'];
-    _error = json['error'];
-    _userId = json['user_id'];
-  }
+String loginModelToJson(LoginModel data) => json.encode(data.toJson());
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this._message;
-    data['error'] = this._error;
-    data['user_id'] = this._userId;
-    return data;
-  }
+class LoginModel {
+  LoginModel({
+    required this.data,
+    required this.error,
+    required this.message,
+  });
+
+  Data data;
+  bool error;
+  String message;
+
+  factory LoginModel.fromJson(Map<String, dynamic> json) => LoginModel(
+    data: Data.fromJson(json["data"]),
+    error: json["error"],
+    message: json["message"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "data": data.toJson(),
+    "error": error,
+    "message": message,
+  };
+}
+
+class Data {
+  Data({
+    required this.businessName,
+    required this.contactNumber,
+    required this.email,
+    required this.name,
+    required this.postcode,
+    required this.streetName,
+    required this.userId,
+  });
+
+  String businessName;
+  String contactNumber;
+  String email;
+  String name;
+  String postcode;
+  String streetName;
+  String userId;
+
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
+    businessName: json["business_name"],
+    contactNumber: json["contact_number"],
+    email: json["email"],
+    name: json["name"],
+    postcode: json["postcode"],
+    streetName: json["street_name"],
+    userId: json["user_id"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "business_name": businessName,
+    "contact_number": contactNumber,
+    "email": email,
+    "name": name,
+    "postcode": postcode,
+    "street_name": streetName,
+    "user_id": userId,
+  };
 }
