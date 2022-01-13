@@ -1,10 +1,25 @@
+import 'dart:convert';
+
+import 'package:closingtime/food_recipient/recipient_dashboard.dart';
+import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
+import 'package:closingtime/utils/constants.dart';
+import 'package:closingtime/utils/google_places.dart';
+import 'package:closingtime/utils/location_details_model.dart';
+import 'package:closingtime/volunteer/MilesModel.dart';
+import 'package:closingtime/volunteer/data_model/volunteer_registration_model.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VolunteerRegistration extends StatelessWidget {
   // This widget is the root of your application.
+
+  String _email = "";
+
+  VolunteerRegistration(this._email);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -12,54 +27,43 @@ class VolunteerRegistration extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: VolunteerRegistrationScreen(),
-    );
-  }
-}
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Volunteer Registration"),
+          backgroundColor: Colors.blue,
+          elevation: 0.0,
+          titleSpacing: 10.0,
+          centerTitle: true,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              children: <Widget>[
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.45,
+                  width: double.infinity,
+                  child: CommonStyles.layoutBackgroundShape(),
+                  //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
+                ),
 
-class VolunteerRegistrationScreen extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _VolunteerRegistrationScreen();
-  }
-}
-
-class _VolunteerRegistrationScreen extends State<VolunteerRegistrationScreen> {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: MediaQuery.of(context).size.height * 0.45,
-                width: double.infinity,
-                child: CommonStyles.layoutBackgroundShape(),
-                //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
-              ),
-              const Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 80),
-                    child: Text(
-                      "Closing Time!",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 25),
-                    ),
-                  )),
-              Positioned(
-                top: 150,
-                left: 10,
-                right: 10,
-                child: LoginFormWidget(),
-              )
-            ],
+                Positioned(
+                  top: 140,
+                  left: 10,
+                  right: 10,
+                  child: VolunteerRegistrationFormWidget(_email),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -67,22 +71,84 @@ class _VolunteerRegistrationScreen extends State<VolunteerRegistrationScreen> {
   }
 }
 
-class LoginFormWidget extends StatefulWidget {
+class VolunteerRegistrationFormWidget extends StatefulWidget {
+  String _email = "";
+  VolunteerRegistrationFormWidget(this._email);
+
   @override
   State<StatefulWidget> createState() {
-    return _LoginFormWidgetState();
+    return _VolunteerRegistrationFormWidget(_email);
   }
 }
 
-class _LoginFormWidgetState extends State<LoginFormWidget> {
+class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWidget> {
+
+  String _email = "", fb_token = "";
+
+  _VolunteerRegistrationFormWidget(this._email);
+
   final _formKey = GlobalKey<FormState>();
-  var _userPersonNameController = TextEditingController(text: "kamal");
-  var _userEmailController = TextEditingController(text: "kamal@gmail.com");
-  var _userContactNumberController = TextEditingController(text: "07926166413");
-  var _vehicleNumberController = TextEditingController(text: "UBP10AB");
+
 
   var _passwordFocusNode = FocusNode();
   bool _autoValidate = false;
+
+  var _userPersonNameController;
+  var _userEmailController;
+  var _userContactNumberController;
+  var _vehicleNumberController;
+  var _userAddressFieldController;
+  var _userContactNumbeCodeController;
+  var selectedMiles = "";
+  List<MilesModel> milesList = [];
+
+  bool _progressBarActive = false;
+
+  int _previouslySelectedItem = -1;
+
+  String _selectedDistance = "0";
+
+  VolunteerRegistrationResponse? _volunteerRegistrationResponse;
+
+  @override
+  void initState() {
+
+    super.initState();
+
+    _userPersonNameController = TextEditingController(text: "");
+    _userEmailController = TextEditingController(text: _email);
+    _userContactNumberController = TextEditingController(text: "");
+    _vehicleNumberController = TextEditingController(text: "");
+    _userAddressFieldController = TextEditingController(text: "");
+    _userContactNumbeCodeController = TextEditingController(text: "+1");
+
+
+    milesList.add( MilesModel("5", false));
+    milesList.add( MilesModel("10", false));
+    milesList.add( MilesModel("15", false));
+    milesList.add( MilesModel("20", false));
+    milesList.add( MilesModel("25", false));
+
+
+    getFirebaseTokeFromSP().then((value)
+    {
+      fb_token = value;
+      print(fb_token);
+    });
+  }
+
+
+  Future<String> getFirebaseTokeFromSP() async
+  {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String? fb_token = sp.getString(Constants.firebase_token);
+    if (fb_token != null)
+    {
+      return fb_token;
+    }
+    return "";
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,52 +161,42 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             elevation: 10,
             child: Column(
               children: <Widget>[
-                _buildIntroText(),
                 _buildPersonName(context),
                 _buildEmailField(context),
                 _buildContactNumberField(context),
-                _buildVehicleTypeField(context),
-                _buildVehicleNumberField(context),
-                _buildSubmitButton(context),
-                //_buildLoginOptionText(),
-                //_buildSocialLoginRow(context),
+                _buildSelectMilesField(context),
+                _buildChooseMilesField(context),
+                _buildChooseAddressField(context),
+                _progressBarActive == true? CommonStyles.loadingBar(context): _buildSubmitButton(context),
               ],
             ),
           ),
-          _buildSignUp(),
         ],
       ),
     );
   }
 
-
-  Widget _buildIntroText() {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(top: 5, bottom: 30),
-          child: Text(
-            "Volunteer Registration",
-            style: TextStyle(
-                color: Colors.black54,
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLogo() {
+  Widget _buildSelectMilesField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Image.asset(
-        "assets/images/ic_launcher.png",
-        height: 100,
-        width: 100,
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15),
+      child: Row(
+        children: const [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+              'Select Serving radius in miles',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
 
   Widget _buildPersonName(BuildContext context)
   {
@@ -155,6 +211,11 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         },*/
         validator: (value) {
 
+          if (value == null || value.isEmpty) {
+            return "Please enter your name";
+          }
+          return null;
+
         },
         decoration: CommonStyles.textFormFieldStyle("Person Name", ""),
       ),
@@ -165,6 +226,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
       child: TextFormField(
+        showCursor: false,
+        readOnly: true,
         controller: _userEmailController,
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
@@ -172,7 +235,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },
         validator: (value) {
-          str : _emailValidation(value.toString());
+          // str :  _emailValidation(value.toString());
         },
         decoration: CommonStyles.textFormFieldStyle("Email", ""),
       ),
@@ -189,68 +252,187 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     }
   }
 
+  Widget _buildChooseAddressField(BuildContext context) {
+    return
+      Padding(
+        padding: CommonStyles.textFieldsPadding(),
+        child: TextFormField(
+            showCursor: false,
+            readOnly: true,
+            controller: _userAddressFieldController,
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) {
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please enter serving location";
+              }
+              return null;
+            },
+            decoration: CommonStyles.textFormFieldStyle("Enter your serving location", ""),
+            onTap: () async {
+              _awaitReturnValueFromPlacesAutocomplete(context);
+
+              // draggableScrollSheet();
+
+              //modal(context);
+
+            }),
+      );
+  }
+
   Widget _buildContactNumberField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
-        controller: _userContactNumberController,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) {
-          FocusScope.of(context).requestFocus(_passwordFocusNode);
-        },
-        validator: (value) {
-          str : _emailValidation(value.toString());
-        },
-        decoration: CommonStyles.textFormFieldStyle("Contact Number", ""),
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+        child: Row(
+          children: [
+            Flexible(
+              child: SizedBox(
+                width: 45,
+                child: TextFormField(
+                  readOnly: true,
+                  showCursor: false,
+                  controller: _userContactNumbeCodeController,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                    {
+
+                      return "Please enter country code";
+                    }
+                    return null;
+
+                  },
+                  decoration: CommonStyles.textFormFieldStyle("Code", ""),
+                ),),),
+            const SizedBox(width: 40),
+            Flexible (child: TextFormField(
+              maxLength: 10,
+              controller: _userContactNumberController,
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) {
+
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty)
+                {
+                  return "Please enter valid contact number";
+                }
+                if (value.length != 10)
+                {
+                  return "Please enter valid contact number";
+                }
+                return null;
+
+              },
+              decoration: CommonStyles.textFormFieldStyle("Contact Number", ""),
+            ),),
+          ],
+        )
+    );
+  }
+
+
+  Widget _buildChooseMilesField(BuildContext context) {
+    return     Padding(
+      padding: CommonStyles.textFieldsPadding(),
+      child: SizedBox(
+          width: double.infinity,
+          height: 55,
+          child: ListView.builder(
+            shrinkWrap:  true,
+            scrollDirection: Axis.horizontal,
+            itemCount: milesList.length,
+            itemBuilder: (context,index){
+              return Wrap(
+                //color: Colors.grey,//selectedIndex==index?Colors.green:Colors.red,//now suppose selectedIndex and index from this builder is same then it will show the selected as green and others in red color
+                children: [
+                  _itemCard(context, milesList.elementAt(index), index),
+                ],
+              );
+            },
+          )
       ),
     );
   }
 
-  Widget _buildVehicleTypeField(BuildContext context) {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-    Expanded(
-    child: Row(
-    children: [
-        Radio(
-        value: 1, groupValue: 'null', onChanged: (index) {}),
-    Expanded(
-    child: Text('Bike'),
-    )
-    ],
-    ),
-    flex: 1,
-    ),
-    Expanded(
-    child: Row(
-    children: [
-    Radio(
-    value: 1, groupValue: 'null', onChanged: (index) {}),
-    Expanded(child: Text('Car'))
-    ],
-    ),
-    flex: 1,
-    )]);
+  Widget _itemCard(BuildContext context, MilesModel miles, int index)
+  {
+    return
+      GestureDetector(
+        onTap: () {
+          if (_previouslySelectedItem == index)
+            {
+              return;
+            }
+          _selectedDistance = miles.getItem;
+          setState(() {
+            miles.isSelected(true);
+            if (_previouslySelectedItem != -1)
+              {
+                milesList[_previouslySelectedItem].isSelected(false);
+              }
+            _previouslySelectedItem = index;
+
+          });
+
+        },
+        child: Container(
+      alignment: Alignment.center,
+      height: 60,
+      child: Card(
+        color: miles.selected == true? ColorUtils.primaryColor : Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child:
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 7, 20, 7),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                  miles.getItem,
+                style: TextStyle(
+                  color: miles.selected == true? Colors.white: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+
+        ),
+      ),
+    ),);
   }
 
-  Widget _buildVehicleNumberField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
-        controller: _userContactNumberController,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) {
-          FocusScope.of(context).requestFocus(_passwordFocusNode);
-        },
-        validator: (value) {
-          str : _emailValidation(value.toString());
-        },
-        decoration: CommonStyles.textFormFieldStyle("Vehicle Number", ""),
-      ),
-    );
+
+  late LocationDetailsModel locationDetailsModel;
+
+  void _awaitReturnValueFromPlacesAutocomplete(BuildContext context) async {
+
+    // start the SecondScreen and wait for it to finish with a result
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AutoCompleteGooglePlaces(),
+        ));
+
+    // after the SecondScreen result comes back update the Text widget with it
+    setState(()
+    {
+      if (result != null) {
+        locationDetailsModel = result;
+        print(locationDetailsModel.address);
+        _userAddressFieldController.text = locationDetailsModel.address;
+      }
+
+    });
   }
 
   Widget _buildSubmitButton(BuildContext context) {
@@ -273,11 +455,23 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     );
   }
 
+
   void _signUpProcess(BuildContext context) {
 
     final form = _formKey.currentState;
+
     if (form!.validate()) {
-      //Do login stuff
+
+      if (_selectedDistance == "0")
+        {
+          Constants.showToast("Please choose serving radius");
+          return;
+        }
+
+      _volunteerRegistrationResponse == null? volunteerRegistrationApiCall(context) : recipientUpdateProfileApiCall(context);
+
+      //getCurrentLocation();
+
     } else {
       setState(() {
         _autoValidate = true;
@@ -294,27 +488,147 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     });
   }
 
-  Widget _buildSignUp() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15),
-      child: RichText(
-        text: TextSpan(
-          style: DefaultTextStyle.of(context).style,
-          children: <TextSpan>[
-            TextSpan(
-              text: "Have an Account? ",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            TextSpan(
-              text: 'Login',
-              style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  color: Colors.orange,
-                  fontSize: 14),
-            ),
-          ],
-        ),
-      ),
-    );
+
+  void volunteerRegistrationApiCall(BuildContext context)
+  {
+
+    setState(() {
+      _progressBarActive = true;
+    });
+
+    Map body =
+    {
+      "name": _userPersonNameController.value.text,
+      "email": _userEmailController.value.text,
+      "contact_number": _userContactNumberController.value.text,
+      "serving_distance": _selectedDistance,
+      "code":_userContactNumbeCodeController.value.text,
+      "address": locationDetailsModel.address,
+      "lat":locationDetailsModel.lat,
+      "lng":locationDetailsModel.lng,
+      "place_id":locationDetailsModel.placeId,
+      "role": Constants.ROLE_VOLUNTEER,
+      "firebase_token": fb_token
+    };
+
+    print(jsonEncode(body));
+
+
+    try
+    {
+      Future<VolunteerRegistrationResponse> donorRegistrationResp = ApiService.volunteerRegistration(jsonEncode(body));
+      donorRegistrationResp.then((value){
+        setState(() {
+          _progressBarActive = false;
+        });
+        print(value.message);
+        print(value.data);
+        // hideProgressDialog();
+
+        if (!value.error)
+        {
+          if (value.message == "Inserted") {
+            storeUserData(value.data.userId, value.data.name, value.data.email, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
+
+            // Navigator.of(context).push(
+            //     MaterialPageRoute(builder: (context) => RecipientDashboard()));
+
+            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+                RecipientDashboard()), (route) => false);
+          }
+          else if(value.message == Constants.user_exists)
+          {
+            Constants.showToast(value.message);
+          }
+        }
+        else
+        {
+          Constants.showToast(value.message);
+        }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+    }
   }
+
+  void recipientUpdateProfileApiCall(BuildContext context)
+  {
+
+    setState(() {
+      _progressBarActive = true;
+    });
+
+    Map body =
+    {
+      "name": _userPersonNameController.value.text,
+      "email": _userEmailController.value.text,
+      "contact_number": _userContactNumberController.value.text,
+      "serving_distance": _selectedDistance,
+      "code":_userContactNumbeCodeController.value.text,
+      "address": locationDetailsModel.address,
+      "lat":locationDetailsModel.lat,
+      "lng":locationDetailsModel.lng,
+      "place_id":locationDetailsModel.placeId,
+      "role": Constants.ROLE_VOLUNTEER,
+      "firebase_token": fb_token
+    };
+
+    print(body.toString());
+
+
+    try
+    {
+      Future<VolunteerRegistrationResponse> donorRegistrationResp = ApiService.volunteerRegistration(jsonEncode(body));
+      donorRegistrationResp.then((value){
+        setState(() {
+          _progressBarActive = false;
+        });
+        print(value.message);
+        print(value.data);
+        // hideProgressDialog();
+
+        if (!value.error)
+        {
+          if (value.message == "Inserted") {
+            storeUserData(value.data.userId, value.data.name, value.data.email, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
+
+            // Navigator.of(context).push(
+            //     MaterialPageRoute(builder: (context) => RecipientDashboard()));
+
+            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+                RecipientDashboard()), (route) => false);
+          }
+          else if(value.message == Constants.user_exists)
+          {
+            Constants.showToast(value.message);
+          }
+        }
+        else
+        {
+          Constants.showToast(value.message);
+        }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+    }
+  }
+
+  storeUserData(id, name, email, contact, role, address, lat, lng) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(Constants.user_id, id);
+    prefs.setString(Constants.name, name);
+    prefs.setString(Constants.email, email);
+    prefs.setString(Constants.contact, contact);
+    prefs.setString(Constants.address, address);
+    prefs.setDouble(Constants.lat, lat);
+    prefs.setDouble(Constants.lng, lng);
+    prefs.setString(Constants.role, role);
+  }
+
 }

@@ -44,6 +44,11 @@ class Data {
     required this.image,
     required this.foodIngredients,
     required this.allergen,
+    required this.pickUpAddress,
+    required this.isFoodAccepted,
+    required this.business_name,
+    required this.status,
+    required this.distance,
   });
 
   String foodDesc;
@@ -55,6 +60,11 @@ class Data {
   String foodIngredients;
   String image;
   String allergen;
+  String pickUpAddress;
+  bool isFoodAccepted = false;
+  String business_name;
+  String status;
+  String distance;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     foodDesc: json["food_desc"],
@@ -66,6 +76,11 @@ class Data {
     foodIngredients: json["food_ingredients"],
     image: json["image"],
     allergen: json["allergen"],
+    pickUpAddress: json["pick_up_address"],
+    isFoodAccepted: json["isFoodAccepted"],
+    business_name: json["business_name"],
+    status: json["status"],
+    distance: json["distance"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -78,5 +93,10 @@ class Data {
     "food_ingredients": foodIngredients,
     "image": image,
     "allergen": allergen,
+    "pick_up_address": pickUpAddress,
+    "isFoodAccepted": isFoodAccepted,
+    "business_name": business_name,
+    "status": status,
+    "distance": distance,
   };
 }

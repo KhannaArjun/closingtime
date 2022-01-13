@@ -2,23 +2,25 @@ import 'dart:convert';
 
 import 'package:closingtime/food_donor/data_model/donor_profile_model.dart';
 import 'package:closingtime/food_donor/profile_widget.dart';
+import 'package:closingtime/food_recipient/recipient_dashboard.dart';
 import 'package:closingtime/network/api_service.dart';
-import 'package:closingtime/registration/donor_registration.dart';
+import 'package:closingtime/registration/recipient_registration.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DonorProfile extends StatefulWidget {
+import 'data_model/recipient_profile_model.dart';
+
+class RecipientProfile extends StatefulWidget {
   @override
-  _DonorProfileState createState() => _DonorProfileState();
+  _RecipientProfileState createState() => _RecipientProfileState();
 }
 
-class _DonorProfileState extends State<DonorProfile> {
+class _RecipientProfileState extends State<RecipientProfile> {
 
-  DonorProfileModel? donorProfileModel;
-
+  RecipientProfileModel? recipientProfileModel;
   bool isLoading = false;
 
   @override
@@ -39,8 +41,8 @@ class _DonorProfileState extends State<DonorProfile> {
     return Scaffold(
       appBar: AppBar(title: const Text("My Profile")),
       body:
-      // donorProfileModel == null? Container():
-      showLoadingBar(),
+      // recipientProfileModel == null? Container():
+      showLoadingBar()
 
     );
   }
@@ -51,51 +53,50 @@ class _DonorProfileState extends State<DonorProfile> {
     if (isLoading == true)
     {
       return Align(
-        alignment:  Alignment.center,
-        child: CommonStyles.loadingBar(context),
+          alignment:  Alignment.center,
+          child: CommonStyles.loadingBar(context),
       );
     }
     else
-    {
-      return ListView(
+      {
+        return ListView(
           physics: BouncingScrollPhysics(),
-    children: [
-    const SizedBox(height: 30),
-  ProfileWidget(
-  imagePath: "https://source.unsplash.com/user/c_v_r/1600x900",
-  onClicked: () async {},
-  ),
-  const SizedBox(height: 24),
-  buildName(donorProfileModel),
-  const SizedBox(height: 24),
-  buildPersonalDetails(donorProfileModel),
-  const SizedBox(height: 24),
-  buildAddress(donorProfileModel),
-      const SizedBox(height: 20),
-    buildEditProfileButton(donorProfileModel),
+          children: [
+            const SizedBox(height: 30),
+            ProfileWidget(
+              imagePath: "https://source.unsplash.com/user/c_v_r/1600x900",
+              onClicked: () async {},
+            ),
+            const SizedBox(height: 24),
+            buildName(recipientProfileModel),
+            const SizedBox(height: 24),
+            buildPersonalDetails(recipientProfileModel),
+            const SizedBox(height: 24),
+            buildAddress(recipientProfileModel),
+            const SizedBox(height: 20),
 
-    ],
-
-      );
-    }
+            buildEditProfileButton(recipientProfileModel),
+          ],
+        );
+      }
   }
 
-  Widget buildName(DonorProfileModel? donorProfileModel) => Column(
+  Widget buildName(RecipientProfileModel? _recipientProfileModel) => Column(
     children: [
       Text(
-        donorProfileModel != null? donorProfileModel.name:"",
+        _recipientProfileModel != null?_recipientProfileModel.name:'',
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
       ),
       const SizedBox(height: 4),
       Text(
-        donorProfileModel != null? donorProfileModel.email:"",
+        _recipientProfileModel != null?_recipientProfileModel.email:'',
         style: TextStyle(fontSize: 15, color: Colors.grey),
       )
     ],
   );
 
 
-  Widget buildPersonalDetails(DonorProfileModel? donorProfileModel) => Container(
+  Widget buildPersonalDetails(RecipientProfileModel? _recipientProfileModel) => Container(
     padding: EdgeInsets.symmetric(horizontal: 48),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +125,7 @@ class _DonorProfileState extends State<DonorProfile> {
                   Padding(
                     padding: EdgeInsets.all(5),
                     child: Text(
-                      donorProfileModel != null?donorProfileModel.businessName:''
+                      _recipientProfileModel != null?_recipientProfileModel.businessName:''
                       ,
                       style: TextStyle(fontSize: 17),
                     ),),
@@ -137,8 +138,7 @@ class _DonorProfileState extends State<DonorProfile> {
                   Padding(
                     padding: EdgeInsets.all(5),
                     child: Text(
-                      donorProfileModel != null? "+1 ${donorProfileModel.contactNumber}":''
-                      ,
+                      _recipientProfileModel != null? "+1 ${_recipientProfileModel.contactNumber}":'',
                       style: TextStyle(fontSize: 17),
                     ),),
 
@@ -149,22 +149,22 @@ class _DonorProfileState extends State<DonorProfile> {
     ),
   );
 
-  Widget buildEditProfileButton(DonorProfileModel? donorProfileModel) => Column(
-    children: [
-      ElevatedButton.icon(
-        onPressed: () async {
-          var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorRegistration("", donorProfileModel)));
-          if (result == true){
-            getUserDetails();
-          }
-        },
-        label: const Text('Edit Profile'),
-        icon: const Icon(Icons.edit),
-      )
-    ]
+  Widget buildEditProfileButton(RecipientProfileModel? recipientProfileModel) => Column(
+      children: [
+        ElevatedButton.icon(
+          onPressed: () async {
+            var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => RecipientRegistration("", recipientProfileModel)));
+            if (result == true){
+              getUserDetails();
+            }
+          },
+          label: const Text('Edit Profile'),
+          icon: const Icon(Icons.edit),
+        )
+      ]
   );
 
-  // Widget buildAddress(DonorProfileModel donorProfileModel) => Container(
+  // Widget buildAddress(RecipientProfileModel _recipientProfileModel) => Container(
   //   padding: EdgeInsets.symmetric(horizontal: 48),
   //   child: Column(
   //     crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +193,7 @@ class _DonorProfileState extends State<DonorProfile> {
   //                 Padding(
   //                   padding: EdgeInsets.all(5),
   //                   child: Text(
-  //                     donorProfileModel != null?donorProfileModel.streetName:''
+  //                     _recipientProfileModel != null?_recipientProfileModel.streetName:''
   //                     ,
   //                     style: TextStyle(fontSize: 17),
   //                   ),),
@@ -206,7 +206,7 @@ class _DonorProfileState extends State<DonorProfile> {
   //                 Padding(
   //                   padding: EdgeInsets.all(5),
   //                   child: Text(
-  //                     donorProfileModel != null?donorProfileModel.area:''
+  //                     _recipientProfileModel != null?_recipientProfileModel.area:''
   //                     ,
   //                     style: TextStyle(fontSize: 17),
   //                   ),),
@@ -219,7 +219,7 @@ class _DonorProfileState extends State<DonorProfile> {
   //                 Padding(
   //                   padding: EdgeInsets.all(5),
   //                   child: Text(
-  //                     donorProfileModel != null?donorProfileModel.postcode:''
+  //                     _recipientProfileModel != null?_recipientProfileModel.postcode:''
   //                     ,
   //                     style: TextStyle(fontSize: 17),
   //                   ),),
@@ -232,7 +232,7 @@ class _DonorProfileState extends State<DonorProfile> {
   //                 Padding(
   //                   padding: EdgeInsets.all(5),
   //                   child: Text(
-  //                     donorProfileModel != null?donorProfileModel.country:''
+  //                     _recipientProfileModel != null?_recipientProfileModel.country:''
   //                     ,
   //                     style: TextStyle(fontSize: 17),
   //                   ),),
@@ -243,8 +243,7 @@ class _DonorProfileState extends State<DonorProfile> {
   //   ),
   // );
 
-
-  Widget buildAddress(DonorProfileModel? donorProfileModel) => Container(
+  Widget buildAddress(RecipientProfileModel? _recipientProfileModel) => Container(
     padding: EdgeInsets.symmetric(horizontal: 48),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,10 +263,11 @@ class _DonorProfileState extends State<DonorProfile> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
+                    padding: EdgeInsets.all(5),
                     child: Text(
-                      donorProfileModel != null? donorProfileModel.address:"",
+                      _recipientProfileModel != null?_recipientProfileModel.address:'',
                       style: TextStyle(fontSize: 17),
                     ),),
                 ],
@@ -279,8 +279,10 @@ class _DonorProfileState extends State<DonorProfile> {
 
   String userId = "";
 
+
   void getUserDetails() async
   {
+
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     userId = sharedPreferences.getString(Constants.user_id) ?? '';
@@ -292,16 +294,20 @@ class _DonorProfileState extends State<DonorProfile> {
     double lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
     double lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
 
-    DonorProfileModel data = DonorProfileModel(address: address, businessName: business_name, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_DONOR, userId: userId);
+    RecipientProfileModel data = RecipientProfileModel(address: address, businessName: business_name, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_RECIPIENT, userId: userId);
+
 
     setState(() {
-      donorProfileModel = data;
+      recipientProfileModel = data;
     });
 
-    // getDonorProfileFromApi(userId);
+
+    // getRecipientProfileFromApi(userId);
   }
 
-  void getDonorProfileFromApi(userId)
+  late BuildContext ctx;
+
+  void getRecipientProfileFromApi( userId)
   {
 
     Map body = {
@@ -310,19 +316,20 @@ class _DonorProfileState extends State<DonorProfile> {
 
     try
     {
-      Future<DonorProfileResponse> donorResponse = ApiService.getDonorProfile(jsonEncode(body));
+      Future<RecipientProfileResponse> donorResponse = ApiService.getRecipientProfile(jsonEncode(body));
       donorResponse.then((value){
-        print(value.data.toString());
 
         setState(() {
           isLoading = false;
         });
+
+        print(value.data.toString());
         if (!value.error)
         {
           if (value.data != null)
           {
             setState(() {
-              donorProfileModel  = value.data;
+              recipientProfileModel  = value.data;
             });
           }
           else
@@ -341,6 +348,5 @@ class _DonorProfileState extends State<DonorProfile> {
     }
 
   }
-
 
 }

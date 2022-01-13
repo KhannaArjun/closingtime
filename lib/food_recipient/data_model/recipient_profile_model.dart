@@ -1,23 +1,23 @@
 import 'dart:convert';
 
-DonorProfileResponse donorProfileResponseFromJson(String str) => DonorProfileResponse.fromJson(json.decode(str));
+RecipientProfileResponse recipientProfileResponseFromJson(String str) => RecipientProfileResponse.fromJson(json.decode(str));
 
-String donorProfileResponseToJson(DonorProfileResponse data) => json.encode(data.toJson());
+String recipientProfileResponseToJson(RecipientProfileResponse data) => json.encode(data.toJson());
 
-class DonorProfileResponse {
-  DonorProfileResponse({
+class RecipientProfileResponse {
+  RecipientProfileResponse({
     required this.error,
     required this.message,
     required this.data,
   });
   late final bool error;
   late final String message;
-  late final DonorProfileModel data;
+  late final RecipientProfileModel data;
 
-  DonorProfileResponse.fromJson(Map<String, dynamic> json){
+  RecipientProfileResponse.fromJson(Map<String, dynamic> json){
     error = json['error'];
     message = json['message'];
-    data = DonorProfileModel.fromJson(json['data']);
+    data = RecipientProfileModel.fromJson(json['data']);
   }
 
   Map<String, dynamic> toJson() {
@@ -29,8 +29,10 @@ class DonorProfileResponse {
   }
 }
 
-class DonorProfileModel {
-  DonorProfileModel({
+class RecipientProfileModel {
+
+
+  RecipientProfileModel({
     required this.address,
     required this.businessName,
     required this.code,
@@ -55,7 +57,7 @@ class DonorProfileModel {
   late final String role;
   late final String userId;
 
-  DonorProfileModel.fromJson(Map<String, dynamic> json){
+  RecipientProfileModel.fromJson(Map<String, dynamic> json){
     address = json['address'];
     businessName = json['business_name'];
     code = json['code'];
@@ -84,4 +86,5 @@ class DonorProfileModel {
     _data['user_id'] = userId;
     return _data;
   }
+
 }

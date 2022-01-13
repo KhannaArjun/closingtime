@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:closingtime/food_donor/donor_food_description_screen.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
@@ -16,7 +18,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 import 'donor_profile.dart';
-
 
 
 class DonorDashboard extends StatefulWidget {
@@ -35,9 +36,20 @@ class _DonorDashboardState extends State<DonorDashboard> {
   @override
   void initState() {
     super.initState();
+    // FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    // fcmSubscribe(firebaseMessaging);
 
+    configureNotifications(context);
 
     getUserId();
+  }
+
+  void fcmSubscribe(firebaseMessaging) {
+    firebaseMessaging.subscribeToTopic(Constants.FB_FOOD_ADDED_TOPIC);
+  }
+
+  void fcmUnSubscribe(firebaseMessaging) {
+    firebaseMessaging.unsubscribeFromTopic('TopicToListen');
   }
 
   List<Data> setData(List<Data> data)
@@ -64,11 +76,48 @@ class _DonorDashboardState extends State<DonorDashboard> {
   bool isDataEmpty = false;
   bool isLoading = false;
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+
+  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    print("Handling a background message");
+  }
+
+  void configureNotifications(context) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      print(notification!.title);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("onMessageOpenedApp: $message");
+
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorDashboard()));
+
+    });
+
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  }
+
+  String _username = "";
+
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return WillPopScope(//forbidden swipe in iOS(my ThemeData(platform: TargetPlatform.iOS,)
+      onWillPop: ()async {
+        if (Navigator.of(context).userGestureInProgress) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child:
+      MaterialApp(
       title: appTitle,
       home: Scaffold(
+        key: _scaffoldKey,
       backgroundColor: const Color(0xFFEEEDED),
       appBar: AppBar(title: const Text(appTitle)),
       body: RefreshIndicator(
@@ -84,11 +133,15 @@ class _DonorDashboardState extends State<DonorDashboard> {
       child: Align(
       alignment: Alignment.bottomRight,
       child: FloatingActionButton.extended(
-      onPressed: () {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateFood()));
+      onPressed: () async {
+      var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateFood(null)));
+      if (result == true)
+        {
+          getUserId();
+        }
       },
-      icon: Icon(Icons.add),
-      label: Text("Donote Food"),
+      icon: const Icon(Icons.add),
+      label: const Text("Donate Food"),
       ),
       ),
       ),
@@ -133,11 +186,11 @@ class _DonorDashboardState extends State<DonorDashboard> {
                 Align(
                  alignment: Alignment.centerLeft,
                   child: Column(
-                    children: [
+                    children:  [
                       SizedBox(
                         height: 10,
                       ),
-                      Text('Hello, Guest.',
+                      Text('Hello, ${_username}.',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -165,25 +218,26 @@ class _DonorDashboardState extends State<DonorDashboard> {
               onTap: () {
 
                 //Navigator.pop(context);
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateFood()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateFood(null)));
 
               },
             ),
             ListTile(
               title: const Text('Logout'),
               onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                removeSharedPreferences();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
+
+                if (_scaffoldKey.currentState!.isDrawerOpen) {
+                  _scaffoldKey.currentState!.openEndDrawer();
+                }
+
+                _showLogoutAlertDialog();
 
               },
             ),
           ],
         ),
       ),
-    ),);
+    ),),);
   }
 
   Widget getWidget()
@@ -195,7 +249,21 @@ class _DonorDashboardState extends State<DonorDashboard> {
 
     if(isDataEmpty == true)
     {
-      return Container(child: Text('List of donated foods will be shown here'));
+      return Column (
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(child: Text('List of donated foods will be shown here')),
+          GestureDetector(
+            onTap: () {
+
+              getUserId();
+
+            },
+            child: Text("Refresh", style: TextStyle(color: ColorUtils.primaryColor, fontSize: 16),),
+          ),
+        ],
+      );
     }
     else {
           return _buildFoodList(_addedFoodList, context);
@@ -220,77 +288,97 @@ class _DonorDashboardState extends State<DonorDashboard> {
 
   Widget _itemCard(BuildContext context, Data addedFoodModel)
   {
-    return Container(
-        height: 150,
+    return SizedBox(
+        height: 140,
         child: Card(
             color: Colors.white,
             elevation: 20,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25),
             ),
-            child:
-            Row(
-              children: <Widget>[
-                Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                child: CircleAvatar(
-                  backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
-                  radius: 40,
-                  backgroundColor: ColorUtils.primaryColor,
-                ),
-                ),
-
-                Container(
-                  height: 100,
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(10, 2, 0, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          addedFoodModel.foodName
-
+            child: InkWell(
+              onTap: () async {
+              var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorFoodDescription(addedFoodModel)));
+              if (result == true)
+              {
+              getUserId();
+              }
+              },
+              child: Column(
+                children: [
+                  Row(
+                    children: <Widget>[
+                      Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                        child: CircleAvatar(
+                          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
+                          radius: 40,
+                          backgroundColor: ColorUtils.primaryColor,
                         ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                          child: Container(
-                            // decoration: BoxDecoration(
-                            //     border: Border.all(color: Colors.teal),
-                            //     borderRadius: BorderRadius.all(Radius.circular(10))
-                            // ),
-                            child: Text('Qty: ${addedFoodModel.quantity}',textAlign: TextAlign.center,),
+                      ),
+
+                      SizedBox(
+
+                        height: 100,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                child: Text(
+                                    addedFoodModel.foodName,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700
+                                  ),
+                                ),
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                child: Text('Qty: ${addedFoodModel.quantity}',textAlign: TextAlign.center,),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
+                                child: SizedBox(
+                                  child: Text('Pick up date ${addedFoodModel.pickUpDate}',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Color.fromARGB(255, 48, 48, 54)
+                                  ),),
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                          child: Container(
-                            // decoration: BoxDecoration(
-                            //     border: Border.all(color: Colors.teal),
-                            //     borderRadius: BorderRadius.all(Radius.circular(10))
-                            // ),
-                            child: Text(addedFoodModel.foodDesc,textAlign: TextAlign.center,),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
-                          child: Container(
-                            width: 260,
-                            child: Text('Pick up on ${addedFoodModel.pickUpDate}',style: TextStyle(
-                                fontSize: 15,
-                                color: Color.fromARGB(255, 48, 48, 54)
-                            ),),
+                      ),
 
-
-                          ),
-                        )
-                      ],
-                    ),
+                    ],
                   ),
-                )
-              ],
+
+                  addedFoodModel.status == "Available"?
+                  const SizedBox() :
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                        Text(
+                        addedFoodModel.status,
+                        style: const TextStyle(
+                          color: Colors.lightGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),),
+
+                          const SizedBox(width: 8,),
+                        ],
+                      )
+                ],
+              ),
             ),
         ),
     );
-
   }
 
   File fetchImage(String encodedString)
@@ -303,6 +391,8 @@ class _DonorDashboardState extends State<DonorDashboard> {
     return file;
   }
 
+  String _userId = "";
+
   Future<void> getUserId() async
   {
     setState(() {
@@ -312,8 +402,15 @@ class _DonorDashboardState extends State<DonorDashboard> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
+    String name = sharedPreferences.getString(Constants.name) ?? 'Guest';
+
+    setState(() {
+      _username = name;
+    });
 
     //await Future.delayed(const Duration(seconds: 3));
+
+    _userId = userId;
 
     foodListApiCall(userId);
   }
@@ -331,17 +428,12 @@ class _DonorDashboardState extends State<DonorDashboard> {
       addedFoodListModel.then((value){
         print(value.data);
 
-       /* setState(() {
-        });*/
-
-        print(isLoading);
-        print(isDataEmpty);
         if (!value.error)
         {
           if (value.data.isNotEmpty)
           {
             setState(() {
-              _addedFoodList = value.data;
+              _addedFoodList = value.data.reversed.toList();
               isDataEmpty = false;
               isLoading = false;
 
@@ -370,9 +462,160 @@ class _DonorDashboardState extends State<DonorDashboard> {
 
   }
 
+  Future<void> _showLogoutAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Do you want to logout?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                logoutApiCall();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showFoodConfirmationAlertDialog(message) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmation'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Thanks for accepting and status of the food changed now'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+
+            TextButton(
+              child: const Text('Okay'),
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                logoutApiCall();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void logoutApiCall()
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "user_id": _userId,
+    };
+
+    try
+    {
+      Future<dynamic> response = ApiService.logout(jsonEncode(body));
+      response.then((value){
+
+        setState(() {
+          isLoading = false;
+        });
+
+        print(isLoading);
+        if (value['message'] == Constants.success)
+        {
+          removeSharedPreferences();
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+              LoginScreen()), (route) => false);
+        }
+        else
+        {
+          Constants.showToast("Please try again");
+
+        }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
+
+  void deleteAFoodItemApiCall(id)
+  {
+
+    Map body = {
+      "user_id": _userId,
+      "id": id
+    };
+
+    try
+    {
+      Future<dynamic> addedFoodListModel = ApiService.removeFoodItemList(jsonEncode(body));
+      addedFoodListModel.then((value){
+
+        setState(() {
+          isLoading = false;
+        });
+
+        print(isLoading);
+        if (value['message'] == "deleted")
+        {
+          getUserId();
+        }
+        else
+          {
+
+            Constants.showToast("Please try again");
+
+          }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
+
   void removeSharedPreferences() async
   {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    sp.clear();
+    for(String key in sp.getKeys()) {
+      if(key != Constants.firebase_token) {
+        sp.remove(key);
+      }
+    }
   }
+
 }

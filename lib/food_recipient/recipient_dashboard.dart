@@ -1,0 +1,704 @@
+import 'dart:typed_data';
+
+import 'package:closingtime/food_recipient/recipient_food_description_screen.dart';
+import 'package:closingtime/food_recipient/recipient_profile.dart';
+import 'package:closingtime/registration/sign_in.dart';
+import 'package:closingtime/utils/CommonStyles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+
+import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
+import 'package:closingtime/network/api_service.dart';
+import 'package:closingtime/utils/ColorUtils.dart';
+import 'package:closingtime/utils/constants.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+
+
+class RecipientDashboard extends StatefulWidget {
+  const RecipientDashboard({Key? key}) : super(key: key);
+
+  @override
+  _RecipientDashboardState createState() => _RecipientDashboardState();
+}
+
+class _RecipientDashboardState extends State<RecipientDashboard> {
+  static const appTitle = 'Recipient Dashboard';
+
+  List<Data> _addedFoodList = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+    configureNotifications(context);
+    getUserId();
+  }
+
+  bool isDataEmpty = false;
+  bool isLoading = false;
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  double _recipient_lat = 0.0, _recipient_lng = 0.0;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: appTitle,
+      home: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: const Color(0xFFEEEDED),
+        appBar: AppBar(title: const Text(appTitle)),
+        body:
+      RefreshIndicator(
+          onRefresh:  getUserId,
+          child:
+          Center(
+            child: getWidget(),
+
+          ),),
+
+        // floatingActionButton: Container(
+        //   padding: const EdgeInsets.only(bottom: 80.0),
+        //   child: Align(
+        //     alignment: Alignment.bottomRight,
+        //     child: FloatingActionButton.extended(
+        //       onPressed: () {
+        //         Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonateFood(null)));
+        //       },
+        //       icon: Icon(Icons.add),
+        //       label: Text("Donote Food"),
+        //     ),
+        //   ),
+        // ),
+        // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
+        drawer: Drawer(
+          // Add a ListView to the drawer.
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: [
+
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                        },
+                        child: CircleAvatar(
+                          radius: 45,
+                          backgroundColor: ColorUtils.primaryColor,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(50)),
+                            width: 100,
+                            height: 100,
+                            //   child: Icon(
+                            //     Icons.camera_alt,
+                            //     color: Colors.grey[800],
+                            //     size: 50,
+                            //
+                            // ),
+                            child: Image.asset('assets/images/user.png'),
+                          ),
+                        ),
+                      ),),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        children:  [
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text('Hello, ${_username}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+              ),
+              ListTile(
+                title: const Text('My Profile'),
+                onTap: () {
+
+                  //Navigator.pop(context);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => RecipientProfile()));
+
+                },
+              ),
+
+              ListTile(
+                title: const Text('Logout'),
+                onTap: () {
+
+                  if (_scaffoldKey.currentState!.isDrawerOpen) {
+                    _scaffoldKey.currentState!.openEndDrawer();
+                  }
+                  _showLogoutAlertDialog();
+
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getWidget()
+  {
+    if (isLoading == true)
+    {
+      return CommonStyles.loadingBar(context);
+    }
+
+    if(isDataEmpty == true)
+    {
+      return Column (
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text('List of donated foods will be shown here'),
+          GestureDetector(
+            onTap: () {
+
+              getUserId();
+
+            },
+            child: Text("Refresh", style: TextStyle(color: ColorUtils.primaryColor, fontSize: 16),),
+          ),
+        ],
+      );
+    }
+    else {
+      return _buildFoodList(_addedFoodList, context);
+    }
+  }
+
+  Widget _buildFoodList(List<Data> list, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Color(0x00000000)
+      ),
+      child: ListView.builder(
+          padding: const EdgeInsets.all(10.0),
+          itemCount: list.length,
+          itemBuilder: (context, i) {
+
+            Data addedFoodModel = list[i];
+            return _itemCard(context, addedFoodModel);
+          }),
+    );
+  }
+
+  Widget _itemCard(BuildContext context, Data addedFoodModel)
+  {
+    return Container(
+      height: 170,
+      child: Card
+        (
+        // color: addedFoodModel.isFoodAccepted == true? Colors.grey[200] : Colors.white,
+        // elevation: 20,
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.circular(25),
+        //   side: BorderSide(
+        //     color: addedFoodModel.isFoodAccepted == true? Colors.grey : ColorUtils.primaryColor,
+        //     width: addedFoodModel.isFoodAccepted == true? 0.0 : 2.0,
+        //
+        //   ),
+        // ),
+        color: Colors.white,
+        elevation: 20,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+          side: BorderSide(
+            color: ColorUtils.primaryColor,
+            width: 2.0,
+          ),
+        ),
+        child:
+            InkWell(
+              onTap: () async {
+                var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDescription(addedFoodModel)));
+                if (result == true)
+                  {
+                    getUserId();
+                  }
+
+              },
+              child:
+             Column(
+
+            children: [
+            Row(
+            children: <Widget>[
+            Padding(padding: EdgeInsets.fromLTRB(5, 5, 0, 0),
+        child: CircleAvatar(
+          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
+          radius: 40,
+          backgroundColor: ColorUtils.primaryColor,
+        ),
+      ),
+
+      SizedBox(
+        height: 120,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                child: Text(
+                  addedFoodModel.foodName,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+                child:  Text('Qty: ${addedFoodModel.quantity}',textAlign: TextAlign.center,overflow: TextOverflow.ellipsis,),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+
+                      WidgetSpan(
+                        child: Icon(Icons.location_pin, size: 18),
+                      ),
+
+                      TextSpan(
+                        text:  '${addedFoodModel.distance} mi',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black
+                        )
+                      ),
+
+                    ],
+                  ),
+                )
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
+                child: SizedBox(
+                  width: 260,
+                  child:Text('Pick up on ${addedFoodModel.pickUpDate}', overflow: TextOverflow.ellipsis,style: const TextStyle(
+                      fontSize: 15,
+                      color: Color.fromARGB(255, 48, 48, 54)
+                  ),),
+                ),
+              ),
+            ],
+          ),),
+      ),
+
+      ],
+    ),
+
+    // addedFoodModel.status == Constants.STATUS_AVAILABLE? SizedBox(height: 5,): SizedBox(height: 15,),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child:  Align(
+                      alignment: Alignment.centerLeft,
+                      child:  InkWell(
+                        child: const Text(
+                          "",
+                          style: TextStyle(
+                            color: ColorUtils.primaryColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                        onTap: () {
+                          CommonStyles.showCustomDialog(addedFoodModel, context);
+                        },
+                      ),
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child:  checkFoodStatus(addedFoodModel),
+                    ),),
+                ],
+              ),
+    ],
+    ),
+
+    ),
+      ),
+    );
+  }
+
+  String _username = "";
+
+  Widget checkFoodStatus(addedFoodModel)
+  {
+    return
+    //   addedFoodModel.status == Constants.STATUS_AVAILABLE ?  ElevatedButton(
+    //   child: const Text(
+    //     "Accept",
+    //     style: TextStyle(
+    //       color: Colors.white,
+    //       fontWeight: FontWeight.bold,
+    //       fontSize: 15,
+    //     ),
+    //   ),
+    //   onPressed: () {
+    //     addedFoodModel.isFoodAccepted == true? "" : acceptFoodApiCall(addedFoodModel.userId, _userId, addedFoodModel.id, addedFoodModel.business_name);
+    //   },
+    // ):
+
+  Text(
+    addedFoodModel.status,
+  style: const TextStyle(
+  color: Colors.lightGreen,
+  fontWeight: FontWeight.bold,
+  fontSize: 15,
+    ),);
+  }
+
+  Future<void> _showLogoutAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Do you want to logout?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                logoutApiCall();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  File fetchImage(String encodedString)
+  {
+    Uint8List bytes = base64Decode(encodedString);
+    //dart_image.Image image = await compute<List<int>, dart_image.Image>(dart_image.decodeImage, byteArray);
+
+    var file = File("decodedBezkoder.png");
+    file.writeAsBytesSync(bytes);
+    return file;
+  }
+
+  String _userId = "";
+
+  Future<void> getUserId() async
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String userId = sharedPreferences.getString(Constants.user_id) ?? '';
+    double user_lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
+    double user_lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
+    String name = sharedPreferences.getString(Constants.name) ?? "Guest";
+
+    setState(() {
+      _username = name;
+    });
+
+    //await Future.delayed(const Duration(seconds: 3));
+
+    _recipient_lat = user_lat;
+    _recipient_lng = user_lng;
+
+    _userId = userId;
+
+    foodListApiCall(userId, user_lat, user_lng);
+  }
+
+
+  void foodListApiCall(userId, double user_lat, double user_lng)
+  {
+    Map body = {
+      "isFoodAccepted":false,
+      "recipient_lat": user_lat,
+      "recipient_lng": user_lng,
+      "user_id": userId
+    };
+    
+    try
+    {
+      Future<AddedFoodListModel> addedFoodListModel = ApiService.getAllFoodList(jsonEncode(body));
+      addedFoodListModel.then((value){
+        print(value.data);
+
+
+        if (!value.error)
+        {
+
+          if (value.data.isNotEmpty)
+          {
+            setState(() {
+              _addedFoodList = value.data;
+              _addedFoodList = _addedFoodList.reversed.toList();
+              isDataEmpty = false;
+              isLoading = false;
+
+            });
+          }
+          else
+          {
+            //Constants.showToast(Constants.empty);
+
+            setState(() {
+              isLoading = false;
+              isDataEmpty = true;
+
+            });
+
+          }
+        }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
+
+
+  void acceptFoodApiCall(donorUserId, recipientUserId, food_id, business_name)
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "donor_user_id":donorUserId,
+      "recipient_user_id":recipientUserId,
+      "food_item_id": food_id,
+      "business_name": business_name
+    };
+
+    print(jsonEncode(body));
+    print(body);
+
+    try
+    {
+      Future<dynamic> response = ApiService.accept_food(jsonEncode(body));
+      response.then((obj){
+        //print(value.data);
+
+        setState(() {
+          isLoading = false;
+        });
+
+        if (!obj["error"])
+        {
+          if (obj['message'] == Constants.success)
+          {
+            getUserId();
+          }
+          else
+          {
+            Constants.showToast(obj['message']);
+
+          }
+        }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
+
+  void logoutApiCall()
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "user_id": _userId,
+    };
+
+    try
+    {
+      Future<dynamic> response = ApiService.logout(jsonEncode(body));
+      response.then((value){
+
+        setState(() {
+          isLoading = false;
+        });
+
+        print(isLoading);
+        if (value['message'] == Constants.success)
+        {
+          removeSharedPreferences();
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+              LoginScreen()), (route) => false);
+        }
+        else
+        {
+          Constants.showToast("Please try again");
+
+        }
+      });
+
+    }
+    on Exception catch(e)
+    {
+      print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
+
+  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    print("Handling a background message");
+  }
+
+  void configureNotifications(context) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      // showNotification(notification);
+      print(notification!.title);
+
+      // showNotificationCard('hello');
+
+      SnackBar snackBar = SnackBar(
+        content: Text(
+          message != null? message.notification!.title.toString():"",
+          style: TextStyle(
+            fontFamily: 'Vazir',
+            fontSize: 16.0,
+          ),
+        ),
+        backgroundColor: ColorUtils.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(45.0),
+        ),
+        elevation: 3.0,
+        duration: const Duration(minutes: 5),
+        action: SnackBarAction(
+          textColor: Colors.white,
+          label: 'View Details',
+          onPressed: () {
+
+            getUserId();
+          },
+        ),
+      );
+      _scaffoldKey.currentState!.showSnackBar(snackBar);
+
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("onMessageOpenedApp: $message");
+
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => RecipientDashboard()));
+
+    });
+
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  }
+
+  Future<void> showNotificationCard(message) async
+  {
+      showOverlayNotification((context) {
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          child: SafeArea(
+            child: ListTile(
+              leading: SizedBox.fromSize(
+                  size: const Size(40, 40),
+                  child: ClipOval(
+                      child: Container(
+                        color: Colors.black,
+                      ))),
+              title: Text(message),
+              subtitle: Text(message),
+              trailing: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    OverlaySupportEntry.of(context)!.dismiss();
+                  }),
+            ),
+          ),
+        );
+      }, duration: Duration(milliseconds: 4000));
+
+      print(message['notification']['title']);
+  }
+
+
+  void removeSharedPreferences() async
+  {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    for(String key in sp.getKeys()) {
+      if(key != Constants.firebase_token) {
+        sp.remove(key);
+      }
+    }
+  }
+}

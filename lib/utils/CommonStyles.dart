@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
+import 'package:closingtime/food_donor/profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -7,6 +11,7 @@ import 'ColorUtils.dart';
 class CommonStyles {
   static textFormFieldStyle(String label, String hint) {
     return InputDecoration(
+      counterText: "",
       labelText: label,
       hintText: hint,
       hintStyle: TextStyle(
@@ -106,5 +111,137 @@ static void showLoadingDialog(BuildContext context)
     );
   }
 
+  static void showCustomDialog(Data addedFoodModel, context) {
+    showGeneralDialog(
+
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      //barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 300),
+
+      context: context,
+      pageBuilder: (_, __, ___,) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            height: 650,
+            width: 360,
+            child: foodDescDialog(addedFoodModel, context),
+            margin: EdgeInsets.only(bottom: 50, left: 12, right: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
+
+  static Widget foodDescDialog(Data addedFoodModel, context)
+  {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 15,),
+
+        Align(
+          alignment: Alignment.center,
+          child: Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+            child: CircleAvatar(
+              backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
+              radius: 50,
+              backgroundColor: ColorUtils.primaryColor,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Food Name"),
+        foodDescDialogTextValues(addedFoodModel.foodName),
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Food Description"),
+        foodDescDialogTextValues(addedFoodModel.foodDesc.isEmpty? "(No description)": addedFoodModel.foodDesc),
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Allergen Information"),
+        foodDescDialogTextValues(addedFoodModel.allergen.isEmpty? "(No Allergen information)": addedFoodModel.allergen),
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Food Ingredients"),
+        foodDescDialogTextValues(addedFoodModel.foodIngredients.isEmpty? "(No ingredients information)": addedFoodModel.foodIngredients),
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Food Quantity"),
+        foodDescDialogTextValues(addedFoodModel.quantity),
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Pick up date"),
+        foodDescDialogTextValues(addedFoodModel.pickUpDate),
+        const SizedBox(height: 15,),
+
+        foodDescDialogTextHeadings("Pick up address"),
+        foodDescDialogTextValues(addedFoodModel.pickUpAddress),
+        const SizedBox(height: 15,),
+
+        Align(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(0, 10, 10, 0),
+          child:  ElevatedButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            child: Text(
+                'Close'
+            ),
+
+          ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget foodDescDialogTextHeadings(str)
+  {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 5, 0,0),
+      child: Text(
+        str,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+          decoration: TextDecoration.none,
+        ),
+      ),
+    );
+  }
+
+  static Widget foodDescDialogTextValues(String str)
+  {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 5, 0,0),
+      child:Text(
+        str,
+        style: const TextStyle(
+          fontSize: 14,
+          color: Colors.black,
+          decoration: TextDecoration.none,
+        ),
+      ),
+    );
+  }
 
 }

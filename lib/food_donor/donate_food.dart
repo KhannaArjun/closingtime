@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
+import 'package:closingtime/utils/google_places.dart';
+import 'package:closingtime/utils/location_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,78 +18,113 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 
 class DonateFood extends StatelessWidget {
+
+  var globalContext;
+
+  Data? _addedFoodModel;
+  DonateFood(Data? addedFoodModel)
+  {
+    this._addedFoodModel = addedFoodModel;
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: _DonateFood(),
-    );
-  }
-}
-
-
-class _DonateFood extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
+    globalContext = context;
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: <Widget>[
-              Container(
-
-                height: MediaQuery.of(context).size.height * 0.45,
-                width: double.infinity,
-                child: CommonStyles.layoutBackgroundShape(),
-                //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
-              ),
-              const Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 80),
-                    child: Text(
-                      "Closing Time!",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 25),
-                    ),
-                  )),
-              Positioned(
-                top: 160,
-                left: 10,
-                right: 10,
-                child: DonateFoodFormWidget(),
-              )
-            ],
+        appBar:AppBar(
+          title: const Text("Food Donation"),
+          backgroundColor: Colors.blue,
+          elevation: 0.0,
+          titleSpacing: 10.0,
+          centerTitle: true,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
           ),
         ),
-      ),
+        body: SingleChildScrollView(
+
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              children: <Widget>[
+                Container(
+
+                  height: MediaQuery.of(context).size.height * 0.45,
+                  width: double.infinity,
+                  child: CommonStyles.layoutBackgroundShape(),
+                  //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
+                ),
+                // const Align(
+                //     alignment: Alignment.topCenter,
+                //     child: Padding(
+                //       padding: EdgeInsets.only(top: 80),
+                //       child: Text(
+                //         "Closing Time!",
+                //         style: TextStyle(
+                //             color: Colors.white,
+                //             fontWeight: FontWeight.w800,
+                //             fontSize: 25),
+                //       ),
+                //     )),
+                Positioned(
+                  top: 30,
+                  left: 10,
+                  right: 10,
+
+                  child:   DonateFoodFormWidget(_addedFoodModel),
+
+                )
+              ],
+            ),
+          ),
+
+        ),
+
+
     );
   }
 }
 
+
+
+
 class DonateFoodFormWidget extends StatefulWidget {
+
+  Data? _addedFoodModel;
+  DonateFoodFormWidget(Data? addedFoodModel)
+  {
+    this._addedFoodModel = addedFoodModel;
+  }
+
   @override
   State<StatefulWidget> createState() {
-    return _DonateFoodFormWidget();
+    return _DonateFoodFormWidget(_addedFoodModel);
   }
 }
 
 class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
+
+  Data? _addedFoodModel;
+  _DonateFoodFormWidget(Data? addedFoodModel)
+  {
+    this._addedFoodModel = addedFoodModel;
+  }
+
   final _formKey = GlobalKey<FormState>();
-  var _foodNameController = TextEditingController(text: "Donuts");
-  var _foodDescController = TextEditingController(text: "There are 18 Donuts. It contains sugar.");
-  var _foodAllergenInfoController = TextEditingController(text: "Sugar, Apple cider");
-  var _foodQuantityController = TextEditingController(text: "18 units");
-  var _foodPickUpDateController = TextEditingController(text: "13-11-2021");
-  var _ingredientsSearchController = TextEditingController(text: "");
+  var _foodNameController;
+  var _foodDescController ;
+  var _foodIngredientsInfoController;
+  var _foodQuantityController;
+  var _foodPickUpDateController;
+  var _ingredientsSearchController;
+  var _userAddressFieldController;
 
   final _imagePicker = ImagePicker();
   final  picker = ImagePicker();
@@ -93,27 +132,91 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   bool _autoValidate = false;
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getUserAddress();
+
+
+    _foodNameController = TextEditingController(text: _addedFoodModel == null? "" : _addedFoodModel!.foodName);
+    _foodDescController = TextEditingController(text: _addedFoodModel == null? "" : _addedFoodModel!.foodDesc);
+    _foodIngredientsInfoController = TextEditingController(text: _addedFoodModel == null? "" : _addedFoodModel!.foodIngredients);
+    _foodQuantityController = TextEditingController(text: _addedFoodModel == null? "" : _addedFoodModel!.quantity);
+    _foodPickUpDateController = TextEditingController(text: _addedFoodModel == null? "" : _addedFoodModel!.pickUpDate);
+    _ingredientsSearchController = TextEditingController(text: "");
+
+    _userAddressFieldController = TextEditingController(text: _addedFoodModel == null? _address : _addedFoodModel!.pickUpAddress);
+    print(_address);
+
+    // foodAllergenList.addAll(_addedFoodModel.allergen);
+
+    if (_addedFoodModel != null)
+      {
+        if(_addedFoodModel!.image.isNotEmpty)
+          {
+            setState(() {
+              //_image = File();
+              print(">>1");
+              _encodedString = _addedFoodModel!.image;
+            }
+            );
+          }
+      }
+  }
+
+  String? _address;
+  late double? _lat, _lng;
+
+  void getUserAddress() async
+  {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    print("_address");
+    _address = sp.getString(Constants.address);
+    _lat = sp.getDouble(Constants.lat) ;
+    _lng = sp.getDouble(Constants.lng) ;
+
+    print(_address);
+    setState(() {
+      _userAddressFieldController.text = _address;
+    });
+
+  }
+
+  File _decodeFile(encodedString)
+  {
+    Uint8List bytes = base64Decode(encodedString);
+    //dart_image.Image image = await compute<List<int>, dart_image.Image>(dart_image.decodeImage, byteArray);
+
+    var file = File("");
+    file.writeAsBytesSync(bytes);
+    return file;
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return       Form(
       autovalidate: _autoValidate,
       key: _formKey,
-      child: Column(
+      child:
+      Column(
         children: <Widget>[
           Card(
             elevation: 10,
             child: Column(
               children: <Widget>[
-                _buildIntroText(),
+                // _buildIntroText(),
                 _buildImageCaptureField(context),
                 _buildFoodNameField(context),
                 _buildFoodDescField(context),
                 _buildFoodIngredientsField(context),
-                _buildFoodIngredientsAutoCompleteTextField(context),
-                _buildFoodAllergenInfoField(context),
+                _buildFoodAllergenAutoCompleteTextField(context),
+                _buildFoodIngredientsInfoField(context),
                 _buildFoodQuantityField(context),
                 _buildFoodPickUpDateField(context),
+                _buildChooseAddressField(context),
                 _isLoading == true? CommonStyles.loadingBar(context):_buildSubmitButton(context),
               ],
             ),
@@ -122,7 +225,6 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       ),
     );
   }
-
 
   Widget _buildIntroText() {
     return Column(
@@ -164,29 +266,34 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
               onTap: () {
                 getImageFromCamera();
               },
-              child: CircleAvatar(
-                radius: 55,
-                backgroundColor: ColorUtils.primaryColor,
-                child: _image != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: Image.file(
-                    _image!,
+              child:
+              Padding(
+              padding: const EdgeInsets.only(top: 10),
+                child: CircleAvatar(
+                  radius: 55,
+                  backgroundColor: ColorUtils.primaryColor,
+                  child: _encodedString.isNotEmpty
+                      ? CircleAvatar(
+                    radius: 50,
+                    backgroundImage:
+                    Image.memory(
+                      base64Decode(_encodedString),
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.fitHeight,
+                    ).image,
+                  )
+                      : Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(50)),
                     width: 100,
                     height: 100,
-                    fit: BoxFit.fitHeight,
-                  ),
-                )
-                    : Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(50)),
-                  width: 100,
-                  height: 100,
-                  child: Icon(
-                    Icons.camera_alt,
-                    color: Colors.grey[800],
-                    size: 50,
+                    child: Icon(
+                      Icons.camera_alt,
+                      color: Colors.grey[800],
+                      size: 50,
+                    ),
                   ),
                 ),
               ),
@@ -205,11 +312,20 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   {
     XFile? file = await _imagePicker.pickImage(source: ImageSource.camera);
 
+    print(file!.name);
+
     setState(() {
-      _image = File(file!.path);
+      if (file != null)
+        {
+          print("picked");
+          _image = File(file.path);
+
+          final bytes = _image!.readAsBytesSync();
+          //print(bytes);
+          _encodedString = base64Encode(bytes);
+        }
 
     });
-
   }
 
 
@@ -223,6 +339,10 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
         onFieldSubmitted: (_) {
         },
         validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "Please enter food item name";
+          }
+          return null;
         },
         decoration: CommonStyles.textFormFieldStyle("Food Name", ""),
       ),
@@ -247,8 +367,6 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     );
   }
 
-
-
   Widget _buildFoodIngredientsField(BuildContext context) {
     return Visibility(
       visible: _isListViewVisible,
@@ -256,16 +374,16 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           padding: CommonStyles.textFieldsPadding(),
           child: SizedBox(
         width: double.infinity,
-          height: 65,
+          height: 55,
           child: ListView.builder(
             shrinkWrap:  true,
             scrollDirection: Axis.horizontal,
-            itemCount: ingredientsList.length,
+            itemCount: foodAllergenList.length,
             itemBuilder: (context,index){
               return Wrap(
                 //color: Colors.grey,//selectedIndex==index?Colors.green:Colors.red,//now suppose selectedIndex and index from this builder is same then it will show the selected as green and others in red color
                 children: [
-                _itemCard(context, ingredientsList.elementAt(index)),
+                _itemCard(context, foodAllergenList.elementAt(index)),
                 ],
               );
             },
@@ -303,14 +421,12 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
                   tooltip: 'remove ingredient',
                   onPressed: () {
                     setState(() {
-                      ingredientsList.remove(ingredient);
+                      foodAllergenList.remove(ingredient);
 
-                      if (ingredientsList.isEmpty)
+                      if (foodAllergenList.isEmpty)
                         {
                           _isListViewVisible = false;
                         }
-
-
                     });
                   },
               ),
@@ -324,20 +440,24 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
   }
 
-  static const List<String> _kOptions = <String>[
-    'Sugar',
-    'Apple',
-    'cider',
-    'Vinegar',
+  static const List<String> allergens = <String>[
+    'Milk',
+    'Eggs',
+    'Fish',
+    'Crustacean shellfish',
+    'Tree nuts',
+    'Peanuts',
+    'Wheat',
+    'Soybeans',
   ];
 
-  Widget _buildFoodIngredientsAutoCompleteTextField(BuildContext context) {
+  Widget _buildFoodAllergenAutoCompleteTextField(BuildContext context) {
     return
       Padding(
         padding: CommonStyles.textFieldsPadding(),
         child: SearchField(
         controller: _ingredientsSearchController,
-        suggestions: _kOptions,
+        suggestions: allergens,
 
         validator: (x) {
           // if (!ingredientsList.contains(x) || x!.isEmpty) {
@@ -345,7 +465,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           // }
           return null;
         },
-        searchInputDecoration: CommonStyles.textFormFieldStyle(" 🔍 Search ingredients may contain (optional)", ""),
+        searchInputDecoration: CommonStyles.textFormFieldStyle(" 🔍 Search food allergens may contain (optional)", ""),
 
         maxSuggestionsInViewPort: 6,
         itemHeight: 50,
@@ -360,28 +480,28 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
 
 
-  Set ingredientsList = {};
+  Set foodAllergenList = {};
 
   void createIngredientsList(item)
   {
     setState(() {
-      ingredientsList.add(item);
+      foodAllergenList.add(item);
       _isListViewVisible = true;
     });
   }
 
-  Widget _buildFoodAllergenInfoField(BuildContext context) {
+  Widget _buildFoodIngredientsInfoField(BuildContext context) {
     return Padding(
       padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
-        controller: _foodAllergenInfoController,
+        controller: _foodIngredientsInfoController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
         onFieldSubmitted: (_) {
         },
         validator: (value) {
         },
-        decoration: CommonStyles.textFormFieldStyle("Food Allergen Information (optional)", ""),
+        decoration: CommonStyles.textFormFieldStyle("Additional information (optional)", ""),
       ),
     );
   }
@@ -392,10 +512,14 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       child: TextFormField(
         controller: _foodQuantityController,
         keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
+        textInputAction: TextInputAction.done,
         onFieldSubmitted: (_) {
         },
         validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "Please enter the quantity";
+          }
+          return null;
         },
         decoration: CommonStyles.textFormFieldStyle("Food Quantity", ""),
       ),
@@ -406,19 +530,27 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     return Padding(
       padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
+        showCursor: false,
+        readOnly: true,
         controller: _foodPickUpDateController,
         keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.next,
+        textInputAction: TextInputAction.done,
         onFieldSubmitted: (_) {
         },
-        validator: (value) {
-        },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "Please select the pick up date";
+            }
+            return null;
+          },
         decoration: CommonStyles.textFormFieldStyle("Food Pickup Date", ""),
         onTap: (){
           _selectDate(context);
           }),
     );
   }
+
+
 
   var myFormat = DateFormat('yyyy-MM-dd');
 
@@ -431,10 +563,70 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
     ).then((pickedDate) {
       //do whatever you want
-       _foodPickUpDateController.text = myFormat.format(pickedDate);
+       if (pickedDate!.toString().isNotEmpty)
+         {
+           _foodPickUpDateController.text = myFormat.format(pickedDate!);
+         }
       //_foodPickUpDateController.text = pickedDate.toString();
     });
   }
+
+
+  Widget _buildChooseAddressField(BuildContext context) {
+    return
+      Padding(
+        padding: CommonStyles.textFieldsPadding(),
+        child: TextFormField(
+            showCursor: false,
+            readOnly: true,
+            controller: _userAddressFieldController,
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) {
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please enter food pick up Address";
+              }
+              return null;
+            },
+            decoration: CommonStyles.textFormFieldStyle("Food pick up Address", ""),
+            onTap: () async {
+              _awaitReturnValueFromPlacesAutocomplete(context);
+
+              // draggableScrollSheet();
+
+              //modal(context);
+
+            }),
+      );
+  }
+
+  late LocationDetailsModel _locationDetailsModel;
+
+  void _awaitReturnValueFromPlacesAutocomplete(BuildContext context) async {
+
+    // start the SecondScreen and wait for it to finish with a result
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AutoCompleteGooglePlaces(),
+        ));
+
+    // after the SecondScreen result comes back update the Text widget with it
+
+    setState(()
+    {
+      if (result != null) {
+        _locationDetailsModel = result;
+        print(_locationDetailsModel.address);
+        _userAddressFieldController.text = _locationDetailsModel.address;
+        _lat = _locationDetailsModel.lat;
+        _lng = _locationDetailsModel.lng;
+      }
+    });
+  }
+
 
   Widget _buildSubmitButton(BuildContext context) {
     return Padding(
@@ -473,7 +665,6 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     } else {
       Fluttertoast.showToast(msg: 'Routing', toastLength: Toast.LENGTH_LONG);
       //_performTextRecognition(capturedImage.path, context);
-
     }
   }
 
@@ -499,11 +690,15 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
+    String business_name = sharedPreferences.getString(Constants.business_name) ?? '';
 
-    addFoodApiCall(context, userId);
+    addFoodApiCall(context, userId, business_name);
   }
 
-  void addFoodApiCall(BuildContext context, userId)
+  String _encodedString = "";
+
+
+  void addFoodApiCall(BuildContext context, userId, business_name)
   {
     // pd = ProgressDialog(context, type: ProgressDialogType.Normal, isDismissible: false);
     // pd.style(message: "Loading");
@@ -513,13 +708,11 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       _isLoading = true;
     });
 
-    String encodedString = "";
-
     if (_image != null)
     {
       final bytes = _image!.readAsBytesSync();
       //print(bytes);
-      encodedString = base64Encode(bytes);
+      _encodedString = base64Encode(bytes);
     }
 
     //print(encodedString);
@@ -531,10 +724,17 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       "food_name": _foodNameController.value.text,
       "food_desc": _foodDescController.value.text,
       "quantity": _foodQuantityController.value.text,
-      "food_ingredients": ingredientsList.isEmpty? "": ingredientsList.toString(),
+      "allergen": foodAllergenList.isEmpty? "": foodAllergenList.toString().replaceAll("{", "").replaceAll("}", ""),
       "pick_up_date": _foodPickUpDateController.value.text,
-      "allergen": _foodAllergenInfoController.value.text,
-      "image": encodedString
+      "food_ingredients": _foodIngredientsInfoController.value.text,
+      "pick_up_address": _userAddressFieldController.value.text,
+      "pick_up_lat": _lat,
+      "pick_up_lng": _lng,
+      "image": _encodedString,
+      "isFoodAccepted": false,
+      "business_name": business_name,
+      "status": Constants.STATUS_AVAILABLE,
+      "timestamp": DateTime.now().millisecondsSinceEpoch
     };
 
     try
@@ -554,6 +754,8 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           if (value['message'] == "Inserted") {
 
             Constants.showToast(value['message']);
+
+            Navigator.pop(context, true);
 
           }
           else
@@ -578,7 +780,76 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   }
 }
 
+
 class AlwaysDisabledFocusNode extends FocusNode {
   @override
   bool get hasFocus => false;
 }
+
+
+// class _DonateFood extends StatelessWidget {
+//
+//   Data? _addedFoodModel;
+//   _DonateFood(Data? addedFoodModel)
+//   {
+//     this._addedFoodModel = addedFoodModel;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     // TODO: implement build
+//     return
+//       Scaffold(
+//         appBar:AppBar(
+//           title: const Text("Food Donation"),
+//           backgroundColor: Colors.blue,
+//           elevation: 0.0,
+//           titleSpacing: 10.0,
+//           centerTitle: true,
+//           leading: InkWell(
+//             onTap: () {
+//               Navigator.pop(context);
+//             },
+//             child: Icon(
+//               Icons.arrow_back_ios,
+//               color: Colors.white,
+//             ),
+//           ),
+//         ),
+//         body: Container(
+//           height: MediaQuery.of(context).size.height,
+//           child: Stack(
+//             children: <Widget>[
+//               Container(
+//
+//                 height: MediaQuery.of(context).size.height * 0.45,
+//                 width: double.infinity,
+//                 child: CommonStyles.layoutBackgroundShape(),
+//                 //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
+//               ),
+//               // const Align(
+//               //     alignment: Alignment.topCenter,
+//               //     child: Padding(
+//               //       padding: EdgeInsets.only(top: 80),
+//               //       child: Text(
+//               //         "Closing Time!",
+//               //         style: TextStyle(
+//               //             color: Colors.white,
+//               //             fontWeight: FontWeight.w800,
+//               //             fontSize: 25),
+//               //       ),
+//               //     )),
+//               Positioned(
+//                   top: 30,
+//                   left: 10,
+//                   right: 10,
+//                   child: SingleChildScrollView(
+//                     child:   DonateFoodFormWidget(_addedFoodModel),
+//                   )
+//               )
+//             ],
+//           ),
+//         ),
+//       );
+//   }
+// }

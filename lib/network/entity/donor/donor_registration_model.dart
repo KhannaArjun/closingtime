@@ -39,27 +39,49 @@ class Data {
     required this.contactNumber,
     required this.email,
     required this.name,
-    required this.postcode,
-    required this.streetName,
+    // required this.postcode,
+    // required this.streetName,
+    // required this.areaName,
+    // required this.stateName,
+    // required this.country,
+    required this.address,
+    required this.lat,
+    required this.lng,
     required this.userId,
+    required this.role,
   });
 
   String businessName;
   String contactNumber;
   String email;
   String name;
-  String postcode;
-  String streetName;
+  // String postcode;
+  // String streetName;
+  // String areaName;
+  // String stateName;
+  // String country;
   String userId;
+  String role;
+  String address;
+  double lat;
+  double lng;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     businessName: json["business_name"],
     contactNumber: json["contact_number"],
     email: json["email"],
     name: json["name"],
-    postcode: json["postcode"],
-    streetName: json["street_name"],
+    // postcode: json["postcode"],
+    // streetName: json["street_name"],
+    // areaName: json["area_name"],
+    // stateName: json["state_name"],
+    // country: json["country"],
+
+    address: json["address"],
+    lat: json["lat"],
+    lng: json["lng"],
     userId: json["user_id"],
+    role: json["role"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -67,13 +89,21 @@ class Data {
     "contact_number": contactNumber,
     "email": email,
     "name": name,
-    "postcode": postcode,
-    "street_name": streetName,
+    // "postcode": postcode,
+    // "street_name": streetName,
+    // "area_name": areaName,
+    // "state_name": stateName,
+    // "country": country,
+    "address": address,
+    "lat": lat,
+    "lng": lng,
     "user_id": userId,
+    "role": role,
   };
 
   @override
   String toString() {
-    return 'Data{businessName: $businessName, contactNumber: $contactNumber, email: $email, name: $name, postcode: $postcode, streetName: $streetName, userId: $userId}';
+    return 'Data{businessName: $businessName, contactNumber: $contactNumber, email: $email,'
+        ' name: $name, ,userId: $userId}, role: $role, address: $address, lat: $lat, lng: $lng}';
   }
 }

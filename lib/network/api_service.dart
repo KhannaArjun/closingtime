@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:closingtime/food_donor/data_model/donor_profile_model.dart';
 import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
-import 'package:closingtime/network/entity/donor/donor_registration%7C_model.dart';
+import 'package:closingtime/food_recipient/data_model/recipient_profile_model.dart';
+import 'package:closingtime/food_recipient/data_model/recipient_registration_model.dart';
+import 'package:closingtime/network/entity/donor/donor_registration_model.dart';
 import 'package:closingtime/utils/constants.dart';
+import 'package:closingtime/volunteer/data_model/volunteer_registration_model.dart';
 import 'package:http/http.dart' as http;
 
 import 'entity/login_model.dart';
@@ -45,10 +48,28 @@ import 'entity/login_model.dart';
       }
     else
       {
-        print(response);
+        print(response.statusCode);
+        print(response.toString());
         throw Exception('Failed');
       }
 
+  }
+
+  static Future<FoodDonorRegistration> donorUpdateProfile(body) async {
+    final response = await http
+        .post(parseUri('/food_donor/update_profile'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      return FoodDonorRegistration.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      print(response.toString());
+      throw Exception('Failed');
+    }
   }
 
   static Future<dynamic> addFood(body) async {
@@ -87,6 +108,81 @@ import 'entity/login_model.dart';
 
   }
 
+  static Future<AddedFoodListModel> getAllFoodList(body) async {
+    final response = await http
+        .post(parseUri('/recipient/getAvailableFoodList'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      print(response.body);
+      return AddedFoodListModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      throw Exception('Failed');
+    }
+
+  }
+
+
+  static Future<dynamic> accept_food(body) async {
+    final response = await http
+        .post(parseUri('/recipient/accept_food'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+
+
+  static Future<dynamic> removeFoodItemList(body) async {
+    final response = await http
+        .post(parseUri('/food_donor/remove_food_item'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<dynamic> logout(body) async {
+    final response = await http
+        .post(parseUri('/logout'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
   static Future<LoginModel> login(body) async {
     final response = await http
         .post(parseUri('/login'), headers: {
@@ -96,6 +192,24 @@ import 'entity/login_model.dart';
     if (response.statusCode == 200)
     {
       return LoginModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<dynamic> checkIsUserExists(body) async {
+    final response = await http
+        .post(parseUri('/isUserExists'), headers: {
+      'Content-Type': 'application/json',
+    }, body: body, );
+
+    if (response.statusCode == 200)
+    {
+        return jsonDecode(response.body);
     }
     else
     {
@@ -122,5 +236,90 @@ import 'entity/login_model.dart';
       print(response.statusCode);
       throw Exception('Failed');
     }
+  }
+
+  static Future<RecipientProfileResponse> getRecipientProfile(body) async {
+    final response = await http
+        .post(parseUri('/recipient/getUserProfile'), headers: {
+      'Content-Type': 'application/json',
+    }, body: body, );
+
+    if (response.statusCode == 200)
+    {
+      print(response.body);
+      return RecipientProfileResponse.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      throw Exception('Failed');
+    }
+  }
+
+  static Future<FoodRecipientRegistration> recipientRegistration(body) async
+  {
+
+    final response = await http
+        .post(parseUri('/recipient/registration'),
+        headers: Constants.HEADERS, body: body);
+
+
+    if (response.statusCode == 200)
+    {
+
+      return FoodRecipientRegistration.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      print(response.toString());
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<FoodRecipientRegistration> recipientUpdateProfile(body) async
+  {
+
+    final response = await http
+        .post(parseUri('/recipient/update_profile'),
+        headers: Constants.HEADERS, body: body);
+
+
+
+    if (response.statusCode == 200)
+    {
+
+      return FoodRecipientRegistration.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      print(response.toString());
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<VolunteerRegistrationResponse> volunteerRegistration(body) async
+  {
+
+    final response = await http
+        .post(parseUri('/volunteer/registration'),
+        headers: Constants.HEADERS, body: body);
+
+
+    if (response.statusCode == 200)
+    {
+
+      return VolunteerRegistrationResponse.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      print(response.statusCode);
+      print(response.toString());
+      throw Exception('Failed');
+    }
+
   }
 }

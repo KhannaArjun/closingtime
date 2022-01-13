@@ -1,15 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Constants
 {
-  static const String BASE_URL = "http://127.0.0.1:5000";
-  //static const String BASE_URL = "https://closingtime.herokuapp.com";
+  //static const String BASE_URL = "http://127.0.0.1:5000";
+  static const String BASE_URL = "https://closingtime.herokuapp.com";
   static const Map<String, String> HEADERS = {'Content-Type': 'application/json'};
 
   static const String empty = "No data";
   static const String user_exists = "User already exists";
+  static const String new_user = "new user";
   static const String user_id = "user_id";
+  static const String role = "role";
+  static const String name = "name";
+  static const String business_name = "business_name";
+  static const String email = "email";
+  static const String contact = "contact";
+  static const String address = "address";
+  static const String lat = "lat";
+  static const String lng = "lng";
+  static const String firebase_token = "firebase_token";
+
+  static const String ROLE_RECIPIENT = "Recipient";
+  static const String ROLE_DONOR = "Donor";
+  static const String ROLE_VOLUNTEER = "Volunteer";
+  static const String STATUS_AVAILABLE = "Available";
+  static const String success = "Success";
+
+
+
+  static const String FB_FOOD_ADDED_TOPIC = "food_added";
 
   static void showToast(msg)
   {
@@ -18,5 +39,13 @@ class Constants
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
     );
+  }
+
+
+
+  static List<String> getAllStatesList()
+  {
+    List<String> statesList = "Alabama,Alaska,American Samoa,Arizona,Arkansas,California,Colorado,Connecticut,Delaware,District Of Columbia,Federated States Of Micronesia,Florida,Georgia,Guam,Hawaii,Idaho,Illinois,Indiana,Iowa,Kansas,Kentucky,Louisiana,Maine,Marshall Islands,Maryland,Massachusetts,Michigan,Minnesota,Mississippi,Missouri,Montana,Nebraska,Nevada,New Hampshire,New Jersey,New Mexico,New York,North Carolina,North Dakota,Northern Mariana Islands,Ohio,Oklahoma,Oregon,Palau,Pennsylvania,Puerto Rico,Rhode Island,South Carolina,South Dakota,Tennessee,Texas,Utah,Vermont,Virgin Islands,Virginia,Washington,West Virginia,Wisconsin,Wyoming,".split(',');
+    return statesList;
   }
 }
