@@ -46,6 +46,7 @@ class Data {
     required this.allergen,
     required this.pickUpAddress,
     required this.isFoodAccepted,
+    required this.pickUpTime,
     required this.business_name,
     required this.status,
     required this.distance,
@@ -55,6 +56,7 @@ class Data {
   String foodName;
   String id;
   String pickUpDate;
+  String pickUpTime;
   String quantity;
   String userId;
   String foodIngredients;
@@ -71,6 +73,7 @@ class Data {
     foodName: json["food_name"],
     id: json["id"],
     pickUpDate: json["pick_up_date"],
+    pickUpTime: json["pick_up_time"],
     quantity: json["quantity"],
     userId: json["user_id"],
     foodIngredients: json["food_ingredients"],
@@ -88,6 +91,7 @@ class Data {
     "food_name": foodName,
     "id": id,
     "pick_up_date": pickUpDate,
+    "pick_up_time": pickUpTime,
     "quantity": quantity,
     "user_id": userId,
     "food_ingredients": foodIngredients,

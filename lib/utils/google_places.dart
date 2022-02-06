@@ -30,7 +30,7 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
+        title: '',
         theme: ThemeData(
         primarySwatch: Colors.blue,),
     home: Scaffold(
@@ -100,8 +100,7 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
                       ),
                       title: Text(predictions[index].description ?? "No results found"),
                       onTap: () {
-                        debugPrint(predictions[index].placeId);
-                        debugPrint(predictions[index].structuredFormatting.toString());
+
 
                         getDetails(predictions[index].description ?? "", predictions[index].placeId?? "");
                       },
@@ -130,8 +129,9 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
     var result = await googlePlace.details.get(placeId);
     if (result != null && result.result != null && mounted) {
 
-      print(result.result!.geometry!.location!.lat);
-      print(result.result!.geometry!.location!.lng);
+      // print(result.result!.addressComponents);
+      // print(result.result!.formattedAddress);
+      // print(result.result!.types);
 
       Navigator.pop(context, LocationDetailsModel(desc, result.result!.geometry!.location!.lat?? 0.0, result.result!.geometry!.location!.lng?? 0.0, placeId));
     }

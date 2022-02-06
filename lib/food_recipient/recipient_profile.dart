@@ -323,7 +323,6 @@ class _RecipientProfileState extends State<RecipientProfile> {
           isLoading = false;
         });
 
-        print(value.data.toString());
         if (!value.error)
         {
           if (value.data != null)
@@ -343,7 +342,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 

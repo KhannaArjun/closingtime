@@ -1,8 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:flutter/material.dart';
-import 'package:google_place/google_place.dart';
-
 
 class TestApp extends StatelessWidget {
   @override
@@ -23,77 +22,174 @@ class TestHomePage extends StatefulWidget {
 }
 
 class _TestHomePage extends State<TestHomePage> {
-  late GooglePlace googlePlace;
-  List<AutocompletePrediction> predictions = [];
 
   @override
   void initState() {
-    googlePlace = GooglePlace("AIzaSyC6BSkN2od9soYaSaiIou-Ctcop186rWPg");
+    // googlePlace = GooglePlace("AIzaSyC6BSkN2od9soYaSaiIou-Ctcop186rWPg");
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text("appTitle")),
       body: SafeArea(
         child: Container(
           margin: EdgeInsets.only(right: 20, left: 20, top: 20),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: "Search your location",
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.black54,
-                      width: 2.0,
-                    ),
-                  ),
+              Align(
+                alignment: Alignment.topLeft,
+          child: Padding(
+            padding: EdgeInsets.all(0),
+            child: Text(
+                'Name',
+                style: TextStyle(
+                  color: ColorUtils.primaryColor,
+                  fontSize: 14,
+                  fontFamily: 'Raleway',
+                  fontWeight: FontWeight.w500
                 ),
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    autoCompleteSearch(value);
-                  } else {
-                    if (predictions.length > 0 && mounted) {
-                      setState(() {
-                        predictions = [];
-                      });
-                    }
-                  }
-                },
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: predictions.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(
-                          Icons.pin_drop,
-                          color: Colors.white,
-                        ),
-                      ),
-                      title: Text(predictions[index].description ?? "No results found"),
-                      onTap: () {
-                        debugPrint(predictions[index].placeId);
-                        debugPrint(predictions[index].structuredFormatting.toString());
+              ),),),
 
-                        getDetils(predictions[index].placeId?? "");
-                      },
-                    );
-                  },
-                ),
+          Align (
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: EdgeInsets.all(0),
+              child: TextFormField(
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+              style: TextStyle(
+                fontFamily: 'Raleway',
+                fontWeight: FontWeight.w300,
+                fontSize: 14
               ),
+              onFieldSubmitted: (_) {
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Please enter food item name";
+                }
+                return null;
+              },
+              decoration: _textFormFieldStyle("", "Food Name"),
+            ),
+          ),),
+
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: Text(
+                    'Name',
+                    style: TextStyle(
+                        color: ColorUtils.primaryColor,
+                        fontSize: 14,
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.w500
+                    ),
+                  ),),),
+
+              Align (
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: TextFormField(
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                    style: TextStyle(
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14
+                    ),
+                    onFieldSubmitted: (_) {
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter food item name";
+                      }
+                      return null;
+                    },
+                    decoration: _textFormFieldStyle("", "Food Name"),
+                  ),
+                ),),
+
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: Text(
+                    'Name',
+                    style: TextStyle(
+                        color: ColorUtils.primaryColor,
+                        fontSize: 14,
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.w400
+                    ),
+                  ),),),
+
+              Align (
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: TextFormField(
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                      fontFamily: 'Raleway'
+                    ),
+                    onFieldSubmitted: (_) {
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter food item name";
+                      }
+                      return null;
+                    },
+                    decoration: _textFormFieldStyle("", "Food Name"),
+                  ),
+                ),),
+
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: Text(
+                    'Name',
+                    style: TextStyle(
+                        color: ColorUtils.primaryColor,
+                        fontSize: 14,
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),),),
+
+              Align (
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: TextFormField(
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                      fontFamily: 'Raleway'
+                    ),
+                    onFieldSubmitted: (_) {
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter food item name";
+                      }
+                      return null;
+                    },
+                    decoration: _textFormFieldStyle("", "Food Name"),
+                  ),
+                ),),
+
             ],
           ),
         ),
@@ -101,27 +197,29 @@ class _TestHomePage extends State<TestHomePage> {
     );
   }
 
-  void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value);
-
-    if (result != null && result.predictions != null && mounted) {
-      setState(() {
-        predictions = result.predictions!;
-      });
-    }
+  _textFormFieldStyle(String label, String hint) {
+    return InputDecoration(
+      counterText: "",
+      hintText: hint,
+      hintStyle: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w100,
+        fontStyle: FontStyle.normal,
+      ),
+      alignLabelWithHint:false,
+      contentPadding: EdgeInsets.symmetric(vertical: 5),
+      labelStyle: TextStyle(color: Colors.black),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.black,
+        ),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+            color: Colors.black,
+            width: 2
+        ),
+      ),
+    );
   }
-
-  void getDetils(String placeId) async {
-    var result = await googlePlace.details.get(placeId);
-    if (result != null && result.result != null && mounted) {
-
-      print(result.result!.geometry!.location!.lat);
-      print(result.result!.geometry!.location!.lng);
-
-      setState(() {
-
-      });
-    }
-  }
-
 }

@@ -6,6 +6,8 @@ import 'package:closingtime/food_recipient/data_model/recipient_profile_model.da
 import 'package:closingtime/food_recipient/data_model/recipient_registration_model.dart';
 import 'package:closingtime/network/entity/donor/donor_registration_model.dart';
 import 'package:closingtime/utils/constants.dart';
+import 'package:closingtime/volunteer/data_model/volunteer_food_description_model.dart';
+import 'package:closingtime/volunteer/data_model/volunteer_food_list_response.dart';
 import 'package:closingtime/volunteer/data_model/volunteer_registration_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,7 +19,6 @@ import 'entity/login_model.dart';
   static Uri parseUri(endpoint)
   {
     String url = Constants.BASE_URL + endpoint;
-    print(url);
    return Uri.parse(url);
   }
 
@@ -31,10 +32,9 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
+      // print(response.statusCode);
       throw Exception(response.toString());
     }
-
   }
 
   static Future<FoodDonorRegistration> donorRegistration(body) async {
@@ -48,8 +48,7 @@ import 'entity/login_model.dart';
       }
     else
       {
-        print(response.statusCode);
-        print(response.toString());
+        // print(response.toString());
         throw Exception('Failed');
       }
 
@@ -66,8 +65,7 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
-      print(response.toString());
+      // print(response.toString());
       throw Exception('Failed');
     }
   }
@@ -76,7 +74,7 @@ import 'entity/login_model.dart';
     final response = await http
         .post(parseUri('/food_donor/add_food'),
         headers: Constants.HEADERS, body: body);
-    print(response.body);
+    // print(response.body);
 
     if (response.statusCode == 200)
       {
@@ -84,7 +82,7 @@ import 'entity/login_model.dart';
       }
     else
       {
-        print(response);
+        // print(response);
         throw Exception('Failed');
       }
 
@@ -97,12 +95,85 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return AddedFoodListModel.fromJson(jsonDecode(response.body));
     }
     else
     {
-      print(response);
+      // print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+
+  static Future<AddedFoodListModel> getFoodHistoryByDonor(body) async {
+    final response = await http
+        .post(parseUri('/food_donor/getAllFoodsByDonor'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return AddedFoodListModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      // print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<VolunteerFoodListModel> getFoodHistoryByVolunteer(body) async {
+    final response = await http
+        .post(parseUri('/volunteer/getAllFoodsByVolunteer'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return VolunteerFoodListModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      // print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<AddedFoodListModel> getFoodHistoryByRecipeint(body) async {
+    final response = await http
+        .post(parseUri('/recipient/getAllFoodsByRecipient'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return AddedFoodListModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      // print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<VolunteerFoodListModel> getAvailableFoodListForVolunteer(body) async {
+    final response = await http
+        .post(parseUri('/volunteer/getAvailableFoodList'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return VolunteerFoodListModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      // print(response);
       throw Exception('Failed');
     }
 
@@ -115,12 +186,12 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return AddedFoodListModel.fromJson(jsonDecode(response.body));
     }
     else
     {
-      print(response.statusCode);
+      // print(response.statusCode);
       throw Exception('Failed');
     }
 
@@ -134,18 +205,69 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return jsonDecode(response.body);
     }
     else
     {
-      print(response);
+      // print(response);
       throw Exception('Failed');
     }
 
   }
 
+  static Future<VolunteerFoodDescriptionModel> getFoodItemDetails(body) async {
+    final response = await http
+        .post(parseUri('/volunteer/getFoodItemDetails'),
+        headers: Constants.HEADERS, body: body);
 
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return VolunteerFoodDescriptionModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      // print(response);
+      throw Exception('Failed');
+    }
+  }
+
+  static Future<dynamic> collectFood(body) async
+  {
+    final response = await http
+        .post(parseUri('/volunteer/collect_food'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      // print(response.statusCode);
+      throw Exception('Failed');
+    }
+  }
+
+  static Future<dynamic> foodDelivered(body) async
+  {
+    final response = await http
+        .post(parseUri('/recipient/food_delivered'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      // print(response.statusCode);
+      throw Exception('Failed');
+    }
+  }
 
   static Future<dynamic> removeFoodItemList(body) async {
     final response = await http
@@ -154,12 +276,12 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return jsonDecode(response.body);
     }
     else
     {
-      print(response);
+      // print(response);
       throw Exception('Failed');
     }
 
@@ -172,15 +294,14 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return jsonDecode(response.body);
     }
     else
     {
-      print(response);
+      // print(response);
       throw Exception('Failed');
     }
-
   }
 
   static Future<LoginModel> login(body) async {
@@ -195,11 +316,11 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
+      // print(response.statusCode);
       throw Exception('Failed');
     }
-
   }
+
 
   static Future<dynamic> checkIsUserExists(body) async {
     final response = await http
@@ -213,7 +334,7 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
+      // print(response.statusCode);
       throw Exception('Failed');
     }
 
@@ -228,12 +349,12 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return DonorProfileResponse.fromJson(jsonDecode(response.body));
     }
     else
     {
-      print(response.statusCode);
+      // print(response.statusCode);
       throw Exception('Failed');
     }
   }
@@ -246,12 +367,12 @@ import 'entity/login_model.dart';
 
     if (response.statusCode == 200)
     {
-      print(response.body);
+      // print(response.body);
       return RecipientProfileResponse.fromJson(jsonDecode(response.body));
     }
     else
     {
-      print(response.statusCode);
+      // print(response.statusCode);
       throw Exception('Failed');
     }
   }
@@ -271,8 +392,7 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
-      print(response.toString());
+      // print(response.toString());
       throw Exception('Failed');
     }
 
@@ -294,8 +414,7 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
-      print(response.toString());
+      // print(response.toString());
       throw Exception('Failed');
     }
 
@@ -316,8 +435,7 @@ import 'entity/login_model.dart';
     }
     else
     {
-      print(response.statusCode);
-      print(response.toString());
+      // print(response.toString());
       throw Exception('Failed');
     }
 

@@ -312,7 +312,6 @@ class _DonorProfileState extends State<DonorProfile> {
     {
       Future<DonorProfileResponse> donorResponse = ApiService.getDonorProfile(jsonEncode(body));
       donorResponse.then((value){
-        print(value.data.toString());
 
         setState(() {
           isLoading = false;
@@ -336,7 +335,7 @@ class _DonorProfileState extends State<DonorProfile> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 

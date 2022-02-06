@@ -146,7 +146,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
    getFirebaseTokeFromSP().then((value)
     {
       fb_token = value;
-      print(fb_token);
+      // print(fb_token);
     });
 
   }
@@ -453,7 +453,6 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
     {
       if (result != null) {
         locationDetailsModel = result;
-        print(locationDetailsModel.address);
         _userAddressFieldController.text = locationDetailsModel.address;
       }
 
@@ -673,7 +672,6 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
     // pd.style(message: "Loading");
     // pd.show();
 
-    print("hbjbj");
 
     setState(() {
       _progressBarActive = true;
@@ -700,7 +698,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
       "firebase_token": fb_token
     };
 
-    print(body.toString());
+    // print(body.toString());
 
 
     try
@@ -710,8 +708,8 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
         setState(() {
           _progressBarActive = false;
         });
-        print(value.message);
-        print(value.data);
+        // print(value.message);
+        // print(value.data);
         // hideProgressDialog();
 
         if (!value.error)
@@ -739,7 +737,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
     }
   }
 
@@ -770,7 +768,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
       "firebase_token": fb_token
     };
 
-    print(body.toString());
+    // print(body.toString());
 
     try
     {
@@ -779,8 +777,8 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
         setState(() {
           _progressBarActive = false;
         });
-        print(value.message);
-        print(value.data);
+        // print(value.message);
+        // print(value.data);
         // hideProgressDialog();
 
         if (!value.error)
@@ -801,7 +799,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
     }
   }
 

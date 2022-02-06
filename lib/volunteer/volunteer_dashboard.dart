@@ -1,15 +1,16 @@
 import 'dart:typed_data';
 
 import 'package:closingtime/food_donor/donor_food_description_screen.dart';
-import 'package:closingtime/food_donor/donor_profile.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
+import 'package:closingtime/volunteer/data_model/volunteer_food_list_response.dart';
+import 'package:closingtime/volunteer/food_history_volunteer.dart';
+import 'package:closingtime/volunteer/volunteer_food_description_screen.dart';
+import 'package:closingtime/volunteer/volunteer_profile.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
-import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
-import 'package:closingtime/food_donor/donate_food.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/constants.dart';
@@ -17,7 +18,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-
 
 
 class VolunteerDashboard extends StatefulWidget {
@@ -32,6 +32,9 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
   static const appTitle = 'Volunteer Dashboard';
 
   List<Data> _addedFoodList = [];
+
+  double _recipient_lat = 0.0, _recipient_lng = 0.0;
+
 
   @override
   void initState() {
@@ -59,17 +62,40 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
 
   Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    print("Handling a background message");
   }
 
   void configureNotifications(context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
-      print(notification!.title);
+      SnackBar snackBar = SnackBar(
+        content: const Text(
+          "New food added by donor",
+          style: TextStyle(
+            fontFamily: 'Vazir',
+            fontSize: 16.0,
+          ),
+        ),
+        backgroundColor: ColorUtils.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(45.0),
+        ),
+        elevation: 3.0,
+        duration: const Duration(minutes: 5),
+        action: SnackBarAction(
+          textColor: Colors.white,
+          label: 'Refresh',
+          onPressed: () {
+
+            getUserId();
+          },
+        ),
+      );
+      _scaffoldKey.currentState!.showSnackBar(snackBar);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("onMessageOpenedApp: $message");
+      // print("onMessageOpenedApp: $message");
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerDashboard()));
 
@@ -168,7 +194,16 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
                   onTap: () {
 
                     //Navigator.pop(context);
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorProfile()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerProfile()));
+
+                  },
+                ),
+                ListTile(
+                  title: const Text('History'),
+                  onTap: () {
+
+                    //Navigator.pop(context);
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerFoodHistory()));
 
                   },
                 ),
@@ -248,11 +283,13 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
         ),
         child: InkWell(
           onTap: () async {
-            var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorFoodDescription(addedFoodModel)));
+
+            var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerFoodDescription(addedFoodModel, false)));
             if (result == true)
             {
               getUserId();
             }
+
           },
           child: Column(
             children: [
@@ -260,7 +297,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
                 children: <Widget>[
                   Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
                     child: CircleAvatar(
-                      backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
+                      backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):NetworkImage(addedFoodModel.image),
                       radius: 40,
                       backgroundColor: ColorUtils.primaryColor,
                     ),
@@ -286,9 +323,28 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
                           ),
 
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                            child: Text('Qty: ${addedFoodModel.quantity}',textAlign: TextAlign.center,),
+                              padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+
+                                    const WidgetSpan(
+                                      child: Icon(Icons.location_pin, size: 18),
+                                    ),
+
+                                    TextSpan(
+                                        text:  '${addedFoodModel.distance} mi',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black
+                                        )
+                                    ),
+
+                                  ],
+                                ),
+                              )
                           ),
+
                           Padding(
                             padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
                             child: SizedBox(
@@ -307,21 +363,20 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
                 ],
               ),
 
-              addedFoodModel.status == "Available"?
-              const SizedBox() :
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+                children:  [
                   Text(
-                    addedFoodModel.status,
+                    addedFoodModel.status == Constants.waiting_for_pickup? "Available" : addedFoodModel.status,
                     style: const TextStyle(
                       color: Colors.lightGreen,
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),),
 
-                  const SizedBox(width: 8,),
+                  SizedBox(width: 8,),
                 ],
               )
             ],
@@ -352,7 +407,10 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
-    String name = sharedPreferences.getString(Constants.name) ?? 'Guest';
+    double user_lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
+    double user_lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
+    String name = sharedPreferences.getString(Constants.name) ?? "Guest";
+    String serving_distance = sharedPreferences.getString(Constants.serving_distance) ?? '';
 
     setState(() {
       _username = name;
@@ -360,23 +418,32 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
     //await Future.delayed(const Duration(seconds: 3));
 
+    _recipient_lat = user_lat;
+    _recipient_lng = user_lng;
+
     _userId = userId;
 
-    foodListApiCall(userId);
+    volunteerFoodListApiCall(userId, user_lat, user_lng, serving_distance);
   }
 
-  void foodListApiCall(userId)
+  void volunteerFoodListApiCall(userId, user_lat, user_lng, serving_distance)
   {
 
     Map body = {
-      "user_id": userId
+      "isFoodAccepted":true,
+      "volunteer_lat": user_lat,
+      "volunteer_lng": user_lng,
+      // "user_id": userId,
+      "serving_distance": serving_distance
     };
+
+    // print(jsonEncode(body));
 
     try
     {
-      Future<AddedFoodListModel> addedFoodListModel = ApiService.addedFoodList(jsonEncode(body));
+      Future<VolunteerFoodListModel> addedFoodListModel = ApiService.getAvailableFoodListForVolunteer(jsonEncode(body));
       addedFoodListModel.then((value){
-        print(value.data);
+        // print(value.data);
 
         if (!value.error)
         {
@@ -406,11 +473,11 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
-
   }
+
 
   Future<void> _showLogoutAlertDialog() async {
     return showDialog<void>(
@@ -496,7 +563,6 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
           isLoading = false;
         });
 
-        print(isLoading);
         if (value['message'] == Constants.success)
         {
           removeSharedPreferences();
@@ -513,50 +579,12 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 
   }
 
-  void deleteAFoodItemApiCall(id)
-  {
-
-    Map body = {
-      "user_id": _userId,
-      "id": id
-    };
-
-    try
-    {
-      Future<dynamic> addedFoodListModel = ApiService.removeFoodItemList(jsonEncode(body));
-      addedFoodListModel.then((value){
-
-        setState(() {
-          isLoading = false;
-        });
-
-        print(isLoading);
-        if (value['message'] == "deleted")
-        {
-          getUserId();
-        }
-        else
-        {
-
-          Constants.showToast("Please try again");
-
-        }
-      });
-
-    }
-    on Exception catch(e)
-    {
-      print(e);
-      Constants.showToast("Please try again");
-    }
-
-  }
 
   void removeSharedPreferences() async
   {

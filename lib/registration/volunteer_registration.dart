@@ -9,7 +9,9 @@ import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/utils/google_places.dart';
 import 'package:closingtime/utils/location_details_model.dart';
 import 'package:closingtime/volunteer/MilesModel.dart';
+import 'package:closingtime/volunteer/data_model/volunteer_profile_model.dart';
 import 'package:closingtime/volunteer/data_model/volunteer_registration_model.dart';
+import 'package:closingtime/volunteer/volunteer_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,8 +19,9 @@ class VolunteerRegistration extends StatelessWidget {
   // This widget is the root of your application.
 
   String _email = "";
+  VolunteerProfileModel? _volunteerProfileModel;
 
-  VolunteerRegistration(this._email);
+  VolunteerRegistration(this._email, this._volunteerProfileModel);
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +63,7 @@ class VolunteerRegistration extends StatelessWidget {
                   top: 140,
                   left: 10,
                   right: 10,
-                  child: VolunteerRegistrationFormWidget(_email),
+                  child: VolunteerRegistrationFormWidget(_email, _volunteerProfileModel),
                 )
               ],
             ),
@@ -73,11 +76,12 @@ class VolunteerRegistration extends StatelessWidget {
 
 class VolunteerRegistrationFormWidget extends StatefulWidget {
   String _email = "";
-  VolunteerRegistrationFormWidget(this._email);
+  VolunteerProfileModel? _volunteerProfileModel;
+  VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel);
 
   @override
   State<StatefulWidget> createState() {
-    return _VolunteerRegistrationFormWidget(_email);
+    return _VolunteerRegistrationFormWidget(_email, _volunteerProfileModel);
   }
 }
 
@@ -85,10 +89,10 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
   String _email = "", fb_token = "";
 
-  _VolunteerRegistrationFormWidget(this._email);
+  VolunteerProfileModel? _volunteerProfileModel;
+  _VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel);
 
   final _formKey = GlobalKey<FormState>();
-
 
   var _passwordFocusNode = FocusNode();
   bool _autoValidate = false;
@@ -115,13 +119,13 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
     super.initState();
 
-    _userPersonNameController = TextEditingController(text: "");
-    _userEmailController = TextEditingController(text: _email);
-    _userContactNumberController = TextEditingController(text: "");
-    _vehicleNumberController = TextEditingController(text: "");
-    _userAddressFieldController = TextEditingController(text: "");
+    _userPersonNameController = TextEditingController(text: _volunteerProfileModel == null? "" : _volunteerProfileModel!.name);
+    _userEmailController = TextEditingController(text: _volunteerProfileModel == null? _email : _volunteerProfileModel!.email);
+    _userContactNumberController = TextEditingController(text:  _volunteerProfileModel == null? "" : _volunteerProfileModel!.contactNumber);
+    _userAddressFieldController = TextEditingController(text:  _volunteerProfileModel == null? "" : _volunteerProfileModel!.address);
     _userContactNumbeCodeController = TextEditingController(text: "+1");
 
+    _selectedDistance = _volunteerProfileModel == null? "" : _volunteerProfileModel!.serving_distance;
 
     milesList.add( MilesModel("5", false));
     milesList.add( MilesModel("10", false));
@@ -130,10 +134,28 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
     milesList.add( MilesModel("25", false));
 
 
+    if (_volunteerProfileModel != null)
+      {
+        for(int i =0; i<milesList.length; i++)
+        {
+          MilesModel milesModel = milesList[i];
+          if(_selectedDistance == milesModel.getItem)
+          {
+
+            milesModel.isSelected(true);
+          }
+        }
+
+        setState(() {
+          milesList;
+        });
+
+      }
+
+
     getFirebaseTokeFromSP().then((value)
     {
       fb_token = value;
-      print(fb_token);
     });
   }
 
@@ -184,7 +206,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
           Align(
             alignment: Alignment.topLeft,
             child: Text(
-              'Select Serving radius in miles',
+              'Select serving radius in miles',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.black,
@@ -364,7 +386,9 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
   {
     return
       GestureDetector(
+
         onTap: () {
+
           if (_previouslySelectedItem == index)
             {
               return;
@@ -428,7 +452,6 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
     {
       if (result != null) {
         locationDetailsModel = result;
-        print(locationDetailsModel.address);
         _userAddressFieldController.text = locationDetailsModel.address;
       }
 
@@ -468,7 +491,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
           return;
         }
 
-      _volunteerRegistrationResponse == null? volunteerRegistrationApiCall(context) : recipientUpdateProfileApiCall(context);
+      _volunteerRegistrationResponse == null? volunteerRegistrationApiCall(context) : volunteerUpdateProfileApiCall(context);
 
       //getCurrentLocation();
 
@@ -511,7 +534,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
       "firebase_token": fb_token
     };
 
-    print(jsonEncode(body));
+    // print(jsonEncode(body));
 
 
     try
@@ -521,20 +544,20 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
         setState(() {
           _progressBarActive = false;
         });
-        print(value.message);
-        print(value.data);
-        // hideProgressDialog();
+        // print(value.message);
+        // print(value.data);
+        // // hideProgressDialog();
 
         if (!value.error)
         {
           if (value.message == "Inserted") {
-            storeUserData(value.data.userId, value.data.name, value.data.email, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
+            _storeUserData(value.data.userId, value.data.name, value.data.email, _selectedDistance, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
 
             // Navigator.of(context).push(
             //     MaterialPageRoute(builder: (context) => RecipientDashboard()));
 
             Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-                RecipientDashboard()), (route) => false);
+                VolunteerDashboard()), (route) => false);
           }
           else if(value.message == Constants.user_exists)
           {
@@ -550,11 +573,11 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
     }
   }
 
-  void recipientUpdateProfileApiCall(BuildContext context)
+  void volunteerUpdateProfileApiCall(BuildContext context)
   {
 
     setState(() {
@@ -576,8 +599,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
       "firebase_token": fb_token
     };
 
-    print(body.toString());
-
+    // print(body.toString());
 
     try
     {
@@ -586,14 +608,14 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
         setState(() {
           _progressBarActive = false;
         });
-        print(value.message);
-        print(value.data);
+        // print(value.message);
+        // print(value.data);
         // hideProgressDialog();
 
         if (!value.error)
         {
           if (value.message == "Inserted") {
-            storeUserData(value.data.userId, value.data.name, value.data.email, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
+            _storeUserData(value.data.userId, value.data.name, value.data.email, _selectedDistance, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
 
             // Navigator.of(context).push(
             //     MaterialPageRoute(builder: (context) => RecipientDashboard()));
@@ -615,14 +637,15 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
     }
   }
 
-  storeUserData(id, name, email, contact, role, address, lat, lng) async {
+  _storeUserData(id, name, email, serving_distance, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(Constants.user_id, id);
     prefs.setString(Constants.name, name);
+    prefs.setString(Constants.serving_distance, serving_distance);
     prefs.setString(Constants.email, email);
     prefs.setString(Constants.contact, contact);
     prefs.setString(Constants.address, address);

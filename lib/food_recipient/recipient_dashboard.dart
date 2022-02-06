@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:closingtime/food_recipient/recipient_food_description_screen.dart';
+import 'package:closingtime/food_recipient/recipient_food_history.dart';
 import 'package:closingtime/food_recipient/recipient_profile.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
@@ -88,7 +89,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
             children: [
 
               DrawerHeader(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.blue,
                 ),
                 child: Column(
@@ -136,14 +137,25 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
                     ),
                   ],
                 ),
-
               ),
+
               ListTile(
                 title: const Text('My Profile'),
                 onTap: () {
 
                   //Navigator.pop(context);
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => RecipientProfile()));
+
+                },
+              ),
+
+
+              ListTile(
+                title: const Text('History'),
+                onTap: () {
+
+                  //Navigator.pop(context);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodRecipientHistory()));
 
                 },
               ),
@@ -186,7 +198,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
               getUserId();
 
             },
-            child: Text("Refresh", style: TextStyle(color: ColorUtils.primaryColor, fontSize: 16),),
+            child: const Text("Refresh", style: TextStyle(color: ColorUtils.primaryColor, fontSize: 16),),
           ),
         ],
       );
@@ -240,7 +252,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
         child:
             InkWell(
               onTap: () async {
-                var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDescription(addedFoodModel)));
+                var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDescription(addedFoodModel, false)));
                 if (result == true)
                   {
                     getUserId();
@@ -255,7 +267,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
             children: <Widget>[
             Padding(padding: EdgeInsets.fromLTRB(5, 5, 0, 0),
         child: CircleAvatar(
-          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
+          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):NetworkImage(addedFoodModel.image),
           radius: 40,
           backgroundColor: ColorUtils.primaryColor,
         ),
@@ -309,7 +321,6 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
                 child: SizedBox(
-                  width: 260,
                   child:Text('Pick up on ${addedFoodModel.pickUpDate}', overflow: TextOverflow.ellipsis,style: const TextStyle(
                       fontSize: 15,
                       color: Color.fromARGB(255, 48, 48, 54)
@@ -481,7 +492,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     {
       Future<AddedFoodListModel> addedFoodListModel = ApiService.getAllFoodList(jsonEncode(body));
       addedFoodListModel.then((value){
-        print(value.data);
+        // print(value.data);
 
 
         if (!value.error)
@@ -514,7 +525,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 
@@ -534,8 +545,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
       "business_name": business_name
     };
 
-    print(jsonEncode(body));
-    print(body);
+    // print(jsonEncode(body));
 
     try
     {
@@ -564,7 +574,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 
@@ -589,7 +599,6 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
           isLoading = false;
         });
 
-        print(isLoading);
         if (value['message'] == Constants.success)
         {
           removeSharedPreferences();
@@ -606,21 +615,20 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 
   }
 
   Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    print("Handling a background message");
   }
 
   void configureNotifications(context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       // showNotification(notification);
-      print(notification!.title);
+      // print(notification!.title);
 
       // showNotificationCard('hello');
 
@@ -653,7 +661,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("onMessageOpenedApp: $message");
+      // print("onMessageOpenedApp: $message");
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => RecipientDashboard()));
 
@@ -688,7 +696,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
         );
       }, duration: Duration(milliseconds: 4000));
 
-      print(message['notification']['title']);
+      // print(message['notification']['title']);
   }
 
 

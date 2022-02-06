@@ -35,7 +35,6 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(Duration(seconds: 4),() {
       checkIsUserLoggedIn(context);
 
-
     });
   }
 
@@ -80,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
         {
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => RecipientDashboard()));
         }
-        else if (role == Constants.ROLE_VOLUNTEER)
+        else
         {
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => VolunteerDashboard()));
         }
@@ -89,7 +88,6 @@ class _SplashScreenState extends State<SplashScreen> {
     else
       {
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
-        print(">>>>>>2");
       }
   }
 }

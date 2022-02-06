@@ -4,6 +4,7 @@ import 'package:closingtime/registration/recipient_registration.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/registration/volunteer_registration.dart';
 import 'package:closingtime/splash_screen.dart';
+import 'package:closingtime/test.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
@@ -40,11 +41,10 @@ void main() async {
 
   messaging.getToken().then((token){
 
-    print(token);
     _storeFirebaseToken(token);
   });
 
-  print('User granted permission: ${settings.authorizationStatus}');
+  // print('User granted permission: ${settings.authorizationStatus}');
 
 
   // configureNotifications(messaging);
@@ -57,11 +57,11 @@ void configureNotifications(FirebaseMessaging _firebaseMessaging) {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     // showNotification(notification);
-    print(notification!.title);
+    // print(notification!.title);
   });
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print("onMessageOpenedApp: $message");
+    // print("onMessageOpenedApp: $message");
 
     // acceptFoodDialog();
 
@@ -106,7 +106,6 @@ void _storeFirebaseToken(token) async
 }
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message");
 }
 
 
@@ -205,7 +204,7 @@ class RolePreferenceScreen extends StatelessWidget {
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
           onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerRegistration(_email)));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerRegistration(_email, null)));
           },
         ),
       ),

@@ -282,8 +282,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                         ),
                         title: Text(predictions[index].description ?? "No results found"),
                         onTap: () {
-                          debugPrint(predictions[index].placeId);
-                          debugPrint(predictions[index].structuredFormatting.toString());
+                          // debugPrint(predictions[index].placeId);
+                          // debugPrint(predictions[index].structuredFormatting.toString());
 
                           getDetails(predictions[index].description ?? "", predictions[index].placeId?? "");
                         },
@@ -356,8 +356,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                       ),
                       title: Text(predictions[index].description ?? "No results found"),
                       onTap: () {
-                        debugPrint(predictions[index].placeId);
-                        debugPrint(predictions[index].structuredFormatting.toString());
+                        // debugPrint(predictions[index].placeId);
+                        // debugPrint(predictions[index].structuredFormatting.toString());
 
                         getDetails(predictions[index].description ?? "", predictions[index].placeId?? "");
                       },
@@ -373,7 +373,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   }
 
   void autoCompleteSearch(String value) async {
-    print(value);
+    // print(value);
 
     var result = await googlePlace.autocomplete.get(value, offset:3, components: [Component("country", "UK")], region: "UK");
 
@@ -388,8 +388,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     var result = await googlePlace.details.get(placeId);
     if (result != null && result.result != null && mounted) {
 
-      print(result.result!.geometry!.location!.lat);
-      print(result.result!.geometry!.location!.lng);
+      // print(result.result!.geometry!.location!.lat);
+      // print(result.result!.geometry!.location!.lng);
 
       Navigator.pop(context, LocationDetailsModel(desc, result.result!.geometry!.location!.lat?? 0.0, result.result!.geometry!.location!.lng?? 0.0, placeId));
     }
@@ -522,7 +522,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },
         validator: (value) {
-          print("hey");
           if (value == null || value.isEmpty)
             {
               return "Please enter password";
@@ -735,7 +734,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     {
       if (result != null) {
         locationDetailsModel = result;
-        print(locationDetailsModel.address);
         _userAddressFieldController.text = locationDetailsModel.address;
       }
 
@@ -950,8 +948,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         setState(() {
           _progressBarActive = false;
         });
-        print(value.message);
-        print(value.data);
         // hideProgressDialog();
 
         if (!value.error)
@@ -976,7 +972,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
     }
   }
 
@@ -1003,7 +999,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       "firebase_token": fb_token
     };
 
-    print(jsonEncode(body));
+    // print(jsonEncode(body));
 
     try
     {
@@ -1012,8 +1008,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         setState(() {
           _progressBarActive = false;
         });
-        print(value.message);
-        print(value.data);
+        // print(value.message);
+        // print(value.data);
         // hideProgressDialog();
 
         if (!value.error)
@@ -1033,7 +1029,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
     }
   }
 
@@ -1044,7 +1040,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     {
       Future<dynamic> donorRegistrationResp = ApiService.test();
       donorRegistrationResp.then((value){
-        print(value);
+        // print(value);
 
       });
 
@@ -1052,7 +1048,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     on Exception catch(e)
     {
       Navigator.pop(context);
-      print(e);
+      // print(e);
     }
   }
 

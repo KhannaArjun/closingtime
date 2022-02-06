@@ -33,7 +33,7 @@ class LoginProvider
       return email;
 
     } catch (error) {
-      print(error);
+      // print(error);
       return email;
     }
 
@@ -91,7 +91,7 @@ class LoginProvider
         nonce: nonce,
       );
 
-      print(appleCredential.authorizationCode);
+      // print(appleCredential.authorizationCode);
 
       // Create an `OAuthCredential` from the credential returned by Apple.
       final oauthCredential = OAuthProvider("apple.com").credential(
@@ -109,14 +109,13 @@ class LoginProvider
       final userEmail = '${appleCredential.email}';
 
       final firebaseUser = authResult.user;
-      print(displayName);
-      print(userEmail);
+
       await firebaseUser!.updateDisplayName(displayName);
       await firebaseUser.updateEmail(userEmail);
 
       return userEmail;
     } catch (exception) {
-      print(exception);
+      // print(exception);
       return null;
     }
   }
@@ -127,10 +126,7 @@ class LoginProvider
     if (firebaseAuth.currentUser != null)
     {
   // signed in
-      print(firebaseAuth.currentUser!.email);
-      print("logged in");
   } else {
-      print("not logged in");
   }
   }
 }

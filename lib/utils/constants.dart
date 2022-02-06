@@ -15,6 +15,7 @@ class Constants
   static const String role = "role";
   static const String name = "name";
   static const String business_name = "business_name";
+  static const String serving_distance = "serving_distance";
   static const String email = "email";
   static const String contact = "contact";
   static const String address = "address";
@@ -27,6 +28,12 @@ class Constants
   static const String ROLE_VOLUNTEER = "Volunteer";
   static const String STATUS_AVAILABLE = "Available";
   static const String success = "Success";
+  static const String waiting_for_pickup = "Waiting for pickup";
+  static const String pick_up_scheduled = "Pick up scheduled";
+  static const String delivered = "Delivered";
+  static const String expired = "Due date passed / No response";
+  static const String prod = "prod";
+  static const String dev = "dev";
 
 
 

@@ -12,6 +12,7 @@ import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
+import 'package:closingtime/volunteer/volunteer_dashboard.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -118,8 +119,7 @@ class _LoginWidgetState extends State<LoginWidget> {
     getFirebaseTokeFromSP().then((value)
     {
       fb_token = value;
-      print("fb_token");
-      print(fb_token);
+
     });
   }
 
@@ -159,7 +159,6 @@ class _LoginWidgetState extends State<LoginWidget> {
                   if (value.isNotEmpty)
                   {
                     _email = value;
-                    print(value);
                     checkIsUserExists(context);
                   }
                   else
@@ -188,7 +187,6 @@ class _LoginWidgetState extends State<LoginWidget> {
                     {
                       if (value != null)
                       {
-                        print(value);
 
                         _email = value;
 
@@ -261,7 +259,6 @@ class _LoginWidgetState extends State<LoginWidget> {
       setState(() {
         _progressBarActive = false;
       });
-      print(value.data.toString());
 
       if(value.data.userId != null)
       {
@@ -272,7 +269,6 @@ class _LoginWidgetState extends State<LoginWidget> {
         }
         else
         {
-          print("Error");
           Constants.showToast("Please try again");
         }
       }
@@ -294,12 +290,10 @@ class _LoginWidgetState extends State<LoginWidget> {
         getFirebaseTokeFromSP().then((value)
         {
           fb_token = value;
-          print("fb_token");
-          // print(fb_token);
+          // print("fb_token");
         });
       }
 
-    print("4");
 
     ctx = context;
 
@@ -314,13 +308,13 @@ class _LoginWidgetState extends State<LoginWidget> {
       "firebase_token": fb_token
     };
 
-    print(body);
+    // print(body);
 
     Future<dynamic> response = ApiService.checkIsUserExists(jsonEncode(body));
 
     response.then((value) {
 
-      print(value);
+      // print(value);
 
       setState(() {
         _progressBarActive = false;
@@ -328,17 +322,14 @@ class _LoginWidgetState extends State<LoginWidget> {
 
       Navigator.pop(ctx);
 
-      print(value['data']);
-
-
       if(value['message'].toString() == Constants.user_exists)
       {
         var data = value['data'];
-        print(data['address']);
-        storeUserData(data['user_id'], data['name'], data['business_name'], data['email'], data['contact_number'], data['role'], data['address'], data['lat'], data['lng']);
 
         if (data['role'] == Constants.ROLE_DONOR)
           {
+
+            storeUserData(data['user_id'], data['name'], data['business_name'], data['email'], data['contact_number'], data['role'], data['address'], data['lat'], data['lng']);
 
             Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
                 DonorDashboard()), (route) => false);
@@ -346,14 +337,21 @@ class _LoginWidgetState extends State<LoginWidget> {
             // Navigator.of(context).push(
             //     MaterialPageRoute(builder: (context) => DonorDashboard()));
           }
-        else{
+        else if (data['role'] == Constants.ROLE_RECIPIENT) {
+          storeUserData(data['user_id'], data['name'], data['business_name'], data['email'], data['contact_number'], data['role'], data['address'], data['lat'], data['lng']);
           Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
               RecipientDashboard()), (route) => false);
+        }
+        else{
+          storeUserDataForVolunteer(data['user_id'], data['name'], data['serving_distance'], data['email'], data['contact_number'], data['role'], data['address'], data['lat'], data['lng']);
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+              VolunteerDashboard()), (route) => false);
         }
 
       }
       else if (value['message'].toString() == Constants.new_user)
         {
+
 
           Navigator.of(context).push( MaterialPageRoute(builder: (context) => RolePreferenceScreen(_email)));
         }
@@ -373,13 +371,10 @@ class _LoginWidgetState extends State<LoginWidget> {
     // );
 
 
-    print("1");
 
     messaging.getToken().then((token){
 
      fb_token = token!;
-      print("2");
-     print(fb_token);
 
       // _storeFirebaseToken(token);
     });
@@ -404,6 +399,19 @@ class _LoginWidgetState extends State<LoginWidget> {
   //         },
   //   ),);
   // }
+
+  storeUserDataForVolunteer(id, name, serving_distance, email, contact, role, address, lat, lng) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(Constants.user_id, id);
+    prefs.setString(Constants.name, name);
+    prefs.setString(Constants.serving_distance, serving_distance);
+    prefs.setString(Constants.email, email);
+    prefs.setString(Constants.contact, contact);
+    prefs.setString(Constants.address, address);
+    prefs.setDouble(Constants.lat, lat);
+    prefs.setDouble(Constants.lng, lng);
+    prefs.setString(Constants.role, role);
+  }
 
   storeUserData(id, name, business_name, email, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

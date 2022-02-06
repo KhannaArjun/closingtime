@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:closingtime/food_donor/donor_food_description_screen.dart';
+import 'package:closingtime/food_donor/food_donor_history.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -86,11 +87,11 @@ class _DonorDashboardState extends State<DonorDashboard> {
   void configureNotifications(context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
-      print(notification!.title);
+      // print(notification!.title);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("onMessageOpenedApp: $message");
+      // print("onMessageOpenedApp: $message");
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorDashboard()));
 
@@ -222,6 +223,16 @@ class _DonorDashboardState extends State<DonorDashboard> {
 
               },
             ),
+
+            ListTile(
+              title: const Text('History'),
+              onTap: () {
+
+                //Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => FoodDonorHistory()));
+
+              },
+            ),
             ListTile(
               title: const Text('Logout'),
               onTap: () {
@@ -298,7 +309,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
             ),
             child: InkWell(
               onTap: () async {
-              var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorFoodDescription(addedFoodModel)));
+              var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorFoodDescription(addedFoodModel, false)));
               if (result == true)
               {
               getUserId();
@@ -310,7 +321,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
                     children: <Widget>[
                       Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: CircleAvatar(
-                          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):Image.memory(base64Decode(addedFoodModel.image)).image,
+                          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):NetworkImage(addedFoodModel.image),
                           radius: 40,
                           backgroundColor: ColorUtils.primaryColor,
                         ),
@@ -426,7 +437,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
     {
       Future<AddedFoodListModel> addedFoodListModel = ApiService.addedFoodList(jsonEncode(body));
       addedFoodListModel.then((value){
-        print(value.data);
+        // print(value.data);
 
         if (!value.error)
         {
@@ -456,7 +467,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 
@@ -546,7 +557,6 @@ class _DonorDashboardState extends State<DonorDashboard> {
           isLoading = false;
         });
 
-        print(isLoading);
         if (value['message'] == Constants.success)
         {
           removeSharedPreferences();
@@ -563,7 +573,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 
@@ -586,7 +596,6 @@ class _DonorDashboardState extends State<DonorDashboard> {
           isLoading = false;
         });
 
-        print(isLoading);
         if (value['message'] == "deleted")
         {
           getUserId();
@@ -602,7 +611,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
     }
     on Exception catch(e)
     {
-      print(e);
+      // print(e);
       Constants.showToast("Please try again");
     }
 

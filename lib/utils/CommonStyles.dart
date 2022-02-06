@@ -36,10 +36,67 @@ class CommonStyles {
     );
   }
 
+  static textFormFieldDecoration(String label, String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+        fontStyle: FontStyle.normal,
+      ),
+      alignLabelWithHint:false,
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.black,
+        ),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+            color: Colors.black,
+            width: 2
+        ),
+      ),
+    );
+  }
+
+  static textFormStyle()
+  {
+    return const TextStyle(
+        fontWeight: FontWeight.w300,
+        fontSize: 15,
+        fontFamily: 'Raleway'
+    );
+  }
+
+  static textFormNameField(String label)
+  {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: _textFieldsNamePadding(),
+        child: Text(
+          label,
+          style: TextStyle(
+              color: ColorUtils.primaryColor,
+              fontSize: 14,
+              fontFamily: 'Raleway',
+              fontWeight: FontWeight.bold
+          ),
+        ),),);
+  }
+
   static textFieldsPadding()
   {
-    return const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10);
+    return const EdgeInsets.fromLTRB(15, 0, 15, 0);
   }
+
+
+  static _textFieldsNamePadding()
+  {
+    return const EdgeInsets.fromLTRB(15, 0, 15, 0);
+  }
+
+
 
   static searchFieldStyle(String label, String hint) {
     return InputDecoration(
@@ -61,6 +118,8 @@ class CommonStyles {
       ),
     );
   }
+
+
 
   static layoutBackgroundShape()
   {
