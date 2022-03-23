@@ -32,7 +32,7 @@ class VolunteerRegistration extends StatelessWidget {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Volunteer Registration"),
+          title: CommonStyles.textFormStyleForAppBar("Volunteer Registration"),
           backgroundColor: Colors.blue,
           elevation: 0.0,
           titleSpacing: 10.0,
@@ -60,7 +60,7 @@ class VolunteerRegistration extends StatelessWidget {
                 ),
 
                 Positioned(
-                  top: 140,
+                  top: 50,
                   left: 10,
                   right: 10,
                   child: VolunteerRegistrationFormWidget(_email, _volunteerProfileModel),
@@ -112,7 +112,6 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
   String _selectedDistance = "0";
 
-  VolunteerRegistrationResponse? _volunteerRegistrationResponse;
 
   @override
   void initState() {
@@ -183,11 +182,26 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
             elevation: 10,
             child: Column(
               children: <Widget>[
+                const SizedBox(height: 30,),
+
+                CommonStyles.textFormNameField("Person Name"),
                 _buildPersonName(context),
+                const SizedBox(height: 30,),
+
+                CommonStyles.textFormNameField("Email"),
                 _buildEmailField(context),
+                const SizedBox(height: 30,),
+
+                _buildContactField(context),
                 _buildContactNumberField(context),
+                const SizedBox(height: 30,),
+
                 _buildSelectMilesField(context),
+                const SizedBox(height: 10,),
                 _buildChooseMilesField(context),
+                const SizedBox(height: 30,),
+
+                CommonStyles.textFormNameField("Enter your Address"),
                 _buildChooseAddressField(context),
                 _progressBarActive == true? CommonStyles.loadingBar(context): _buildSubmitButton(context),
               ],
@@ -198,24 +212,24 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
     );
   }
 
-  Widget _buildSelectMilesField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15),
-      child: Row(
-        children: const [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-              'Select serving radius in miles',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+  Widget _buildContactField(BuildContext context) {
+    return
+      Row(
+        children: [
+          CommonStyles.textFormNameField("Code"),
+          CommonStyles.textFormNameField("Contact Number"),
         ],
-      ),
+      );
+  }
+
+  Widget _buildSelectMilesField(BuildContext context) {
+    return Row(
+      children: [
+        Align(
+            alignment: Alignment.topLeft,
+            child: CommonStyles.textFormNameField("Select serving radius in miles")
+        ),
+      ],
     );
   }
 
@@ -223,8 +237,9 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
   Widget _buildPersonName(BuildContext context)
   {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
+        style: CommonStyles.textFormStyle(),
         controller: _userPersonNameController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
@@ -239,15 +254,16 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
           return null;
 
         },
-        decoration: CommonStyles.textFormFieldStyle("Person Name", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Person Name"),
       ),
     );
   }
 
   Widget _buildEmailField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
+        style: CommonStyles.textFormStyle(),
         showCursor: false,
         readOnly: true,
         controller: _userEmailController,
@@ -259,7 +275,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
         validator: (value) {
           // str :  _emailValidation(value.toString());
         },
-        decoration: CommonStyles.textFormFieldStyle("Email", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Email"),
       ),
     );
   }
@@ -284,6 +300,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
             controller: _userAddressFieldController,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.done,
+            style: CommonStyles.textFormStyle(),
             onFieldSubmitted: (_) {
             },
             validator: (value) {
@@ -292,7 +309,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
               }
               return null;
             },
-            decoration: CommonStyles.textFormFieldStyle("Enter your serving location", ""),
+            decoration: CommonStyles.textFormFieldDecoration("Enter your serving location", ""),
             onTap: () async {
               _awaitReturnValueFromPlacesAutocomplete(context);
 
@@ -306,13 +323,15 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
   Widget _buildContactNumberField(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+        padding: CommonStyles.textFieldsPadding(),
         child: Row(
           children: [
             Flexible(
               child: SizedBox(
                 width: 45,
                 child: TextFormField(
+                  style: CommonStyles.textFormStyle(),
+                  maxLength: 2,
                   readOnly: true,
                   showCursor: false,
                   controller: _userContactNumbeCodeController,
@@ -328,14 +347,15 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
                     return null;
 
                   },
-                  decoration: CommonStyles.textFormFieldStyle("Code", ""),
+                  decoration: CommonStyles.textFormFieldDecoration("", "Code"),
                 ),),),
-            const SizedBox(width: 40),
+            const SizedBox(width: 25),
             Flexible (child: TextFormField(
               maxLength: 10,
               controller: _userContactNumberController,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
+              style: CommonStyles.textFormStyle(),
               onFieldSubmitted: (_) {
 
               },
@@ -351,7 +371,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
                 return null;
 
               },
-              decoration: CommonStyles.textFormFieldStyle("Contact Number", ""),
+              decoration: CommonStyles.textFormFieldDecoration("", "Contact Number"),
             ),),
           ],
         )
@@ -491,7 +511,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
           return;
         }
 
-      _volunteerRegistrationResponse == null? volunteerRegistrationApiCall(context) : volunteerUpdateProfileApiCall(context);
+      _volunteerProfileModel == null? volunteerRegistrationApiCall(context) : volunteerUpdateProfileApiCall(context);
 
       //getCurrentLocation();
 

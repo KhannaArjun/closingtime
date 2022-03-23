@@ -202,7 +202,7 @@ class _FoodDonorHistoryState extends State<FoodRecipientHistory> {
                     style: TextStyle(
                       color: addedFoodModel.status == Constants.delivered? Colors.lightGreen: Colors.red,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 14,
                     ),),
 
                   const SizedBox(width: 8,),

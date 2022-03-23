@@ -130,7 +130,8 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           {
             setState(() {
               //_image = File();
-              _encodedString = _addedFoodModel!.image;
+              // _encodedString = _addedFoodModel!.image;
+              _addedFoodModel!.image;
             }
             );
           }
@@ -265,8 +266,25 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
                       height: 100,
                       fit: BoxFit.fitHeight,
                     ).image,
+                  ) : _addedFoodModel != null?
+                  _addedFoodModel!.image.isNotEmpty?
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage:
+                    NetworkImage(_addedFoodModel!.image,),
                   )
                       : Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(50)),
+                    width: 100,
+                    height: 100,
+                    child: Icon(
+                      Icons.camera_alt,
+                      color: Colors.grey[800],
+                      size: 50,
+                    ),
+                  ): Container(
                     decoration: BoxDecoration(
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(50)),
@@ -580,7 +598,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
             }
             return null;
           },
-        decoration: CommonStyles.textFormFieldDecoration("", "eg. 03/01/2022"),
+        decoration: CommonStyles.textFormFieldDecoration("", "YYYY-MM-DD"),
         onTap: (){
           _selectDate(context);
           }),
@@ -693,9 +711,9 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
         margin: const EdgeInsets.fromLTRB(0, 0, 0, 30),
         width: double.infinity,
         child: CustomRaisedButton(
-          child: const Text(
-            "Donate",
-            style: TextStyle(
+          child:  Text(
+            _addedFoodModel == null? "Donate" : "Update",
+            style: const TextStyle(
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
           onPressed: () {
@@ -733,7 +751,8 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
     if (form!.validate()) {
 
-      getUserId(context);
+
+        getUserId(context);
 
     } else {
       setState(() {
@@ -750,19 +769,46 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
     String business_name = sharedPreferences.getString(Constants.business_name) ?? '';
 
-    setState(() {
-      _isLoading = true;
-    });
-
-
     if (_image == null)
+    {
+      if (_addedFoodModel != null)
       {
-        addFoodApiCall(context, userId, business_name, "");
+        if (_addedFoodModel!.image.isNotEmpty)
+        {
+          setState(() {
+            _isLoading = true;
+          });
+
+          modifyFoodApiCall(context, userId, business_name, _addedFoodModel!.image);
+        }
+        else{
+          Constants.showToast("Please upload the food image");
+        }
       }
+      else
+      {
+        Constants.showToast("Please upload the food image");
+      }
+    }
     else
-      {
-        uploadImageToFirebase(context, userId, business_name);
-      }
+    {
+      setState(() {
+        _isLoading = true;
+      });
+
+      uploadImageToFirebase(context, userId, business_name);
+    }
+
+
+
+    // if (_image == null)
+    //   {
+    //     addFoodApiCall(context, userId, business_name, "");
+    //   }
+    // else
+    //   {
+    //     uploadImageToFirebase(context, userId, business_name);
+    //   }
   }
 
   String _encodedString = "";
@@ -771,13 +817,22 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   Future uploadImageToFirebase(BuildContext context, String userId, String business_name) async {
     // String fileName = _image!.path;
     var timestamp = DateTime. now(). millisecondsSinceEpoch;
-    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(Constants.dev + 'food_images/$userId' + '_$timestamp');
+    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(Constants.prod + '/food_images/$userId' + '_$timestamp');
     UploadTask uploadTask = firebaseStorageRef.putFile(_image!);
     await uploadTask.then(
           (value) {
             value.ref.getDownloadURL().then((url) {
               // print(url);
-              addFoodApiCall(context, userId, business_name, url);
+
+              if (_addedFoodModel != null)
+                {
+                  modifyFoodApiCall(context, userId, business_name, url);
+                }
+              else
+                {
+                  addFoodApiCall(context, userId, business_name, url);
+                }
+
             }
             );
           }
@@ -853,6 +908,77 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
         else
         {
           Constants.showToast(value['message']);
+        }
+
+      });
+
+    }
+    on Exception catch(e)
+    {
+      // print(e);
+      Constants.showToast('Please try again');
+    }
+  }
+
+  void modifyFoodApiCall(BuildContext context, userId, business_name, image)
+  {
+
+    Map body =
+    {
+      "id":_addedFoodModel!.id,
+      "user_id": userId,
+      "food_name": _foodNameController.value.text,
+      "food_desc": _foodDescController.value.text,
+      "quantity": _foodQuantityController.value.text,
+      "allergen": foodAllergenList.isEmpty? "": foodAllergenList.toString().replaceAll("{", "").replaceAll("}", ""),
+      "pick_up_date": _foodPickUpDateController.value.text,
+      "pick_up_time": _foodPickUpTimeController.value.text,
+      "food_ingredients": _foodIngredientsInfoController.value.text,
+      "image": image
+
+
+      // "isFoodAccepted": false,
+      // "business_name": business_name,
+      // "status": Constants.STATUS_AVAILABLE,
+
+      // "pick_up_address": _userAddressFieldController.value.text,
+      // "pick_up_lat": _lat,
+      // "pick_up_lng": _lng,
+
+    };
+
+    print(jsonEncode(body));
+
+    try
+    {
+      Future<AddedFoodListModel> response = ApiService.modifyFoodItem(jsonEncode(body));
+      response.then((value){
+        // print(value.toString());
+
+        // hideProgressDialog();
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (!value.error)
+        {
+          if (value.message == Constants.updated) {
+
+            Constants.showToast(value.message);
+
+            Navigator.pop(context, value.data[0]);
+
+          }
+          else
+          {
+            Constants.showToast(value.message);
+          }
+
+        }
+        else
+        {
+          Constants.showToast(value.message);
         }
 
       });

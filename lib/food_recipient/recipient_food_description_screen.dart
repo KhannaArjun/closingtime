@@ -314,8 +314,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
                           child:Text('Ingredients Information', overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                                color: Color.fromARGB(255, 48, 48, 54)
                             ),
                           ),
                         ),
@@ -328,7 +327,8 @@ class _FoodDescriptionState extends State<FoodDescription> {
                           child:Text( addedFoodModel.foodIngredients.isEmpty? "Not available": addedFoodModel.pickUpDate, overflow: TextOverflow.ellipsis,style:
                           const TextStyle(
                               fontSize: 18,
-                              color: Color.fromARGB(255, 48, 48, 54)
+                              fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),),
                         ),
                       ),
@@ -350,8 +350,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
                           child:Text('Allergen Information', overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                                color: Color.fromARGB(255, 48, 48, 54)
                             ),
                           ),
                         ),
@@ -361,10 +360,11 @@ class _FoodDescriptionState extends State<FoodDescription> {
                         padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
                         child: SizedBox(
                           width: 260,
-                          child:Text( addedFoodModel.allergen.isEmpty? "Not available": addedFoodModel.pickUpDate, overflow: TextOverflow.ellipsis,style:
+                          child:Text( addedFoodModel.allergen.isEmpty? "Not available": addedFoodModel.allergen, overflow: TextOverflow.ellipsis,style:
                           const TextStyle(
                               fontSize: 18,
-                              color: Color.fromARGB(255, 48, 48, 54)
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),),
                         ),
                       ),
@@ -515,6 +515,43 @@ class _FoodDescriptionState extends State<FoodDescription> {
       );
     }
   }
+
+  Future<void> _showAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Do you want to logout?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+
+
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
 
   String _buttonTextColor(status)
   {

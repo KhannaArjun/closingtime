@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'food_donor/donor_dashboard.dart';
+import 'on_boarding_screen.dart';
 
 class SplashScreenApp extends StatelessWidget {
   @override
@@ -32,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 4),() {
+    Future.delayed(const Duration(seconds: 4),() {
       checkIsUserLoggedIn(context);
 
     });
@@ -41,21 +42,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
+        body: SizedBox(
           height: double.infinity,
           width: double.infinity,
-          child: const Center(
-            child: Text(
-              'Closing Time!',
-              style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: ColorUtils.primaryColor
-              ),
-            ),
-
-        ),
-      ));
+          child: Image.asset('assets/images/splash_screen.png'),
+      )
+    );
   }
 
 
@@ -87,7 +79,8 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     else
       {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
+        // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => OnBoardingPage()));
       }
   }
 }

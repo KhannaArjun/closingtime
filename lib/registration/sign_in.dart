@@ -64,16 +64,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: CommonStyles.layoutBackgroundShape(),
                 //decoration: BoxDecoration(color: ColorUtils.appBarBackgroundForSignUp),
               ),
-              const Align(
+              Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 80),
-                    child: Text(
-                      "Closing Time!",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 25),
+                    child: SizedBox(
+                      height: 230,
+                      width: 200,
+                      child: Image.asset('assets/images/logo_white.png',)
                     ),
                   )),
               Positioned(
@@ -145,7 +143,7 @@ class _LoginWidgetState extends State<LoginWidget> {
         child: Column(
           children: <Widget>[
 
-            SizedBox(
+            const SizedBox(
               height: 50,
             ),
 
@@ -171,7 +169,7 @@ class _LoginWidgetState extends State<LoginWidget> {
 
             ),
 
-            Padding(
+            const Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
               child: Text(
                   'or'
@@ -351,9 +349,10 @@ class _LoginWidgetState extends State<LoginWidget> {
       }
       else if (value['message'].toString() == Constants.new_user)
         {
+          //Navigator.of(context).push( MaterialPageRoute(builder: (context) => RolePreferenceScreen(_email)));
 
-
-          Navigator.of(context).push( MaterialPageRoute(builder: (context) => RolePreferenceScreen(_email)));
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+              RolePreferenceScreen(_email)), (route) => false);
         }
       }
 

@@ -37,7 +37,7 @@ class RecipientRegistration extends StatelessWidget {
   Widget build(BuildContext context) {
     return  Scaffold(
         appBar: AppBar(
-          title: const Text("Recipient Registration"),
+          title: CommonStyles.textFormStyleForAppBar("Recipient Registration"),
           backgroundColor: Colors.blue,
           elevation: 0.0,
           titleSpacing: 10.0,
@@ -65,7 +65,7 @@ class RecipientRegistration extends StatelessWidget {
                 ),
 
                 Positioned(
-                  top: 140,
+                  top: 50,
                   left: 10,
                   right: 10,
                   child: RecipientLoginFormWidget(_email, _recipientProfileModel),
@@ -176,11 +176,26 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
             child: Column(
               children: <Widget>[
                 // _buildIntroText(),
+                const SizedBox(height: 30,),
+                CommonStyles.textFormNameField("Person Name"),
                 _buildPersonName(context),
+                const SizedBox(height: 30,),
+
+                CommonStyles.textFormNameField("Business/Entity Name"),
                 _buildRestaurantName(context),
+                const SizedBox(height: 30,),
+
+                CommonStyles.textFormNameField("Email"),
                 _buildEmailField(context),
+                const SizedBox(height: 30,),
+
+                _buildContactField(context),
                 _buildContactNumberField(context),
-                _buildAddressField(context),
+
+                const SizedBox(height: 30,),
+
+
+                CommonStyles.textFormNameField("Enter your Address"),
                 _buildChooseAddressField(context),
                 // _buildStreetNameField(context),
                 // _buildAreaNameField(context),
@@ -201,6 +216,16 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
         ],
       ),
     );
+  }
+
+  Widget _buildContactField(BuildContext context) {
+    return
+      Row(
+        children: [
+          CommonStyles.textFormNameField("Code"),
+          CommonStyles.textFormNameField("Contact Number"),
+        ],
+      );
   }
 
   Widget __buildTwitterButtonWidget(BuildContext context) {
@@ -254,11 +279,12 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   Widget _buildPersonName(BuildContext context)
   {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
         controller: _userPersonNameController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
+        style: CommonStyles.textFormStyle(),
         /*onFieldSubmitted: (_) {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },*/
@@ -268,18 +294,19 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
           }
           return null;
         },
-        decoration: CommonStyles.textFormFieldStyle("Person Name", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Person Name"),
       ),
     );
   }
 
   Widget _buildRestaurantName(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
         controller: _userRecipientNameController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
+        style: CommonStyles.textFormStyle(),
         onFieldSubmitted: (_) {
 
         },
@@ -289,18 +316,19 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
           }
           return null;
         },
-        decoration: CommonStyles.textFormFieldStyle("Business/Entity Name", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Business/Entity Name"),
       ),
     );
   }
 
   Widget _buildEmailField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
         showCursor: false,
         readOnly: true,
         controller: _userEmailController,
+        style: CommonStyles.textFormStyle(),
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
         onFieldSubmitted: (_) {
@@ -312,7 +340,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
           }
           return null;
         },
-        decoration: CommonStyles.textFormFieldStyle("Email", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Email"),
       ),
     );
   }
@@ -334,39 +362,47 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
 
   Widget _buildContactNumberField(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+        padding: CommonStyles.textFieldsPadding(),
         child: Row(
           children: [
             Flexible(
               child: Container(
                 width: 45,
                 child: TextFormField(
+                  maxLength: 2,
                   readOnly: true,
                   showCursor: false,
                   controller: _userContactNumbeCodeController,
-                  keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
+                  style: CommonStyles.textFormStyle(),
+                  onFieldSubmitted: (_) {
+
+                  },
 
                   validator: (value) {
                     if (value == null || value.isEmpty)
                     {
-
-                      return "Please enter country code";
+                      return "Please enter valid code";
                     }
-                    return null;
 
                   },
-                  decoration: CommonStyles.textFormFieldStyle("Code", ""),
+                  decoration: CommonStyles.textFormFieldDecoration("", "Code"),
                 ),),),
-            SizedBox(width: 40),
-            Flexible (child: TextFormField(
+
+            const SizedBox(width: 25),
+
+            Flexible (
+              child: TextFormField(
+
               maxLength: 10,
               controller: _userContactNumberController,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
+              style: CommonStyles.textFormStyle(),
               onFieldSubmitted: (_) {
 
               },
+
               validator: (value) {
                 if (value == null || value.isEmpty)
                 {
@@ -379,7 +415,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
                 return null;
 
               },
-              decoration: CommonStyles.textFormFieldStyle("Contact Number", ""),
+              decoration: CommonStyles.textFormFieldDecoration("", "Contact Number"),
             ),),
           ],
         )
@@ -416,6 +452,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
             readOnly: true,
             controller: _userAddressFieldController,
             keyboardType: TextInputType.text,
+            style: CommonStyles.textFormStyle(),
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) {
             },
@@ -425,7 +462,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
               }
               return null;
             },
-            decoration: CommonStyles.textFormFieldStyle("Enter your Address", ""),
+            decoration: CommonStyles.textFormFieldDecoration("", "Enter your Address"),
             onTap: () async {
               _awaitReturnValueFromPlacesAutocomplete(context);
 
@@ -448,7 +485,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
           builder: (context) => AutoCompleteGooglePlaces(),
         ));
 
-    // after the SecondScreen result comes back update the Text widget with it
+
     setState(()
     {
       if (result != null) {

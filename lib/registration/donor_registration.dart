@@ -39,7 +39,7 @@ class DonorRegistration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Donor Registration"),
+          title: CommonStyles.textFormStyleForAppBar("Donor Registration"),
           backgroundColor: Colors.blue,
           elevation: 0.0,
           titleSpacing: 10.0,
@@ -48,7 +48,7 @@ class DonorRegistration extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back_ios,
               color: Colors.white,
             ),
@@ -78,7 +78,7 @@ class DonorRegistration extends StatelessWidget {
                 //       ),
                 //     )),
                 Positioned(
-                  top: 140,
+                  top: 50,
                   left: 10,
                   right: 10,
                   child: LoginFormWidget(_email, _donorProfileModel),
@@ -197,15 +197,33 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               child: Column(
                 children: <Widget>[
                   // _buildIntroText(),
+                  const SizedBox(height: 30,),
+
+                  CommonStyles.textFormNameField("Person Name"),
                   _buildPersonName(context),
+                  const SizedBox(height: 30,),
+
+                  CommonStyles.textFormNameField("Business/Entity Name"),
                   _buildRestaurantName(context),
+                  const SizedBox(height: 30,),
+
+                  CommonStyles.textFormNameField("Email"),
                   _buildEmailField(context),
+                  const SizedBox(height: 30,),
+
+                  _buildContactField(context),
                   _buildContactNumberField(context),
-                  _buildAddressField(context),
+                  const SizedBox(height: 30,),
+
+                  // CommonStyles.textFormNameField("Address"),
+                  // _buildAddressField(context),
                   // _buildStreetNameField(context),
                   // _buildAreaNameField(context),
                   // _buildStatesAutoCompleteTextField(context),
+                  CommonStyles.textFormNameField("Enter your Address"),
                   _buildChooseAddressField(context),
+                  const SizedBox(height: 30,),
+
                   //_buildStateNameField(context),
                   // _buildPostalCodeField(context),
                   // _buildCountryNameField(context),
@@ -266,7 +284,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                     }
                   },
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
@@ -274,7 +292,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                     itemCount: predictions.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        leading: CircleAvatar(
+                        leading: const CircleAvatar(
                           child: Icon(
                             Icons.pin_drop,
                             color: Colors.white,
@@ -300,7 +318,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   Widget draggableScrollSheet()
   {
-
     return DraggableScrollableSheet(
         builder: (BuildContext context, ScrollController scrollController)
     {
@@ -340,7 +357,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   }
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Expanded(
@@ -348,7 +365,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   itemCount: predictions.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      leading: CircleAvatar(
+                      leading: const CircleAvatar(
                         child: Icon(
                           Icons.pin_drop,
                           color: Colors.white,
@@ -401,7 +418,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: RaisedButton(
-            color: Color.fromRGBO(16, 161, 250, 1.0),
+            color: const Color.fromRGBO(16, 161, 250, 1.0),
             child: Image.asset(
               "assets/images/ic_twitter.png",
               width: 25,
@@ -409,7 +426,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             ),
             onPressed: () {},
             shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0))),
+                borderRadius: BorderRadius.circular(30.0))),
       ),
     );
   }
@@ -446,11 +463,12 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   Widget _buildPersonName(BuildContext context)
   {
   return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: TextFormField(
+    padding: CommonStyles.textFieldsPadding(),
+    child: TextFormField(
         controller: _userPersonNameController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
+        style: CommonStyles.textFormStyle(),
         /*onFieldSubmitted: (_) {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },*/
@@ -460,18 +478,19 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   }
   return null;
   },
-        decoration: CommonStyles.textFormFieldStyle("Person Name", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Person Name"),
       ),
     );
   }
 
   Widget _buildRestaurantName(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
         controller: _userRestaurantNameController,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.next,
+        style: CommonStyles.textFormStyle(),
         onFieldSubmitted: (_) {
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },
@@ -481,18 +500,19 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     }
     return null;
         },
-        decoration: CommonStyles.textFormFieldStyle("Business/Entity Name", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Business/Entity Name"),
       ),
     );
   }
 
   Widget _buildEmailField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+      padding: CommonStyles.textFieldsPadding(),
       child: TextFormField(
         showCursor: false,
         readOnly: true,
         controller: _userEmailController,
+        style: CommonStyles.textFormStyle(),
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
         onFieldSubmitted: (_) {
@@ -505,7 +525,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           }
           return null;
         },
-        decoration: CommonStyles.textFormFieldStyle("Email", ""),
+        decoration: CommonStyles.textFormFieldDecoration("", "Email"),
       ),
     );
   }
@@ -550,16 +570,19 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   Widget _buildContactNumberField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+        padding: CommonStyles.textFieldsPadding(),
       child: Row(
         children: [
+
           Flexible(
             child: Container(
               width:45,
               child: TextFormField(
+                maxLength: 2,
                 readOnly: true,
             showCursor: false,
             controller: _userContactNumbeCodeController,
+                style: CommonStyles.textFormStyle(),
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.next,
 
@@ -572,14 +595,15 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               return null;
 
             },
-            decoration: CommonStyles.textFormFieldStyle("Code", ""),
+            decoration: CommonStyles.textFormFieldDecoration("", "Code"),
           ),),),
-          const SizedBox(width: 40),
+          const SizedBox(width: 25),
           Flexible (child: TextFormField(
             maxLength: 10,
             controller: _userContactNumberController,
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.next,
+            style: CommonStyles.textFormStyle(),
             onFieldSubmitted: (_) {
               FocusScope.of(context).requestFocus(_passwordFocusNode);
             },
@@ -596,7 +620,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               return null;
 
             },
-            decoration: CommonStyles.textFormFieldStyle("Contact Number", ""),
+            decoration: CommonStyles.textFormFieldDecoration("", "Contact Number"),
           ),),
         ],
       )
@@ -605,7 +629,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   Widget _buildAddressField(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
       child: Row(
         children: const [
           Align(
@@ -640,6 +664,16 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         ],
       ),
 
+    );
+  }
+
+  Widget _buildContactField(BuildContext context) {
+    return
+         Row(
+          children: [
+            CommonStyles.textFormNameField("Code"),
+            CommonStyles.textFormNameField("Contact Number"),
+          ],
     );
   }
 
@@ -698,6 +732,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             controller: _userAddressFieldController,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.done,
+            style: CommonStyles.textFormStyle(),
+
             onFieldSubmitted: (_) {
             },
             validator: (value) {
@@ -706,7 +742,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               }
               return null;
             },
-            decoration: CommonStyles.textFormFieldStyle("Enter your Address", ""),
+            decoration: CommonStyles.textFormFieldDecoration("", "Enter your Address"),
             onTap: () async {
                _awaitReturnValueFromPlacesAutocomplete(context);
 
@@ -841,7 +877,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           child: Text(
             _donorProfileModel == null? "Submit" : "Update",
             style: const TextStyle(
-                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600, fontFamily: 'Raleway'),
           ),
           onPressed: () {
 

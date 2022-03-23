@@ -62,10 +62,23 @@ class CommonStyles {
   static textFormStyle()
   {
     return const TextStyle(
-        fontWeight: FontWeight.w300,
+      color: Colors.black,
+        fontWeight: FontWeight.w600,
         fontSize: 15,
         fontFamily: 'Raleway'
     );
+  }
+
+  static textFormStyleForAppBar(label)
+  {
+    return Text(
+        label,
+        style: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+        fontSize: 18,
+        fontFamily: 'Raleway'
+    ),);
   }
 
   static textFormNameField(String label)

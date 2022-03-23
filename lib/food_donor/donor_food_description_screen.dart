@@ -115,7 +115,19 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
 
-                  FoodDescImageWidget(addedFoodModel.image),
+            GestureDetector(
+            child: Align(
+            alignment: Alignment.topCenter,
+            child: Image.network(addedFoodModel.image,
+                height: 250,
+                width: double.infinity,
+                fit: BoxFit.fitWidth
+            ),
+          ),
+          onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => PreviewImage(addedFoodModel.image)));
+          },
+        ),
 
                   const SizedBox(
                     height: 20,
@@ -203,7 +215,9 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                     height: 5,
                   ),
 
-                  Container(
+                  Visibility(
+                    visible: addedFoodModel.foodDesc.isNotEmpty,
+                    child: Container(
                     padding: const EdgeInsets.fromLTRB(10, 0, 5, 0),
                     child: Text( addedFoodModel.foodDesc,
                       textAlign: TextAlign.left,
@@ -211,7 +225,7 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                           fontSize: 15
                       ),
                     ),
-                  ),
+                  ),),
 
                   const SizedBox(
                     height: 20,
@@ -461,6 +475,7 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
 
             setState(() {
 
+              // FoodDescImageWidget(addedFoodModel.image);
               addedFoodModel = result;
 
             });

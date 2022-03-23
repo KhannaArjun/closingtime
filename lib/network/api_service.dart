@@ -85,12 +85,30 @@ import 'entity/login_model.dart';
         // print(response);
         throw Exception('Failed');
       }
-
   }
+
 
   static Future<AddedFoodListModel> addedFoodList(body) async {
     final response = await http
         .post(parseUri('/food_donor/added_food_list'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return AddedFoodListModel.fromJson(jsonDecode(response.body));
+    }
+    else
+    {
+      // print(response);
+      throw Exception('Failed');
+    }
+
+  }
+
+  static Future<AddedFoodListModel> modifyFoodItem(body) async {
+    final response = await http
+        .post(parseUri('/food_donor/modify_food_item'),
         headers: Constants.HEADERS, body: body);
 
     if (response.statusCode == 200)

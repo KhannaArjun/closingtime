@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Constants
 {
   //static const String BASE_URL = "http://127.0.0.1:5000";
-  static const String BASE_URL = "https://closingtime.herokuapp.com";
+  // static const String BASE_URL = "https://closingtime.herokuapp.com";
+  static const String BASE_URL = "https://closingtime-prod.herokuapp.com"; // Prod
   static const Map<String, String> HEADERS = {'Content-Type': 'application/json'};
 
   static const String empty = "No data";
@@ -31,9 +32,10 @@ class Constants
   static const String waiting_for_pickup = "Waiting for pickup";
   static const String pick_up_scheduled = "Pick up scheduled";
   static const String delivered = "Delivered";
-  static const String expired = "Due date passed / No response";
+  static const String expired = "Pick up date passed / No response";
   static const String prod = "prod";
   static const String dev = "dev";
+  static const String updated = "updated";
 
 
 

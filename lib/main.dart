@@ -125,42 +125,50 @@ class RolePreferenceScreen extends StatelessWidget {
       home: LoaderOverlay(
         child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          title: const Text(
-            'Closing Time!',
-            style: TextStyle(
-              color: ColorUtils.button_color
-            ),
-          ),
-        ),
-      body: Container(
-        child: Center(
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(10.0, 60.0, 5.0,0.0),
-                child: const Text(
-                  "“Feel what it’s like to truly starve, and I guarantee that you’ll forever think twice about wasting food.“",
-                    style: TextStyle(
-                      color: Colors.black, fontSize: 18, fontStyle: FontStyle.italic),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(5.0, 60.0, 5.0,0.0),
-                child: const Text(
-                  "Please select",
+        // appBar: AppBar(
+        //   elevation: 0,
+        //   backgroundColor: Colors.white,
+        //   title: const Text(
+        //     '',
+        //     style: TextStyle(
+        //       color: ColorUtils.button_color
+        //     ),
+        //   ),
+        // ),
+      body: Center(
+        child: Column(
+          children: [
+            Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: Image.asset('assets/images/logo_blue.png',)
+                  ),
+                )),
+            Container(
+              padding: const EdgeInsets.fromLTRB(10.0, 0.0, 5.0,0.0),
+              child: const Text(
+                "“Feel what it’s like to truly starve, and I guarantee that you’ll forever think twice about wasting food.“",
                   style: TextStyle(
-                      color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
-                ),
+                    color: Colors.black, fontSize: 18, fontStyle: FontStyle.italic),
               ),
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(5.0, 60.0, 5.0,0.0),
+              child: const Text(
+                "Please select",
+                style: TextStyle(
+                    color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
 
-              buildButtonDonor(context),
-              buildButtonVolunteer(context),
-              buildButtonRecipient(context),
-            ],
-          ),
+            buildButtonDonor(context),
+            buildButtonVolunteer(context),
+            buildButtonRecipient(context),
+          ],
         ),
       )),
       ));
