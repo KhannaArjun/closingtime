@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "257410732315",
+    "project_id": "closingtime-e1fe0",
+    "storage_bucket": "closingtime-e1fe0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257410732315:android:c7052162f8ec6f48a1c3be",
+        "android_client_info": {
+          "package_name": "com.app.closingtime.closingtime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257410732315-k20bdfuhoob8o53s75vuo60b8u379r2e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.closingtime.closingtime",
+            "certificate_hash": "a71625e87b6ec09d0ab4db0813f793aac5222093"
+          }
+        },
+        {
+          "client_id": "257410732315-3ciu52iugugbh1fmt4m70teont37lvap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8gHlTblySIOk651GWlwMHf_u8vo63Dec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257410732315-3ciu52iugugbh1fmt4m70teont37lvap.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "257410732315-9nfqggb7guctjo0ki2dliqmc1dqb6uvg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.closingtime.closingtime"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

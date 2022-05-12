@@ -142,6 +142,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
 
   String fb_token = "";
+  final List<String> _countryContactCodeList = ['+1', '+44'];
 
   List<String> statesList = [];
 
@@ -212,7 +213,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   const SizedBox(height: 30,),
 
                   _buildContactField(context),
-                  _buildContactNumberField(context),
+                  //_buildContactNumberField(context),
+                  _buildContactNumberDropDownField(context),
                   const SizedBox(height: 30,),
 
                   // CommonStyles.textFormNameField("Address"),
@@ -624,6 +626,68 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ),),
         ],
       )
+    );
+  }
+
+  String _countryContactCode = "+1";
+
+
+  Widget _buildContactNumberDropDownField(BuildContext context) {
+    return Padding(
+        padding: CommonStyles.textFieldsPadding(),
+        child: Row(
+          children: [
+
+            Flexible(
+              child: SizedBox(
+                width:70,
+                child: DropdownButton<String>(
+                  value: _countryContactCode,
+                  hint: const Text('Code'),
+                  style: CommonStyles.textFormStyle(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _countryContactCode = newValue!;
+                    });
+                  },
+                  items: _countryContactCodeList.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value,
+                        style: TextStyle(
+                            color: Colors.black
+                        ),),
+                    );
+                  }).toList(),
+                ),
+                ),),
+            const SizedBox(width: 25),
+            Flexible (child: TextFormField(
+              maxLength: 10,
+              controller: _userContactNumberController,
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.next,
+              style: CommonStyles.textFormStyle(),
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_passwordFocusNode);
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty)
+                {
+                  return "Please enter valid contact number";
+                }
+
+                if (value.length != 10)
+                {
+                  return "Please enter valid contact number";
+                }
+                return null;
+
+              },
+              decoration: CommonStyles.textFormFieldDecoration("", "Contact Number"),
+            ),),
+          ],
+        )
     );
   }
 

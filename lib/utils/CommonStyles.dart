@@ -316,4 +316,16 @@ static void showLoadingDialog(BuildContext context)
     );
   }
 
+  static Widget dropDown(List<String> dropDownList) {
+    return DropdownButton<String>(
+      items: dropDownList.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (_) {},
+    );
+  }
+
 }

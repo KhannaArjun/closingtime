@@ -16,11 +16,12 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   }
 
   Widget _buildFullscreenImage(imagename) {
-    return Image.asset(
+    return
+    Image.asset(
       'assets/images/$imagename',
-      fit: BoxFit.cover,
-      height: double.infinity,
-      width: double.infinity,
+      fit: BoxFit.fill,
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
       alignment: Alignment.center,
     );
   }
@@ -46,13 +47,13 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       pages: [
 
         PageViewModel(
-          titleWidget:Visibility (
+          titleWidget:const Visibility (
               visible: false,
               child: Text(
                   ''
               )),
           bodyWidget:
-          Visibility (
+          const Visibility (
               visible: false,
               child: Text(
                   ''
@@ -68,13 +69,13 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
         ),
 
         PageViewModel(
-          titleWidget: Visibility (
+          titleWidget: const Visibility (
             visible: false,
             child: Text(
               ''
           )),
           bodyWidget:
-          Visibility (
+          const Visibility (
               visible: false,
               child: Text(
                   ''
@@ -88,13 +89,13 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           ),
         ),
         PageViewModel(
-          titleWidget: Visibility (
+          titleWidget: const Visibility (
               visible: false,
               child: Text(
                   ''
               )),
           bodyWidget:
-          Visibility (
+          const Visibility (
               visible: false,
               child: Text(
                   ''

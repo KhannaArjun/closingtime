@@ -5,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Constants
 {
   //static const String BASE_URL = "http://127.0.0.1:5000";
-  // static const String BASE_URL = "https://closingtime.herokuapp.com";
-  static const String BASE_URL = "https://closingtime-prod.herokuapp.com"; // Prod
+  static const String BASE_URL = "https://closingtime.herokuapp.com";
+  //static const String BASE_URL = "https://closingtime-prod.herokuapp.com"; // Prod
   static const Map<String, String> HEADERS = {'Content-Type': 'application/json'};
 
   static const String empty = "No data";

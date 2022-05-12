@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Stack(
             children: <Widget>[
 
-              Container(
+              SizedBox(
                 height: MediaQuery.of(context).size.height * 0.45,
                 width: double.infinity,
                 child: CommonStyles.layoutBackgroundShape(),
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 80),
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height/14),
                     child: SizedBox(
                       height: 230,
                       width: 200,
