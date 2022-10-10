@@ -168,7 +168,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidate: _autoValidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Column(
         children: <Widget>[
           Card(
@@ -769,7 +769,14 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
         {
           Constants.showToast(value.message);
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          _progressBarActive = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -826,17 +833,31 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
 
             Navigator.pop(context, true);
           }
+          else{
+            Constants.showToast(value.message);
+          }
         }
         else
         {
           Constants.showToast(value.message);
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          _progressBarActive = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
     {
       // print(e);
+      setState(() {
+        _progressBarActive = false;
+      });
+      Constants.showToast(Constants.something_went_wrong);
     }
   }
 

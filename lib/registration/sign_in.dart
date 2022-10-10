@@ -274,6 +274,12 @@ class _LoginWidgetState extends State<LoginWidget> {
         Constants.showToast(value.message);
 
       }
+    }).catchError((onError)
+    {
+      setState(() {
+        _progressBarActive = false;
+      });
+      Constants.showToast(Constants.something_went_wrong);
     }
     );
   }
@@ -354,8 +360,13 @@ class _LoginWidgetState extends State<LoginWidget> {
           Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
               RolePreferenceScreen(_email)), (route) => false);
         }
-      }
-
+      }).catchError((onError)
+    {
+      setState(() {
+        _progressBarActive = false;
+      });
+      Constants.showToast(Constants.something_went_wrong);
+    }
     );
   }
 

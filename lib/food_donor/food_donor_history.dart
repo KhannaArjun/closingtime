@@ -250,7 +250,14 @@ class _FoodDonorHistoryState extends State<FoodDonorHistory> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          _isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

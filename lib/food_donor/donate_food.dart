@@ -168,7 +168,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      autovalidate: _autoValidate,
+      autovalidateMode: AutovalidateMode.always,
       key: _formKey,
       child:
 
@@ -799,8 +799,6 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       uploadImageToFirebase(context, userId, business_name);
     }
 
-
-
     // if (_image == null)
     //   {
     //     addFoodApiCall(context, userId, business_name, "");
@@ -817,45 +815,129 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   Future uploadImageToFirebase(BuildContext context, String userId, String business_name) async {
     // String fileName = _image!.path;
     var timestamp = DateTime. now(). millisecondsSinceEpoch;
-    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(Constants.dev + '/food_images/$userId' + '_$timestamp');
+    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(Constants.prod + '/food_images/$userId' + '_$timestamp');
     UploadTask uploadTask = firebaseStorageRef.putFile(_image!);
+    uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+
+          break;
+
+        case TaskState.paused:
+          setState(() {
+            _isLoading = false;
+          });
+
+          _showAlertDialog(userId, business_name);
+
+          break;
+
+        case TaskState.canceled:
+          setState(() {
+            _isLoading = false;
+          });
+
+          _showAlertDialog(userId, business_name);
+
+          break;
+
+        case TaskState.error:
+          setState(() {
+            _isLoading = false;
+          });
+          _showAlertDialog(userId, business_name);
+
+          break;
+
+        case TaskState.success:
+
+        getUploadedImageUrl(uploadTask, userId, business_name);
+
+          break;
+      }
+    });
+
+  }
+
+  void getUploadedImageUrl(uploadTask, String userId, String business_name) async
+  {
     await uploadTask.then(
-          (value) {
-            value.ref.getDownloadURL().then((url) {
-              // print(url);
+            (value) {
+          value.ref.getDownloadURL().then((url) {
 
-              if (_addedFoodModel != null)
-                {
-                  modifyFoodApiCall(context, userId, business_name, url);
-                }
-              else
-                {
-                  addFoodApiCall(context, userId, business_name, url);
-                }
+            // print(url);
 
+            if (_addedFoodModel != null)
+            {
+              modifyFoodApiCall(context, userId, business_name, url);
             }
-            );
+            else
+            {
+              addFoodApiCall(context, userId, business_name, url);
+            }
+
           }
+          );
+        }
     );
   }
 
 
+
+  Future<void> _showAlertDialog(String userId, String business_name) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Alert'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Something is wrong with the image, continue without image?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Upload again'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Constants.showToast("Please upload image and try again");
+              },
+            ),
+            TextButton(
+
+              child: const Text('Continue'),
+              onPressed: () {
+
+                Navigator.of(context).pop();
+
+                setState(() {
+                  _isLoading = true;
+                });
+
+                    if (_addedFoodModel != null)
+                    {
+                    modifyFoodApiCall(context, userId, business_name, Constants.DEFAULT_IMAGE_URL);
+                    }
+                    else
+                    {
+                    addFoodApiCall(context, userId, business_name, Constants.DEFAULT_IMAGE_URL);
+                    }
+
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
   void addFoodApiCall(BuildContext context, userId, business_name, image)
   {
-    // pd = ProgressDialog(context, type: ProgressDialogType.Normal, isDismissible: false);
-    // pd.style(message: "Loading");
-    // pd.show();
-
-
-
-    // if (_image != null)
-    // {
-    //   final bytes = _image!.readAsBytesSync();
-    //   //print(bytes);
-    //   _encodedString = base64Encode(bytes);
-    // }
-
-    //print(encodedString);
 
 
     Map body =
@@ -910,7 +992,15 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           Constants.showToast(value['message']);
         }
 
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+
+          _isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -981,7 +1071,14 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           Constants.showToast(value.message);
         }
 
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          _isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

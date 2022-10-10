@@ -190,7 +190,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
     return Form(
         key: _formKey,
-        autovalidate: _autoValidate,
+        autovalidateMode: AutovalidateMode.always,
         child: Column(
           children: <Widget>[
             Card(
@@ -1067,7 +1067,14 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         {
           Constants.showToast(value.message);
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          _progressBarActive = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -1124,7 +1131,14 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         {
           Constants.showToast(value.message);
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          _progressBarActive = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

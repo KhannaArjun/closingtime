@@ -734,7 +734,14 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -785,7 +792,14 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

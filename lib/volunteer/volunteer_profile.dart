@@ -131,6 +131,20 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
                       style: TextStyle(fontSize: 17),
                     ),),
 
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
+                    child: Text(
+                      "Serving Distance",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),),
+                  Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      volunteerProfileModel != null? "0 - ${volunteerProfileModel.serving_distance} miles":''
+                      ,
+                      style: TextStyle(fontSize: 17),
+                    ),),
+
                 ],
               ),
             ),), ),

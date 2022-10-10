@@ -550,9 +550,6 @@ class _FoodDescriptionState extends State<FoodDescription> {
     );
   }
 
-
-
-
   String _buttonTextColor(status)
   {
     if (status == Constants.STATUS_AVAILABLE)
@@ -609,13 +606,25 @@ class _FoodDescriptionState extends State<FoodDescription> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
     {
       // print(e);
-      Constants.showToast("Please try again");
+      setState(() {
+        isLoading = false;
+
+      });
+      Constants.showToast(Constants.something_went_wrong);
     }
 
   }
@@ -664,7 +673,14 @@ class _FoodDescriptionState extends State<FoodDescription> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

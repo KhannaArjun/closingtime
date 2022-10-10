@@ -337,7 +337,14 @@ class _RecipientProfileState extends State<RecipientProfile> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

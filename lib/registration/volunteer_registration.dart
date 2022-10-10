@@ -14,6 +14,8 @@ import 'package:closingtime/volunteer/data_model/volunteer_registration_model.da
 import 'package:closingtime/volunteer/volunteer_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
 
 class VolunteerRegistration extends StatelessWidget {
   // This widget is the root of your application.
@@ -25,12 +27,7 @@ class VolunteerRegistration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
+   return Scaffold(
         appBar: AppBar(
           title: CommonStyles.textFormStyleForAppBar("Volunteer Registration"),
           backgroundColor: Colors.blue,
@@ -69,7 +66,6 @@ class VolunteerRegistration extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -140,10 +136,12 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
           MilesModel milesModel = milesList[i];
           if(_selectedDistance == milesModel.getItem)
           {
-
+            _previouslySelectedItem = i;
             milesModel.isSelected(true);
           }
         }
+
+        locationDetailsModel = LocationDetailsModel(_volunteerProfileModel!.address, _volunteerProfileModel!.lat, _volunteerProfileModel!.lng, _volunteerProfileModel!.placeId);
 
         setState(() {
           milesList;
@@ -175,7 +173,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidate: _autoValidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Column(
         children: <Widget>[
           Card(
@@ -588,29 +586,41 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
         {
           Constants.showToast(value.message);
         }
-      });
-
+      }).catchError((onError)
+      {
+        setState(() {
+          _progressBarActive = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
     }
     on Exception catch(e)
     {
       // print(e);
+      setState(() {
+        _progressBarActive = false;
+      });
+
+      Constants.showToast(Constants.something_went_wrong);
     }
   }
 
   void volunteerUpdateProfileApiCall(BuildContext context)
   {
-
     setState(() {
       _progressBarActive = true;
     });
 
     Map body =
     {
+
+      "user_id":_volunteerProfileModel?.userId,
       "name": _userPersonNameController.value.text,
       "email": _userEmailController.value.text,
       "contact_number": _userContactNumberController.value.text,
-      "serving_distance": _selectedDistance,
       "code":_userContactNumbeCodeController.value.text,
+      "serving_distance": _selectedDistance,
       "address": locationDetailsModel.address,
       "lat":locationDetailsModel.lat,
       "lng":locationDetailsModel.lng,
@@ -623,8 +633,9 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
     try
     {
-      Future<VolunteerRegistrationResponse> donorRegistrationResp = ApiService.volunteerRegistration(jsonEncode(body));
-      donorRegistrationResp.then((value){
+      Future<VolunteerRegistrationResponse> donorRegistrationResp = ApiService.volunteerUpdateProfile(jsonEncode(body));
+      donorRegistrationResp.then((value)
+      {
         setState(() {
           _progressBarActive = false;
         });
@@ -632,18 +643,18 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
         // print(value.data);
         // hideProgressDialog();
 
+        print(value);
+
         if (!value.error)
         {
-          if (value.message == "Inserted") {
+          if (value.message == "updated")
+          {
             _storeUserData(value.data.userId, value.data.name, value.data.email, _selectedDistance, value.data.contactNumber, value.data.role, value.data.address, value.data.lat, value.data.lng );
 
-            // Navigator.of(context).push(
-            //     MaterialPageRoute(builder: (context) => RecipientDashboard()));
+            Navigator.pop(context, true);
 
-            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-                RecipientDashboard()), (route) => false);
           }
-          else if(value.message == Constants.user_exists)
+          else
           {
             Constants.showToast(value.message);
           }
@@ -652,14 +663,24 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
         {
           Constants.showToast(value.message);
         }
-      });
+      }
+      ).catchError((onError)
+      {
+        setState(() {
+          _progressBarActive = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
-    }
-    on Exception catch(e)
-    {
-      // print(e);
-    }
+  } catch (error) {
+      setState(() {
+      _progressBarActive = false;
+      });
+      Constants.showToast(Constants.something_went_wrong);
   }
+  }
+
 
   _storeUserData(id, name, email, serving_distance, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -255,8 +255,14 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
 
           }
         }
-      });
-
+      }).catchError((onError)
+      {
+        setState(() {
+          _isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
     }
     on Exception catch(e)
     {

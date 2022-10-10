@@ -458,4 +458,24 @@ import 'entity/login_model.dart';
     }
 
   }
+
+  static Future<VolunteerRegistrationResponse> volunteerUpdateProfile(body) async
+  {
+
+      final response = await http
+          .post(parseUri('/volunteer/update_profile'),
+          headers: Constants.HEADERS, body: body);
+
+
+      if (response.statusCode == 200)
+      {
+
+        return VolunteerRegistrationResponse.fromJson(jsonDecode(response.body));
+      }
+      else
+        {
+          throw Error();
+        }
+
+  }
 }

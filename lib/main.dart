@@ -9,12 +9,14 @@ import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:new_version/new_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -22,6 +24,19 @@ void main() async {
   await Firebase.initializeApp();
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
+  final newVersion = NewVersion();
+
+  final version = await newVersion.getVersionStatus();
+
+  print("hello");
+  print(version?.localVersion);
+  print(version?.storeVersion);
+  // print(version?.localVersion);
+
+  // version.canUpdate // (true)
+  // version.localVersion // (1.2.1)
+  // version.storeVersion // (1.2.3)
+  // version.appStoreLink // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
 
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
@@ -49,8 +64,27 @@ void main() async {
 
   // configureNotifications(messaging);
 
+
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+
   runApp(SplashScreenApp());
 
+}
+
+void _checkVersion(context)async{
+  final newVersion=NewVersion(
+    androidId: "com.snapchat.android",
+  );
+  final status=await newVersion.getVersionStatus();
+  if(status?.canUpdate==true){
+    newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status!,
+        allowDismissal: false,
+        dialogTitle: "UPDATE",
+        dialogText: "Please update the app from ${status.localVersion} to ${status.storeVersion}");
+        }
 }
 
 void configureNotifications(FirebaseMessaging _firebaseMessaging) {

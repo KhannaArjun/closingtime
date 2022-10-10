@@ -16,6 +16,7 @@ import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:new_version/new_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
@@ -35,7 +36,6 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
   double _recipient_lat = 0.0, _recipient_lng = 0.0;
 
-
   @override
   void initState() {
     super.initState();
@@ -44,7 +44,23 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
     configureNotifications(context);
 
+    checkVersion(context);
+
     getUserId();
+  }
+
+
+  void checkVersion(context)async{
+    final newVersion= NewVersion();
+
+    // final status=await newVersion.getVersionStatus();
+
+    // print(status?.localVersion);
+    // print(status?.storeVersion);
+
+    // print(status?.canUpdate);
+
+    newVersion.showAlertIfNecessary(context: context);
   }
 
   void fcmSubscribe(firebaseMessaging) {
@@ -128,7 +144,8 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
             onRefresh:  getUserId,
             child:
             Center(
-              child: getWidget(),
+              child:
+              getWidget(),
 
             ),),
           drawer: Drawer(
@@ -223,6 +240,69 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
             ),
           ),
         ),),);
+  }
+
+  Widget promotionalCardUI()
+  {
+    return SizedBox(
+      height: 140,
+      child: Card(
+
+        color: Colors.blue[800],
+        elevation: 20,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: InkWell(
+          onTap: () async {
+
+          },
+          child: Column(
+            children: [
+              Row(
+                children: <Widget>[
+                  //  Padding(padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  //   child:
+                  //     ClipRRect(
+                  //       borderRadius: BorderRadius.circular(20), // Image border
+                  //       child: SizedBox.fromSize(
+                  //         size: const Size.fromRadius(48), // Image radius
+                  //         child: Image.asset(
+                  //             "assets/images/logo_blue.png",
+                  //             fit: BoxFit.cover),
+                  //       ),
+                  //     ),
+                  // ),
+
+                  SizedBox(
+
+                    height: 100,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const <Widget>[
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                            child: Text(
+                              "Now you claim volunteer hours certificate",
+                              style: TextStyle(
+                                  fontSize: 18,
+
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700
+                              ),
+                            ),
+                          ),
+
+                  SizedBox(width: 8,),
+                ],
+              ),),),
+            ],),
+          ],),
+      ),
+    ),
+    );
   }
 
   Widget getWidget()
@@ -407,10 +487,10 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
-    double user_lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
-    double user_lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
+    double userLat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
+    double userLng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
     String name = sharedPreferences.getString(Constants.name) ?? "Guest";
-    String serving_distance = sharedPreferences.getString(Constants.serving_distance) ?? '';
+    String servingDistance = sharedPreferences.getString(Constants.serving_distance) ?? '';
 
     setState(() {
       _username = name;
@@ -418,23 +498,23 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
     //await Future.delayed(const Duration(seconds: 3));
 
-    _recipient_lat = user_lat;
-    _recipient_lng = user_lng;
+    _recipient_lat = userLat;
+    _recipient_lng = userLng;
 
     _userId = userId;
 
-    volunteerFoodListApiCall(userId, user_lat, user_lng, serving_distance);
+    volunteerFoodListApiCall(userId, userLat, userLng, servingDistance);
   }
 
-  void volunteerFoodListApiCall(userId, user_lat, user_lng, serving_distance)
+  void volunteerFoodListApiCall(userId, userLat, userLng, servingDistance)
   {
 
     Map body = {
       "isFoodAccepted":true,
-      "volunteer_lat": user_lat,
-      "volunteer_lng": user_lng,
+      "volunteer_lat": userLat,
+      "volunteer_lng": userLng,
       // "user_id": userId,
-      "serving_distance": serving_distance
+      "serving_distance": servingDistance
     };
 
     // print(jsonEncode(body));
@@ -468,7 +548,14 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -574,7 +661,14 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
           Constants.showToast("Please try again");
 
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

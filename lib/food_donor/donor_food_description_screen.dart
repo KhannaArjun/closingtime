@@ -515,7 +515,14 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
           Constants.showToast("Please try again");
 
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

@@ -5,8 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Constants
 {
   //static const String BASE_URL = "http://127.0.0.1:5000";
-  static const String BASE_URL = "https://closingtime.herokuapp.com";
-  //static const String BASE_URL = "https://closingtime-prod.herokuapp.com"; // Prod
+  //static const String BASE_URL = "https://closingtime.herokuapp.com";
+  static const String BASE_URL = "https://closingtime-prod.herokuapp.com"; // Prod
+  static const String DEFAULT_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/closingtime-e1fe0.appspot.com/o/prod%2Ffood_images%2Fdefault_image.jpeg?alt=media&token=2aa742d7-5d33-4f1a-bf69-57bbce5a22a1";
   static const Map<String, String> HEADERS = {'Content-Type': 'application/json'};
 
   static const String empty = "No data";
@@ -36,6 +37,10 @@ class Constants
   static const String prod = "prod";
   static const String dev = "dev";
   static const String updated = "updated";
+
+
+
+  static const String something_went_wrong = "Something went wrong, please try again";
 
 
 

@@ -15,6 +15,7 @@ import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:new_version/new_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
@@ -42,7 +43,22 @@ class _DonorDashboardState extends State<DonorDashboard> {
 
     configureNotifications(context);
 
+    checkVersion(context);
+
     getUserId();
+  }
+
+  void checkVersion(context)async{
+    final newVersion= NewVersion();
+
+    // final status=await newVersion.getVersionStatus();
+
+    // print(status?.localVersion);
+    // print(status?.storeVersion);
+
+    // print(status?.canUpdate);
+
+    newVersion.showAlertIfNecessary(context: context);
   }
 
   void fcmSubscribe(firebaseMessaging) {
@@ -462,7 +478,14 @@ class _DonorDashboardState extends State<DonorDashboard> {
 
             }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -568,8 +591,14 @@ class _DonorDashboardState extends State<DonorDashboard> {
           Constants.showToast("Please try again");
 
         }
-      });
-
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
     }
     on Exception catch(e)
     {
@@ -606,7 +635,14 @@ class _DonorDashboardState extends State<DonorDashboard> {
             Constants.showToast("Please try again");
 
           }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)

@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -15,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -30,19 +32,17 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>To capture Image</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Accessing user location to provide better user experience</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>To detect location</string>
+	<string>Accessing user location to provide better user experience</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To capture the image</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-    <string>Accessing user location to provide better user experience</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Accessing user location to provide better user experience</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -67,5 +67,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>iOSAppStoreCountry</key>
+	<string>GB</string>
 </dict>
 </plist>

@@ -15,6 +15,7 @@ import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:new_version/new_version.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
@@ -38,7 +39,21 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
 
     // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
     configureNotifications(context);
+    checkVersion(context);
     getUserId();
+  }
+
+  void checkVersion(context)async{
+    final newVersion= NewVersion();
+
+    // final status=await newVersion.getVersionStatus();
+
+    // print(status?.localVersion);
+    // print(status?.storeVersion);
+
+    // print(status?.canUpdate);
+
+    newVersion.showAlertIfNecessary(context: context);
   }
 
   bool isDataEmpty = false;
@@ -520,7 +535,14 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -569,7 +591,14 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
 
           }
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
@@ -610,7 +639,14 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
           Constants.showToast("Please try again");
 
         }
-      });
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
 
     }
     on Exception catch(e)
