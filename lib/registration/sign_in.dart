@@ -1,28 +1,24 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:closingtime/food_donor/donor_dashboard.dart';
-import 'package:closingtime/food_donor/food_donor_dashboard.dart';
 import 'package:closingtime/food_recipient/recipient_dashboard.dart';
 import 'package:closingtime/login_providers/login_providers.dart';
 import 'package:closingtime/main.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/network/entity/login_model.dart';
-import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
-import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/volunteer/volunteer_dashboard.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'donor_registration.dart';
 
 class SignIn extends StatelessWidget {
+  const SignIn({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -37,6 +33,8 @@ class SignIn extends StatelessWidget {
 }
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -52,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
     // TODO: implement build
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Container(
           child: Stack(
@@ -96,6 +94,8 @@ class _LoginScreenState extends State<LoginScreen> {
 // }
 
 class LoginWidget extends StatefulWidget {
+  const LoginWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _LoginWidgetState();
@@ -124,10 +124,10 @@ class _LoginWidgetState extends State<LoginWidget> {
   Future<String> getFirebaseTokeFromSP() async
   {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? fb_token = sp.getString(Constants.firebase_token);
-    if (fb_token != null)
+    String? fbToken = sp.getString(Constants.firebase_token);
+    if (fbToken != null)
     {
-      return fb_token;
+      return fbToken;
     }
     return "";
   }
@@ -258,23 +258,16 @@ class _LoginWidgetState extends State<LoginWidget> {
         _progressBarActive = false;
       });
 
-      if(value.data.userId != null)
+      if (value.data.userId.isNotEmpty)
       {
-        if (value.data.userId.isNotEmpty)
-        {
-          //storeUserData(value.data.userId, "");
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DonorDashboard()));
-        }
-        else
-        {
-          Constants.showToast("Please try again");
-        }
+        //storeUserData(value.data.userId, "");
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DonorDashboard()));
       }
-      else{
-        Constants.showToast(value.message);
-
+      else
+      {
+        Constants.showToast("Please try again");
       }
-    }).catchError((onError)
+        }).catchError((onError)
     {
       setState(() {
         _progressBarActive = false;
@@ -285,7 +278,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   late final BuildContext ctx;
-  late String _platform = "";
+  late final String _platform = "";
 
   void checkIsUserExists(BuildContext context)
   {
@@ -410,11 +403,11 @@ class _LoginWidgetState extends State<LoginWidget> {
   //   ),);
   // }
 
-  storeUserDataForVolunteer(id, name, serving_distance, email, contact, role, address, lat, lng) async {
+  storeUserDataForVolunteer(id, name, servingDistance, email, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(Constants.user_id, id);
     prefs.setString(Constants.name, name);
-    prefs.setString(Constants.serving_distance, serving_distance);
+    prefs.setString(Constants.serving_distance, servingDistance);
     prefs.setString(Constants.email, email);
     prefs.setString(Constants.contact, contact);
     prefs.setString(Constants.address, address);
@@ -423,11 +416,11 @@ class _LoginWidgetState extends State<LoginWidget> {
     prefs.setString(Constants.role, role);
   }
 
-  storeUserData(id, name, business_name, email, contact, role, address, lat, lng) async {
+  storeUserData(id, name, businessName, email, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(Constants.user_id, id);
     prefs.setString(Constants.name, name);
-    prefs.setString(Constants.business_name, business_name);
+    prefs.setString(Constants.business_name, businessName);
     prefs.setString(Constants.email, email);
     prefs.setString(Constants.contact, contact);
     prefs.setString(Constants.address, address);

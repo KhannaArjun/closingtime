@@ -1,37 +1,29 @@
-import 'dart:convert';
-
-RecipientProfileResponse recipientProfileResponseFromJson(String str) => RecipientProfileResponse.fromJson(json.decode(str));
-
-String recipientProfileResponseToJson(RecipientProfileResponse data) => json.encode(data.toJson());
-
 class RecipientProfileResponse {
   RecipientProfileResponse({
     required this.error,
     required this.message,
     required this.data,
   });
+
   late final bool error;
   late final String message;
   late final RecipientProfileModel data;
 
-  RecipientProfileResponse.fromJson(Map<String, dynamic> json){
+  RecipientProfileResponse.fromJson(Map<String, dynamic> json) {
     error = json['error'];
     message = json['message'];
     data = RecipientProfileModel.fromJson(json['data']);
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['error'] = error;
-    _data['message'] = message;
-    _data['data'] = data.toJson();
-    return _data;
+    final jsonData = <String, dynamic>{}; // Renamed from 'data' to 'jsonData'
+    jsonData['error'] = error;
+    jsonData['message'] = message;
+    jsonData['data'] = data.toJson(); // Correctly references the class-level 'data'
+    return jsonData;
   }
 }
-
 class RecipientProfileModel {
-
-
   RecipientProfileModel({
     required this.address,
     required this.businessName,
@@ -45,6 +37,7 @@ class RecipientProfileModel {
     required this.role,
     required this.userId,
   });
+
   late final String address;
   late final String businessName;
   late final String code;
@@ -57,7 +50,7 @@ class RecipientProfileModel {
   late final String role;
   late final String userId;
 
-  RecipientProfileModel.fromJson(Map<String, dynamic> json){
+  RecipientProfileModel.fromJson(Map<String, dynamic> json) {
     address = json['address'];
     businessName = json['business_name'];
     code = json['code'];
@@ -72,19 +65,18 @@ class RecipientProfileModel {
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['address'] = address;
-    _data['business_name'] = businessName;
-    _data['code'] = code;
-    _data['contact_number'] = contactNumber;
-    _data['email'] = email;
-    _data['lat'] = lat;
-    _data['lng'] = lng;
-    _data['name'] = name;
-    _data['place_id'] = placeId;
-    _data['role'] = role;
-    _data['user_id'] = userId;
-    return _data;
+    final jsonData = <String, dynamic>{};
+    jsonData['address'] = address;
+    jsonData['business_name'] = businessName;
+    jsonData['code'] = code;
+    jsonData['contact_number'] = contactNumber;
+    jsonData['email'] = email;
+    jsonData['lat'] = lat;
+    jsonData['lng'] = lng;
+    jsonData['name'] = name;
+    jsonData['place_id'] = placeId;
+    jsonData['role'] = role;
+    jsonData['user_id'] = userId;
+    return jsonData;
   }
-
 }

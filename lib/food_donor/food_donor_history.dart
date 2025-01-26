@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data_model/food_donated_list_data.dart';
-import 'donate_food.dart';
 import 'donor_food_description_screen.dart';
 
 class FoodDonorHistory extends StatefulWidget {
@@ -260,8 +259,7 @@ class _FoodDonorHistoryState extends State<FoodDonorHistory> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

@@ -25,7 +25,7 @@ class DonateFood extends StatelessWidget
   var globalContext;
 
   Data? _addedFoodModel;
-  DonateFood(Data? addedFoodModel)
+  DonateFood(Data? addedFoodModel, {Key? key}) : super(key: key)
   {
     _addedFoodModel = addedFoodModel;
   }
@@ -68,9 +68,9 @@ class DonateFood extends StatelessWidget
 class DonateFoodFormWidget extends StatefulWidget {
 
   Data? _addedFoodModel;
-  DonateFoodFormWidget(Data? addedFoodModel)
+  DonateFoodFormWidget(Data? addedFoodModel, {Key? key}) : super(key: key)
   {
-    this._addedFoodModel = addedFoodModel;
+    _addedFoodModel = addedFoodModel;
   }
 
   @override
@@ -84,7 +84,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   Data? _addedFoodModel;
   _DonateFoodFormWidget(Data? addedFoodModel)
   {
-    this._addedFoodModel = addedFoodModel;
+    _addedFoodModel = addedFoodModel;
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -365,6 +365,8 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
         onFieldSubmitted: (_) {
         },
         validator: (value) {
+          return null;
+        
         },
         decoration: CommonStyles.textFormFieldDecoration("", "eg. 6 pieces of fresh donuts, BB this weekend"),
       ),
@@ -457,32 +459,32 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     'Soybeans',
   ];
 
-  Widget _buildFoodAllergenAutoCompleteTextField(BuildContext context) {
-    return
-      Padding(
-        padding: CommonStyles.textFieldsPadding(),
-        child: SearchField(
-        controller: _ingredientsSearchController,
-        suggestions: allergens,
-
-        validator: (x) {
-          // if (!ingredientsList.contains(x) || x!.isEmpty) {
-          //   return 'Please Enter a valid State';
-          // }
-          return null;
-        },
-        searchInputDecoration: CommonStyles.textFormFieldStyle(" 🔍 Search food allergens may contain (optional)", ""),
-
-        maxSuggestionsInViewPort: 6,
-        itemHeight: 50,
-        onTap: (x) {
-
-          createIngredientsList(x);
-          _ingredientsSearchController.clear();
-
-        },
-    ),);
-  }
+  // Widget _buildFoodAllergenAutoCompleteTextField(BuildContext context) {
+  //   return
+  //     Padding(
+  //       padding: CommonStyles.textFieldsPadding(),
+  //       child: SearchField(
+  //       controller: _ingredientsSearchController,
+  //       suggestions: allergens,
+  //
+  //       validator: (x) {
+  //         // if (!ingredientsList.contains(x) || x!.isEmpty) {
+  //         //   return 'Please Enter a valid State';
+  //         // }
+  //         return null;
+  //       },
+  //       searchInputDecoration: CommonStyles.textFormFieldStyle(" 🔍 Search food allergens may contain (optional)", ""),
+  //
+  //       maxSuggestionsInViewPort: 6,
+  //       itemHeight: 50,
+  //       onTap: (x) {
+  //
+  //         createIngredientsList(x);
+  //         _ingredientsSearchController.clear();
+  //
+  //       },
+  //   ),);
+  // }
 
   String _dropDownValue = 'Select';
 
@@ -553,6 +555,8 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
         onFieldSubmitted: (_) {
         },
         validator: (value) {
+          return null;
+        
         },
         decoration: CommonStyles.textFormFieldDecoration("", "eg. It contains more sugar"),
       ),
@@ -640,7 +644,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       //do whatever you want
        if (pickedDate!.toString().isNotEmpty)
          {
-           _foodPickUpDateController.text = myFormat.format(pickedDate!);
+           _foodPickUpDateController.text = myFormat.format(pickedDate);
          }
       //_foodPickUpDateController.text = pickedDate.toString();
     });
@@ -736,13 +740,9 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
     Fluttertoast.showToast(msg: 'captured', toastLength: Toast.LENGTH_LONG);
 
-    if (capturedImage.path == null) {
-      Fluttertoast.showToast(msg: 'Null', toastLength: Toast.LENGTH_LONG);
-    } else {
-      Fluttertoast.showToast(msg: 'Routing', toastLength: Toast.LENGTH_LONG);
-      //_performTextRecognition(capturedImage.path, context);
+    Fluttertoast.showToast(msg: 'Routing', toastLength: Toast.LENGTH_LONG);
+    //_performTextRecognition(capturedImage.path, context);
     }
-  }
 
   void _formValidation()
   {
@@ -767,7 +767,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
-    String business_name = sharedPreferences.getString(Constants.business_name) ?? '';
+    String businessName = sharedPreferences.getString(Constants.business_name) ?? '';
 
     if (_image == null)
     {
@@ -779,7 +779,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
             _isLoading = true;
           });
 
-          modifyFoodApiCall(context, userId, business_name, _addedFoodModel!.image);
+          modifyFoodApiCall(context, userId, businessName, _addedFoodModel!.image);
         }
         else{
           Constants.showToast("Please upload the food image");
@@ -796,7 +796,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
         _isLoading = true;
       });
 
-      uploadImageToFirebase(context, userId, business_name);
+      uploadImageToFirebase(context, userId, businessName);
     }
 
     // if (_image == null)
@@ -812,10 +812,10 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
   String _encodedString = "";
 
 
-  Future uploadImageToFirebase(BuildContext context, String userId, String business_name) async {
+  Future uploadImageToFirebase(BuildContext context, String userId, String businessName) async {
     // String fileName = _image!.path;
     var timestamp = DateTime. now(). millisecondsSinceEpoch;
-    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(Constants.prod + '/food_images/$userId' + '_$timestamp');
+    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child('${Constants.prod}/food_images/${userId}_$timestamp');
     UploadTask uploadTask = firebaseStorageRef.putFile(_image!);
     uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
       switch (taskSnapshot.state) {
@@ -828,7 +828,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
             _isLoading = false;
           });
 
-          _showAlertDialog(userId, business_name);
+          _showAlertDialog(userId, businessName);
 
           break;
 
@@ -837,7 +837,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
             _isLoading = false;
           });
 
-          _showAlertDialog(userId, business_name);
+          _showAlertDialog(userId, businessName);
 
           break;
 
@@ -845,13 +845,13 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
           setState(() {
             _isLoading = false;
           });
-          _showAlertDialog(userId, business_name);
+          _showAlertDialog(userId, businessName);
 
           break;
 
         case TaskState.success:
 
-        getUploadedImageUrl(uploadTask, userId, business_name);
+        getUploadedImageUrl(uploadTask, userId, businessName);
 
           break;
       }
@@ -859,7 +859,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
   }
 
-  void getUploadedImageUrl(uploadTask, String userId, String business_name) async
+  void getUploadedImageUrl(uploadTask, String userId, String businessName) async
   {
     await uploadTask.then(
             (value) {
@@ -869,11 +869,11 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
             if (_addedFoodModel != null)
             {
-              modifyFoodApiCall(context, userId, business_name, url);
+              modifyFoodApiCall(context, userId, businessName, url);
             }
             else
             {
-              addFoodApiCall(context, userId, business_name, url);
+              addFoodApiCall(context, userId, businessName, url);
             }
 
           }
@@ -884,7 +884,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
 
 
-  Future<void> _showAlertDialog(String userId, String business_name) async {
+  Future<void> _showAlertDialog(String userId, String businessName) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -919,11 +919,11 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
                     if (_addedFoodModel != null)
                     {
-                    modifyFoodApiCall(context, userId, business_name, Constants.DEFAULT_IMAGE_URL);
+                    modifyFoodApiCall(context, userId, businessName, Constants.DEFAULT_IMAGE_URL);
                     }
                     else
                     {
-                    addFoodApiCall(context, userId, business_name, Constants.DEFAULT_IMAGE_URL);
+                    addFoodApiCall(context, userId, businessName, Constants.DEFAULT_IMAGE_URL);
                     }
 
               },
@@ -936,7 +936,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
 
 
-  void addFoodApiCall(BuildContext context, userId, business_name, image)
+  void addFoodApiCall(BuildContext context, userId, businessName, image)
   {
 
 
@@ -955,7 +955,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       "pick_up_lng": _lng,
       "image": image,
       "isFoodAccepted": false,
-      "business_name": business_name,
+      "business_name": businessName,
       "status": Constants.STATUS_AVAILABLE,
       "timestamp": DateTime.now().millisecondsSinceEpoch
     };
@@ -1003,14 +1003,13 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast('Please try again');
     }
   }
 
-  void modifyFoodApiCall(BuildContext context, userId, business_name, image)
+  void modifyFoodApiCall(BuildContext context, userId, businessName, image)
   {
 
     Map body =
@@ -1081,8 +1080,7 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast('Please try again');
     }

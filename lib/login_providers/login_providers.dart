@@ -8,7 +8,6 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 
 import 'package:crypto/crypto.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class LoginProvider
 {
@@ -16,14 +15,14 @@ class LoginProvider
   {
     String email = "";
 
-    GoogleSignIn _googleSignIn = GoogleSignIn(
+    GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: [
         'email',
       ],
     );
 
     try {
-      GoogleSignInAccount? user = await _googleSignIn.signIn();
+      GoogleSignInAccount? user = await googleSignIn.signIn();
 
       if(user != null)
         {
@@ -122,7 +121,7 @@ class LoginProvider
 
   static void isLoggedIn() async
   {
-    FirebaseAuth firebaseAuth = await FirebaseAuth.instance;
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     if (firebaseAuth.currentUser != null)
     {
   // signed in

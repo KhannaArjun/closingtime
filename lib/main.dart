@@ -1,25 +1,34 @@
-import 'package:closingtime/food_recipient/recipient_dashboard.dart';
 import 'package:closingtime/registration/donor_registration.dart';
 import 'package:closingtime/registration/recipient_registration.dart';
-import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/registration/volunteer_registration.dart';
 import 'package:closingtime/splash_screen.dart';
-import 'package:closingtime/test.dart';
-import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:new_version/new_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dart:io';
+
+import 'package:package_info_plus/package_info_plus.dart';
+
+void getAppInfo() async {
+  if (Platform.isIOS || Platform.isAndroid) {
+    final info = await PackageInfo.fromPlatform();
+    print('App version: ${info.version}');
+  } else if (Platform.isWindows) {
+    print('This functionality is not available on Windows.');
+  }
+}
+
+
 void main() async {
+  getAppInfo();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -87,7 +96,7 @@ void _checkVersion(context)async{
         }
 }
 
-void configureNotifications(FirebaseMessaging _firebaseMessaging) {
+void configureNotifications(FirebaseMessaging firebaseMessaging) {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     // showNotification(notification);
@@ -147,9 +156,9 @@ class RolePreferenceScreen extends StatelessWidget {
 
   String _email = "";
 
-  RolePreferenceScreen(String email)
+  RolePreferenceScreen(String email, {Key? key}) : super(key: key)
   {
-    this._email = email;
+    _email = email;
   }
 
   @override

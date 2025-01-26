@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'ColorUtils.dart';
 
 class PreviewImage extends StatefulWidget {
-  String _image;
+  final String _image;
 
-  PreviewImage(this._image);
+  const PreviewImage(this._image, {Key? key}) : super(key: key);
 
   @override
   _PreviewImageState createState() => _PreviewImageState(_image);
@@ -13,7 +12,7 @@ class PreviewImage extends StatefulWidget {
 
 class _PreviewImageState extends State<PreviewImage> {
 
-  String _image;
+  final String _image;
   _PreviewImageState(this._image);
 
   @override

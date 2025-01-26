@@ -1,10 +1,11 @@
-import 'dart:typed_data';
 
 import 'package:closingtime/utils/location_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
 
 class AutoCompleteGooglePlaces extends StatefulWidget {
+  const AutoCompleteGooglePlaces({Key? key}) : super(key: key);
+
   @override
   _AutoCompleteGooglePlacesClass createState() => _AutoCompleteGooglePlacesClass();
 
@@ -76,7 +77,7 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
                   if (value.isNotEmpty) {
                     autoCompleteSearch(value);
                   } else {
-                    if (predictions.length > 0 && mounted) {
+                    if (predictions.isNotEmpty && mounted) {
                       setState(() {
                         predictions = [];
                       });

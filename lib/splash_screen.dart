@@ -1,12 +1,8 @@
 import 'dart:async';
 
 import 'package:closingtime/food_recipient/recipient_dashboard.dart';
-import 'package:closingtime/registration/sign_in.dart';
-import 'package:closingtime/registration/volunteer_registration.dart';
-import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/volunteer/volunteer_dashboard.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +10,8 @@ import 'food_donor/donor_dashboard.dart';
 import 'on_boarding_screen.dart';
 
 class SplashScreenApp extends StatelessWidget {
+  const SplashScreenApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(home: SplashScreen()); // define it once at root level.

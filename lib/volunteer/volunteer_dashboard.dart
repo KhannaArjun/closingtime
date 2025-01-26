@@ -1,6 +1,4 @@
-import 'dart:typed_data';
 
-import 'package:closingtime/food_donor/donor_food_description_screen.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/volunteer/data_model/volunteer_food_list_response.dart';
@@ -8,7 +6,6 @@ import 'package:closingtime/volunteer/food_history_volunteer.dart';
 import 'package:closingtime/volunteer/volunteer_food_description_screen.dart';
 import 'package:closingtime/volunteer/volunteer_profile.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
 import 'package:closingtime/network/api_service.dart';
@@ -107,7 +104,9 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
           },
         ),
       );
-      _scaffoldKey.currentState!.showSnackBar(snackBar);
+      // _scaffoldKey.currentState!.showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -192,7 +191,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text('Hello, ${_username}.',
+                            Text('Hello, $_username.',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -558,8 +557,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
@@ -671,8 +669,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

@@ -1,29 +1,29 @@
-
-
 class VolunteerFoodListModel {
   VolunteerFoodListModel({
     required this.data,
     required this.error,
     required this.message,
   });
+
   late final List<Data> data;
   late final bool error;
   late final String message;
 
-  VolunteerFoodListModel.fromJson(Map<String, dynamic> json){
-    data = List.from(json['data']).map((e)=>Data.fromJson(e)).toList();
+  VolunteerFoodListModel.fromJson(Map<String, dynamic> json) {
+    data = List.from(json['data']).map((e) => Data.fromJson(e)).toList();
     error = json['error'];
     message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['data'] = data.map((e)=>e.toJson()).toList();
-    _data['error'] = error;
-    _data['message'] = message;
-    return _data;
+    final jsonData = <String, dynamic>{};
+    jsonData['data'] = data.map((e) => e.toJson()).toList();
+    jsonData['error'] = error;
+    jsonData['message'] = message;
+    return jsonData;
   }
 }
+
 
 class Data {
   Data({
@@ -90,26 +90,26 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['allergen'] = allergen;
-    _data['business_name'] = businessName;
-    _data['distance'] = distance;
-    _data['food_desc'] = foodDesc;
-    _data['food_ingredients'] = foodIngredients;
-    _data['food_name'] = foodName;
-    _data['id'] = id;
-    _data['image'] = image;
-    _data['isFoodAccepted'] = isFoodAccepted;
-    _data['pick_up_address'] = pickUpAddress;
-    _data['pick_up_date'] = pickUpDate;
-    _data['pick_up_time'] = pickUpTime;
-    _data['pick_up_lat'] = pickUpLat;
-    _data['pick_up_lng'] = pickUpLng;
-    _data['quantity'] = quantity;
-    _data['recipient_user_id'] = recipientUserId;
-    _data['status'] = status;
-    _data['timestamp'] = timestamp;
-    _data['user_id'] = userId;
-    return _data;
+    final data = <String, dynamic>{};
+    data['allergen'] = allergen;
+    data['business_name'] = businessName;
+    data['distance'] = distance;
+    data['food_desc'] = foodDesc;
+    data['food_ingredients'] = foodIngredients;
+    data['food_name'] = foodName;
+    data['id'] = id;
+    data['image'] = image;
+    data['isFoodAccepted'] = isFoodAccepted;
+    data['pick_up_address'] = pickUpAddress;
+    data['pick_up_date'] = pickUpDate;
+    data['pick_up_time'] = pickUpTime;
+    data['pick_up_lat'] = pickUpLat;
+    data['pick_up_lng'] = pickUpLng;
+    data['quantity'] = quantity;
+    data['recipient_user_id'] = recipientUserId;
+    data['status'] = status;
+    data['timestamp'] = timestamp;
+    data['user_id'] = userId;
+    return data;
   }
 }

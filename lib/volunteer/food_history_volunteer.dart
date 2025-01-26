@@ -264,8 +264,7 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
       }
       );
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

@@ -1,11 +1,9 @@
-import 'dart:typed_data';
 
 import 'package:closingtime/food_donor/donor_food_description_screen.dart';
 import 'package:closingtime/food_donor/food_donor_history.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
 import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
@@ -207,7 +205,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
                       SizedBox(
                         height: 10,
                       ),
-                      Text('Hello, ${_username}.',
+                      Text('Hello, $_username.',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -488,8 +486,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
@@ -600,8 +597,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
       }
       );
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
@@ -645,8 +641,7 @@ class _DonorDashboardState extends State<DonorDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

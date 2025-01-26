@@ -4,22 +4,23 @@ class VolunteerFoodDescriptionModel {
     required this.error,
     required this.message,
   });
+
   late final VolunteerFoodDescriptionModelData data;
   late final bool error;
   late final String message;
 
-  VolunteerFoodDescriptionModel.fromJson(Map<String, dynamic> json){
+  VolunteerFoodDescriptionModel.fromJson(Map<String, dynamic> json) {
     data = VolunteerFoodDescriptionModelData.fromJson(json['data']);
     error = json['error'];
     message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['data'] = data.toJson();
-    _data['error'] = error;
-    _data['message'] = message;
-    return _data;
+    final jsonData = <String, dynamic>{};
+    jsonData['data'] = data.toJson();
+    jsonData['error'] = error;
+    jsonData['message'] = message;
+    return jsonData;
   }
 }
 
@@ -40,6 +41,7 @@ class VolunteerFoodDescriptionModelData {
     required this.recipientName,
     required this.distance,
   });
+
   late final String code;
   late final String donorAddress;
   late final String donorBusinessName;
@@ -55,7 +57,7 @@ class VolunteerFoodDescriptionModelData {
   late final String recipientName;
   late final String distance;
 
-  VolunteerFoodDescriptionModelData.fromJson(Map<String, dynamic> json){
+  VolunteerFoodDescriptionModelData.fromJson(Map<String, dynamic> json) {
     code = json['code'];
     donorAddress = json['donor_address'];
     donorBusinessName = json['donor_business_name'];
@@ -73,21 +75,21 @@ class VolunteerFoodDescriptionModelData {
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['code'] = code;
-    _data['donor_address'] = donorAddress;
-    _data['donor_business_name'] = donorBusinessName;
-    _data['donor_contact_number'] = donorContactNumber;
-    _data['donor_lat'] = donorLat;
-    _data['donor_lng'] = donorLng;
-    _data['donor_name'] = donorName;
-    _data['recipient_address'] = recipientAddress;
-    _data['recipient_business_name'] = recipientBusinessName;
-    _data['recipient_contact_number'] = recipientContactNumber;
-    _data['recipient_lat'] = recipientLat;
-    _data['recipient_lng'] = recipientLng;
-    _data['recipient_name'] = recipientName;
-    _data['distance'] = distance;
-    return _data;
+    final data = <String, dynamic>{};
+    data['code'] = code;
+    data['donor_address'] = donorAddress;
+    data['donor_business_name'] = donorBusinessName;
+    data['donor_contact_number'] = donorContactNumber;
+    data['donor_lat'] = donorLat;
+    data['donor_lng'] = donorLng;
+    data['donor_name'] = donorName;
+    data['recipient_address'] = recipientAddress;
+    data['recipient_business_name'] = recipientBusinessName;
+    data['recipient_contact_number'] = recipientContactNumber;
+    data['recipient_lat'] = recipientLat;
+    data['recipient_lng'] = recipientLng;
+    data['recipient_name'] = recipientName;
+    data['distance'] = distance;
+    return data;
   }
 }

@@ -1,6 +1,5 @@
 
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
@@ -18,9 +17,9 @@ class VolunteerFoodDescription extends StatefulWidget
 
   late Data addedFoodModel;
 
-  bool _visible;
+  final bool _visible;
 
-  VolunteerFoodDescription(this.addedFoodModel, this._visible);
+  VolunteerFoodDescription(this.addedFoodModel, this._visible, {Key? key}) : super(key: key);
 
   @override
   _VolunteerFoodDescriptionState createState() => _VolunteerFoodDescriptionState(addedFoodModel, _visible);
@@ -485,7 +484,7 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
               margin: const EdgeInsets.fromLTRB(20, 0, 20, 18),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    primary: status == Constants.waiting_for_pickup? ColorUtils.primaryColor : Colors.grey),
+                    backgroundColor: status == Constants.waiting_for_pickup? ColorUtils.primaryColor : Colors.grey),
                 onPressed: ()
                 {
                   status == Constants.waiting_for_pickup? _collectFood(addedFoodModel.userId, addedFoodModel.recipientUserId, addedFoodModel.id) : {};
@@ -744,15 +743,14 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
 
   }
 
-  void _collectFood(donorUserId, recipientUserId, food_id)
+  void _collectFood(donorUserId, recipientUserId, foodId)
   {
     setState(() {
       isLoading = true;
@@ -762,7 +760,7 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
       "donor_user_id":donorUserId,
       "recipient_user_id":recipientUserId,
       "volunteer_user_id":_userId,
-      "food_item_id": food_id
+      "food_item_id": foodId
     };
 
     // print(jsonEncode(body));
@@ -802,8 +800,7 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

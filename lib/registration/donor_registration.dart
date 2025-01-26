@@ -5,29 +5,23 @@ import 'package:closingtime/food_donor/donor_dashboard.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/network/entity/donor/donor_registration_model.dart';
 import 'package:closingtime/registration/sign_in.dart';
-import 'package:closingtime/test.dart';
-import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/utils/google_places.dart';
 import 'package:closingtime/utils/location_details_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
-import 'package:location/location.dart';
-import 'package:progress_dialog/progress_dialog.dart';
-import 'package:searchfield/searchfield.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_place/google_place.dart';
 
 class DonorRegistration extends StatelessWidget {
 
   String _email = "";
   DonorProfileModel? _donorProfileModel;
 
-  DonorRegistration(String email, DonorProfileModel? donorProfileModel)
+  DonorRegistration(String email, DonorProfileModel? donorProfileModel, {Key? key}) : super(key: key)
   {
     _email = email;
     _donorProfileModel = donorProfileModel;
@@ -55,11 +49,11 @@ class DonorRegistration extends StatelessWidget {
           ),
         ),
         body: SingleChildScrollView(
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Stack(
               children: <Widget>[
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height * 0.45,
                   width: double.infinity,
                   child: CommonStyles.layoutBackgroundShape(),
@@ -97,7 +91,7 @@ class LoginFormWidget extends StatefulWidget {
   String _email = "";
   DonorProfileModel? _donorProfileModel;
 
-  LoginFormWidget(String email, DonorProfileModel? donorProfileModel)
+  LoginFormWidget(String email, DonorProfileModel? donorProfileModel, {Key? key}) : super(key: key)
   {
     _email = email;
     _donorProfileModel = donorProfileModel;
@@ -128,12 +122,12 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   var _userPersonNameController;
   var _userRestaurantNameController;
   var _userPasswordController;
-  var _userContactNumbeCodeController = TextEditingController(text: "+1");
+  final _userContactNumbeCodeController = TextEditingController(text: "+1");
   var _userContactNumberController;
-  var _userCountryNameController = TextEditingController(text: "United States");
+  final _userCountryNameController = TextEditingController(text: "United States");
 
-  var _emailFocusNode = FocusNode();
-  var _passwordFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _autoValidate = false;
   bool _progressBarActive = false;
 
@@ -176,10 +170,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   Future<String> getFirebaseTokeFromSP() async
   {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? fb_token = sp.getString(Constants.firebase_token);
-    if (fb_token != null)
+    String? fbToken = sp.getString(Constants.firebase_token);
+    if (fbToken != null)
     {
-      return fb_token;
+      return fbToken;
     }
     return "";
   }
@@ -278,7 +272,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                     if (value.isNotEmpty) {
                       autoCompleteSearch(value);
                     } else {
-                      if (predictions.length > 0 && mounted) {
+                      if (predictions.isNotEmpty && mounted) {
                         setState(() {
                           predictions = [];
                         });
@@ -351,7 +345,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   if (value.isNotEmpty) {
                     autoCompleteSearch(value);
                   } else {
-                    if (predictions.length > 0 && mounted) {
+                    if (predictions.isNotEmpty && mounted) {
                       setState(() {
                         predictions = [];
                       });
@@ -419,16 +413,23 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       flex: 1,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: RaisedButton(
-            color: const Color.fromRGBO(16, 161, 250, 1.0),
+        child:
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromRGBO(16, 161, 250, 1.0), // Background color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0), // Rounded corners
+              ),
+            ),
+            onPressed: () {
+              // Your onPressed logic here
+            },
             child: Image.asset(
               "assets/images/ic_twitter.png",
               width: 25,
               height: 25,
             ),
-            onPressed: () {},
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0))),
+          ),
       ),
     );
   }
@@ -557,7 +558,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   bool _emailValidation(String value) {
     bool emailValid = false;
-    if (value != null && value.isNotEmpty)
+    if (value.isNotEmpty)
       {
         emailValid =
         RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
@@ -577,7 +578,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         children: [
 
           Flexible(
-            child: Container(
+            child: SizedBox(
               width:45,
               child: TextFormField(
                 maxLength: 2,
@@ -1077,8 +1078,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
     }
   }
@@ -1141,8 +1141,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
     }
   }
@@ -1159,8 +1158,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       });
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       Navigator.pop(context);
       // print(e);
     }
@@ -1169,7 +1167,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   void showLoadingDialog(BuildContext context)
   {
 
-    pd = ProgressDialog(context, type: ProgressDialogType.Normal);
+    pd = ProgressDialog(context, type: ProgressDialogType.normal);
     pd.style(message: "Loading");
     pd.show();
 
@@ -1210,11 +1208,11 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   // }
 
 
-  storeUserData(id, name, business_name, email, contact, role, address, lat, lng) async {
+  storeUserData(id, name, businessName, email, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(Constants.user_id, id);
     prefs.setString(Constants.name, name);
-    prefs.setString(Constants.business_name, business_name);
+    prefs.setString(Constants.business_name, businessName);
     prefs.setString(Constants.email, email);
     prefs.setString(Constants.contact, contact);
     prefs.setString(Constants.address, address);

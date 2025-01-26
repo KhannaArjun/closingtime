@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:closingtime/food_recipient/recipient_dashboard.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
@@ -14,16 +13,15 @@ import 'package:closingtime/volunteer/data_model/volunteer_registration_model.da
 import 'package:closingtime/volunteer/volunteer_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 
 class VolunteerRegistration extends StatelessWidget {
   // This widget is the root of your application.
 
   String _email = "";
-  VolunteerProfileModel? _volunteerProfileModel;
+  final VolunteerProfileModel? _volunteerProfileModel;
 
-  VolunteerRegistration(this._email, this._volunteerProfileModel);
+  VolunteerRegistration(this._email, this._volunteerProfileModel, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +70,8 @@ class VolunteerRegistration extends StatelessWidget {
 
 class VolunteerRegistrationFormWidget extends StatefulWidget {
   String _email = "";
-  VolunteerProfileModel? _volunteerProfileModel;
-  VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel);
+  final VolunteerProfileModel? _volunteerProfileModel;
+  VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -85,12 +83,12 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
   String _email = "", fb_token = "";
 
-  VolunteerProfileModel? _volunteerProfileModel;
+  final VolunteerProfileModel? _volunteerProfileModel;
   _VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel);
 
   final _formKey = GlobalKey<FormState>();
 
-  var _passwordFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _autoValidate = false;
 
   var _userPersonNameController;
@@ -120,7 +118,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
     _userAddressFieldController = TextEditingController(text:  _volunteerProfileModel == null? "" : _volunteerProfileModel!.address);
     _userContactNumbeCodeController = TextEditingController(text: "+1");
 
-    _selectedDistance = _volunteerProfileModel == null? "" : _volunteerProfileModel!.serving_distance;
+    _selectedDistance = _volunteerProfileModel == null? "" : _volunteerProfileModel!.servingDistance;
 
     milesList.add( MilesModel("5", false));
     milesList.add( MilesModel("10", false));
@@ -160,10 +158,10 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
   Future<String> getFirebaseTokeFromSP() async
   {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? fb_token = sp.getString(Constants.firebase_token);
-    if (fb_token != null)
+    String? fbToken = sp.getString(Constants.firebase_token);
+    if (fbToken != null)
     {
-      return fb_token;
+      return fbToken;
     }
     return "";
   }
@@ -271,6 +269,8 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
           FocusScope.of(context).requestFocus(_passwordFocusNode);
         },
         validator: (value) {
+          return null;
+        
           // str :  _emailValidation(value.toString());
         },
         decoration: CommonStyles.textFormFieldDecoration("", "Email"),
@@ -595,8 +595,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
       }
       );
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       setState(() {
         _progressBarActive = false;
@@ -682,11 +681,11 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
   }
 
 
-  _storeUserData(id, name, email, serving_distance, contact, role, address, lat, lng) async {
+  _storeUserData(id, name, email, servingDistance, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(Constants.user_id, id);
     prefs.setString(Constants.name, name);
-    prefs.setString(Constants.serving_distance, serving_distance);
+    prefs.setString(Constants.serving_distance, servingDistance);
     prefs.setString(Constants.email, email);
     prefs.setString(Constants.contact, contact);
     prefs.setString(Constants.address, address);

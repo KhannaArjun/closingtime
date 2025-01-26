@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # pushed to appstore
-version: 1.0.6+6
+version: 1.0.7+7
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -31,36 +31,43 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: 0.13.4
+  http: ^0.13.6
   json_annotation: any
-  loader_overlay: 2.0.2+1
+  loader_overlay: ^5.0.0
   fluttertoast: ^8.0.8
-  progress_dialog: ^1.2.4
+  progress_dialog_null_safe: ^3.0.0
   shared_preferences: ^2.0.8
-  location: ^4.3.0
+  location: ^8.0.0
   image_picker:
-  flutter_exif_rotation: ^0.3.2
-  searchfield: ^0.5.6
-  intl: ^0.17.0
-  firebase_auth: ^3.2.0
-  google_sign_in: ^5.2.1
+  flutter_exif_rotation: ^0.5.2
+  searchfield: ^1.2.2
+  intl: ^0.20.2
+  firebase_auth: ^5.4.0
+  google_sign_in: ^6.2.2
   flutter_signin_button: ^2.0.0
-  sign_in_with_apple: ^3.3.0
-  firebase_messaging: ^11.2.3
-  flutter_local_notifications: ^9.1.5
-  overlay_support: ^1.2.1
-  firebase_storage: ^10.2.5
+  sign_in_with_apple: ^6.1.4
+  firebase_messaging: ^15.2.0
+  flutter_local_notifications: ^18.0.1
+  overlay_support: ^2.1.0
+  firebase_storage: ^12.4.0
 
   introduction_screen: ^3.0.0
   google_place: ^0.4.3
-
+  package_info_plus: ^1.4.3+1
   new_version: ^0.3.1
-
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  firebase_crashlytics: ^2.8.0
+  cupertino_icons: 1.0.8
+  firebase_crashlytics: ^4.3.1
+
+  firebase_core: any
+  crypto: any
+
+dependency_overrides:
+  package_info_plus: ^4.0.1
+  wakelock_windows: any
+  win32: any
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +80,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^1.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -2,7 +2,6 @@
 //
 //     final loginModel = loginModelFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 FoodDonorRegistration foodDonorRegistrationFromJson(String str) => FoodDonorRegistration.fromJson(json.decode(str));

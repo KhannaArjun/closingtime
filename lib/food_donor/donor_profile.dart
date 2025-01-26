@@ -6,11 +6,12 @@ import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/registration/donor_registration.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DonorProfile extends StatefulWidget {
+  const DonorProfile({Key? key}) : super(key: key);
+
   @override
   _DonorProfileState createState() => _DonorProfileState();
 }
@@ -107,7 +108,7 @@ class _DonorProfileState extends State<DonorProfile> {
         const SizedBox(height: 12),
         Card(
           elevation: 10,
-          child: Container(
+          child: SizedBox(
             width: 500,
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -256,7 +257,7 @@ class _DonorProfileState extends State<DonorProfile> {
         const SizedBox(height: 12),
         Card(
           elevation: 12,
-          child: Container(
+          child: SizedBox(
             width: 500,
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -286,13 +287,13 @@ class _DonorProfileState extends State<DonorProfile> {
     userId = sharedPreferences.getString(Constants.user_id) ?? '';
     String email = sharedPreferences.getString(Constants.email) ?? '';
     String name = sharedPreferences.getString(Constants.name) ?? '';
-    String business_name = sharedPreferences.getString(Constants.business_name) ?? '';
+    String businessName = sharedPreferences.getString(Constants.business_name) ?? '';
     String contact = sharedPreferences.getString(Constants.contact) ?? '';
     String address = sharedPreferences.getString(Constants.address) ?? '';
     double lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
     double lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
 
-    DonorProfileModel data = DonorProfileModel(address: address, businessName: business_name, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_DONOR, userId: userId);
+    DonorProfileModel data = DonorProfileModel(address: address, businessName: businessName, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_DONOR, userId: userId);
 
     setState(() {
       donorProfileModel = data;
@@ -318,18 +319,10 @@ class _DonorProfileState extends State<DonorProfile> {
         });
         if (!value.error)
         {
-          if (value.data != null)
-          {
-            setState(() {
-              donorProfileModel  = value.data;
-            });
-          }
-          else
-          {
-            //Constants.showToast(Constants.empty);
-
-          }
-        }
+          setState(() {
+            donorProfileModel  = value.data;
+          });
+                }
       }).catchError((onError)
       {
         setState(() {
@@ -340,8 +333,7 @@ class _DonorProfileState extends State<DonorProfile> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

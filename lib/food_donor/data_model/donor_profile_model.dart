@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-DonorProfileResponse donorProfileResponseFromJson(String str) => DonorProfileResponse.fromJson(json.decode(str));
+DonorProfileResponse donorProfileResponseFromJson(String str) =>
+    DonorProfileResponse.fromJson(json.decode(str));
 
-String donorProfileResponseToJson(DonorProfileResponse data) => json.encode(data.toJson());
+String donorProfileResponseToJson(DonorProfileResponse data) =>
+    json.encode(data.toJson());
 
 class DonorProfileResponse {
   DonorProfileResponse({
@@ -10,25 +12,25 @@ class DonorProfileResponse {
     required this.message,
     required this.data,
   });
+
   late final bool error;
   late final String message;
   late final DonorProfileModel data;
 
-  DonorProfileResponse.fromJson(Map<String, dynamic> json){
+  DonorProfileResponse.fromJson(Map<String, dynamic> json) {
     error = json['error'];
     message = json['message'];
     data = DonorProfileModel.fromJson(json['data']);
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['error'] = error;
-    _data['message'] = message;
-    _data['data'] = data.toJson();
-    return _data;
+    final jsonData = <String, dynamic>{}; // Renamed from 'data' to 'jsonData'
+    jsonData['error'] = error;
+    jsonData['message'] = message;
+    jsonData['data'] = data.toJson(); // Correctly references the class-level 'data'
+    return jsonData;
   }
 }
-
 class DonorProfileModel {
   DonorProfileModel({
     required this.address,
@@ -43,6 +45,7 @@ class DonorProfileModel {
     required this.role,
     required this.userId,
   });
+
   late final String address;
   late final String businessName;
   late final String code;
@@ -55,7 +58,7 @@ class DonorProfileModel {
   late final String role;
   late final String userId;
 
-  DonorProfileModel.fromJson(Map<String, dynamic> json){
+  DonorProfileModel.fromJson(Map<String, dynamic> json) {
     address = json['address'];
     businessName = json['business_name'];
     code = json['code'];
@@ -70,18 +73,18 @@ class DonorProfileModel {
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['address'] = address;
-    _data['business_name'] = businessName;
-    _data['code'] = code;
-    _data['contact_number'] = contactNumber;
-    _data['email'] = email;
-    _data['lat'] = lat;
-    _data['lng'] = lng;
-    _data['name'] = name;
-    _data['place_id'] = placeId;
-    _data['role'] = role;
-    _data['user_id'] = userId;
-    return _data;
+    final jsonData = <String, dynamic>{};
+    jsonData['address'] = address;
+    jsonData['business_name'] = businessName;
+    jsonData['code'] = code;
+    jsonData['contact_number'] = contactNumber;
+    jsonData['email'] = email;
+    jsonData['lat'] = lat;
+    jsonData['lng'] = lng;
+    jsonData['name'] = name;
+    jsonData['place_id'] = placeId;
+    jsonData['role'] = role;
+    jsonData['user_id'] = userId;
+    return jsonData;
   }
 }

@@ -5,19 +5,15 @@ import 'package:closingtime/food_recipient/data_model/recipient_registration_mod
 import 'package:closingtime/food_recipient/recipient_dashboard.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/registration/sign_in.dart';
-import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/CustomRaisedButtonStyle.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/utils/google_places.dart';
 import 'package:closingtime/utils/location_details_model.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
-import 'package:location/location.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +22,7 @@ class RecipientRegistration extends StatelessWidget {
 
   String _email = "";
   RecipientProfileModel? _recipientProfileModel;
-  RecipientRegistration(String email, RecipientProfileModel? recipientProfileModel)
+  RecipientRegistration(String email, RecipientProfileModel? recipientProfileModel, {Key? key}) : super(key: key)
   {
     _email = email;
     _recipientProfileModel = recipientProfileModel;
@@ -53,11 +49,11 @@ class RecipientRegistration extends StatelessWidget {
           ),
         ),
         body: SingleChildScrollView(
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Stack(
               children: <Widget>[
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height * 0.45,
                   width: double.infinity,
                   child: CommonStyles.layoutBackgroundShape(),
@@ -83,7 +79,7 @@ class RecipientLoginFormWidget extends StatefulWidget {
 
   String _email = "";
   RecipientProfileModel? _recipientProfileModel;
-  RecipientLoginFormWidget(String email, RecipientProfileModel? recipientProfileModel)
+  RecipientLoginFormWidget(String email, RecipientProfileModel? recipientProfileModel, {Key? key}) : super(key: key)
   {
     _email = email;
     _recipientProfileModel = recipientProfileModel;
@@ -113,9 +109,9 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   final _formKey = GlobalKey<FormState>();
   var _userRecipientNameController;
   var _userPersonNameController;
-  var _userContactNumbeCodeController = TextEditingController(text: "+1");
+  final _userContactNumbeCodeController = TextEditingController(text: "+1");
   var _userContactNumberController;
-  var _userCountryNameController = TextEditingController(text: "United States");
+  final _userCountryNameController = TextEditingController(text: "United States");
 
   bool _autoValidate = false;
   bool _progressBarActive = false;
@@ -125,6 +121,10 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   String fb_token = "";
 
   late List<String> statesList;
+
+  // List<SearchFieldListItem<dynamic>> searchFieldListItems = statesList
+  //     .map((item) => SearchFieldListItem<dynamic>(item))
+  //     .toList();
 
   @override
   void initState() {
@@ -154,10 +154,10 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   Future<String> getFirebaseTokeFromSP() async
   {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? fb_token = sp.getString(Constants.firebase_token);
-    if (fb_token != null)
+    String? fbToken = sp.getString(Constants.firebase_token);
+    if (fbToken != null)
     {
-      return fb_token;
+      return fbToken;
     }
     return "";
   }
@@ -233,16 +233,23 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
       flex: 1,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: RaisedButton(
-            color: Color.fromRGBO(16, 161, 250, 1.0),
-            child: Image.asset(
-              "assets/images/ic_twitter.png",
-              width: 25,
-              height: 25,
-            ),
-            onPressed: () {},
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromRGBO(16, 161, 250, 1.0), // Background color
             shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0))),
+              borderRadius: BorderRadius.circular(30.0), // Rounded corners
+            ),
+          ),
+          onPressed: () {
+            // Your onPressed logic
+          },
+          child: Image.asset(
+            "assets/images/ic_twitter.png",
+            width: 25,
+            height: 25,
+          ),
+        )
+        ,
       ),
     );
   }
@@ -347,7 +354,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
 
   bool _emailValidation(String value) {
     bool emailValid = false;
-    if (value != null && value.isNotEmpty)
+    if (value.isNotEmpty)
     {
       emailValid =
           RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
@@ -366,7 +373,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
         child: Row(
           children: [
             Flexible(
-              child: Container(
+              child: SizedBox(
                 width: 45,
                 child: TextFormField(
                   maxLength: 2,
@@ -384,6 +391,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
                     {
                       return "Please enter valid code";
                     }
+                    return null;
 
                   },
                   decoration: CommonStyles.textFormFieldDecoration("", "Code"),
@@ -540,30 +548,30 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
       ),
     );
   }
-
-  Widget _buildStatesAutoCompleteTextField(BuildContext context) {
-    return
-      Padding(
-        padding: CommonStyles.textFieldsPadding(),
-        child: SearchField(
-          suggestions: statesList,
-
-          validator: (value) {
-            if (value == null || value.isEmpty)
-            {
-              return "Please enter valid area name";
-            }
-            return null;
-          },
-          searchInputDecoration: CommonStyles.textFormFieldStyle("State", ""),
-
-          maxSuggestionsInViewPort: 6,
-          itemHeight: 50,
-          onTap: (x) {
-
-          },
-        ),);
-  }
+  //
+  // Widget _buildStatesAutoCompleteTextField(BuildContext context) {
+  //   return
+  //     Padding(
+  //       padding: CommonStyles.textFieldsPadding(),
+  //       child: SearchField(
+  //         suggestions: statesList,
+  //
+  //         validator: (value) {
+  //           if (value == null || value.isEmpty)
+  //           {
+  //             return "Please enter valid area name";
+  //           }
+  //           return null;
+  //         },
+  //         searchInputDecoration: CommonStyles.textFormFieldStyle("State", ""),
+  //
+  //         maxSuggestionsInViewPort: 6,
+  //         itemHeight: 50,
+  //         onTap: (x) {
+  //
+  //         },
+  //       ),);
+  // }
 
 
   Widget _buildStateNameField(BuildContext context) {
@@ -779,8 +787,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
     }
   }
@@ -851,8 +858,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       setState(() {
         _progressBarActive = false;
@@ -864,7 +870,7 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   void showLoadingDialog(BuildContext context)
   {
 
-    pd = ProgressDialog(context, type: ProgressDialogType.Normal);
+    pd = ProgressDialog(context, type: ProgressDialogType.normal);
     pd.style(message: "Loading");
     pd.show();
 
@@ -904,11 +910,11 @@ class _RecipientLoginFormWidget extends State<RecipientLoginFormWidget> {
   // }
 
 
-  storeUserData(id, name, business_name, email, contact, role, address, lat, lng) async {
+  storeUserData(id, name, businessName, email, contact, role, address, lat, lng) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(Constants.user_id, id);
     prefs.setString(Constants.name, name);
-    prefs.setString(Constants.business_name, business_name);
+    prefs.setString(Constants.business_name, businessName);
     prefs.setString(Constants.email, email);
     prefs.setString(Constants.contact, contact);
     prefs.setString(Constants.address, address);

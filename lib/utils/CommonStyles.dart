@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
-import 'package:closingtime/food_donor/profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:new_version/new_version.dart';
 
 import 'ColorUtils.dart';
 
@@ -199,12 +197,12 @@ static void showLoadingDialog(BuildContext context)
           child: Container(
             height: 650,
             width: 360,
-            child: foodDescDialog(addedFoodModel, context),
             margin: EdgeInsets.only(bottom: 50, left: 12, right: 12),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
             ),
+            child: foodDescDialog(addedFoodModel, context),
           ),
         );
       },

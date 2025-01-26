@@ -6,7 +6,6 @@ import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
-import 'package:closingtime/utils/food_desc_image_widget.dart';
 import 'package:closingtime/utils/preview_food_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,9 +16,9 @@ class DonorFoodDescription extends StatefulWidget
 {
 
   late Data addedFoodModel;
-  bool _visible;
+  final bool _visible;
 
-  DonorFoodDescription(this.addedFoodModel, this._visible);
+  DonorFoodDescription(this.addedFoodModel, this._visible, {Key? key}) : super(key: key);
 
   @override
   _DonorFoodDescriptionState createState() => _DonorFoodDescriptionState(addedFoodModel, _visible);
@@ -277,7 +276,7 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                         padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
                         child: SizedBox(
 
-                          child:Text(addedFoodModel.pickUpTime == null? "": addedFoodModel.pickUpTime, overflow: TextOverflow.ellipsis,
+                          child:Text(addedFoodModel.pickUpTime ?? "", overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -437,7 +436,7 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                     visible: status == Constants.STATUS_AVAILABLE? false:true ,
                     child : ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          primary: status == Constants.waiting_for_pickup? Colors.grey: status == Constants.pick_up_scheduled? ColorUtils.primaryColor : Colors.grey),
+                          backgroundColor: status == Constants.waiting_for_pickup? Colors.grey: status == Constants.pick_up_scheduled? ColorUtils.primaryColor : Colors.grey),
                       onPressed: () {
 
                       },
@@ -525,8 +524,7 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

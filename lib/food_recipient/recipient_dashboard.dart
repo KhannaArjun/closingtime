@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 import 'package:closingtime/food_recipient/recipient_food_description_screen.dart';
 import 'package:closingtime/food_recipient/recipient_food_history.dart';
@@ -6,7 +5,6 @@ import 'package:closingtime/food_recipient/recipient_profile.dart';
 import 'package:closingtime/registration/sign_in.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
 import 'package:closingtime/food_donor/data_model/food_donated_list_data.dart';
@@ -140,7 +138,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
                           const SizedBox(
                             height: 10,
                           ),
-                          Text('Hello, ${_username}',
+                          Text('Hello, $_username',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -241,7 +239,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
 
   Widget _itemCard(BuildContext context, Data addedFoodModel)
   {
-    return Container(
+    return SizedBox(
       height: 170,
       child: Card
         (
@@ -475,8 +473,8 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     String userId = sharedPreferences.getString(Constants.user_id) ?? '';
-    double user_lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
-    double user_lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
+    double userLat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
+    double userLng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
     String name = sharedPreferences.getString(Constants.name) ?? "Guest";
 
     setState(() {
@@ -485,21 +483,21 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
 
     //await Future.delayed(const Duration(seconds: 3));
 
-    _recipient_lat = user_lat;
-    _recipient_lng = user_lng;
+    _recipient_lat = userLat;
+    _recipient_lng = userLng;
 
     _userId = userId;
 
-    foodListApiCall(userId, user_lat, user_lng);
+    foodListApiCall(userId, userLat, userLng);
   }
 
 
-  void foodListApiCall(userId, double user_lat, double user_lng)
+  void foodListApiCall(userId, double userLat, double userLng)
   {
     Map body = {
       "isFoodAccepted":false,
-      "recipient_lat": user_lat,
-      "recipient_lng": user_lng,
+      "recipient_lat": userLat,
+      "recipient_lng": userLng,
       "user_id": userId
     };
     
@@ -545,8 +543,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
@@ -554,7 +551,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
   }
 
 
-  void acceptFoodApiCall(donorUserId, recipientUserId, food_id, business_name)
+  void acceptFoodApiCall(donorUserId, recipientUserId, foodId, businessName)
   {
     setState(() {
       isLoading = true;
@@ -563,8 +560,8 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
     Map body = {
       "donor_user_id":donorUserId,
       "recipient_user_id":recipientUserId,
-      "food_item_id": food_id,
-      "business_name": business_name
+      "food_item_id": foodId,
+      "business_name": businessName
     };
 
     // print(jsonEncode(body));
@@ -601,8 +598,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
@@ -649,8 +645,7 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }
@@ -692,7 +687,8 @@ class _RecipientDashboardState extends State<RecipientDashboard> {
           },
         ),
       );
-      _scaffoldKey.currentState!.showSnackBar(snackBar);
+      // _scaffoldKey.currentState!.showSnackBar(snackBar);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
     });
 

@@ -1,12 +1,10 @@
 import 'dart:convert';
 
-import 'package:closingtime/food_donor/donor_food_description_screen.dart';
 import 'package:closingtime/food_recipient/recipient_food_description_screen.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
-import 'package:closingtime/volunteer/volunteer_food_description_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -263,8 +261,7 @@ class _FoodDonorHistoryState extends State<FoodRecipientHistory> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

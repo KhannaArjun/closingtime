@@ -8,7 +8,7 @@ class CustomRaisedButton extends StatelessWidget {
   final double height;
   final VoidCallback onPressed;
 
-  CustomRaisedButton({
+  const CustomRaisedButton({
     Key key = const Key("any_key"),
     required this.child,
     this.width = double.infinity,
@@ -18,13 +18,13 @@ class CustomRaisedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Gradient _gradient = LinearGradient(
+    Gradient gradient = LinearGradient(
         colors: [ColorUtils.themeGradientStart, ColorUtils.themeGradientEnd]);
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-          borderRadius: new BorderRadius.all(Radius.circular(40.0)),
+          borderRadius: BorderRadius.all(Radius.circular(40.0)),
           color: ColorUtils.button_color,
           boxShadow: [
             BoxShadow(
@@ -36,7 +36,7 @@ class CustomRaisedButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-            borderRadius: new BorderRadius.all(Radius.circular(40.0)),
+            borderRadius: BorderRadius.all(Radius.circular(40.0)),
             onTap: onPressed,
             child: Center(
               child: child,

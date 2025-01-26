@@ -1,9 +1,10 @@
-import 'dart:typed_data';
 
 import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:flutter/material.dart';
 
 class TestApp extends StatelessWidget {
+  const TestApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,6 +18,8 @@ class TestApp extends StatelessWidget {
 }
 
 class TestHomePage extends StatefulWidget {
+  const TestHomePage({Key? key}) : super(key: key);
+
   @override
   _TestHomePage createState() => _TestHomePage();
 }

@@ -1,19 +1,18 @@
 import 'dart:convert';
 
-import 'package:closingtime/food_donor/data_model/donor_profile_model.dart';
 import 'package:closingtime/food_donor/profile_widget.dart';
-import 'package:closingtime/food_recipient/recipient_dashboard.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/registration/recipient_registration.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data_model/recipient_profile_model.dart';
 
 class RecipientProfile extends StatefulWidget {
+  const RecipientProfile({Key? key}) : super(key: key);
+
   @override
   _RecipientProfileState createState() => _RecipientProfileState();
 }
@@ -81,22 +80,22 @@ class _RecipientProfileState extends State<RecipientProfile> {
       }
   }
 
-  Widget buildName(RecipientProfileModel? _recipientProfileModel) => Column(
+  Widget buildName(RecipientProfileModel? recipientProfileModel) => Column(
     children: [
       Text(
-        _recipientProfileModel != null?_recipientProfileModel.name:'',
+        recipientProfileModel != null?recipientProfileModel.name:'',
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
       ),
       const SizedBox(height: 4),
       Text(
-        _recipientProfileModel != null?_recipientProfileModel.email:'',
+        recipientProfileModel != null?recipientProfileModel.email:'',
         style: TextStyle(fontSize: 15, color: Colors.grey),
       )
     ],
   );
 
 
-  Widget buildPersonalDetails(RecipientProfileModel? _recipientProfileModel) => Container(
+  Widget buildPersonalDetails(RecipientProfileModel? recipientProfileModel) => Container(
     padding: EdgeInsets.symmetric(horizontal: 48),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +107,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
         const SizedBox(height: 12),
         Card(
           elevation: 10,
-          child: Container(
+          child: SizedBox(
             width: 500,
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -125,7 +124,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
                   Padding(
                     padding: EdgeInsets.all(5),
                     child: Text(
-                      _recipientProfileModel != null?_recipientProfileModel.businessName:''
+                      recipientProfileModel != null?recipientProfileModel.businessName:''
                       ,
                       style: TextStyle(fontSize: 17),
                     ),),
@@ -138,7 +137,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
                   Padding(
                     padding: EdgeInsets.all(5),
                     child: Text(
-                      _recipientProfileModel != null? "+1 ${_recipientProfileModel.contactNumber}":'',
+                      recipientProfileModel != null? "+1 ${recipientProfileModel.contactNumber}":'',
                       style: TextStyle(fontSize: 17),
                     ),),
 
@@ -243,7 +242,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
   //   ),
   // );
 
-  Widget buildAddress(RecipientProfileModel? _recipientProfileModel) => Container(
+  Widget buildAddress(RecipientProfileModel? recipientProfileModel) => Container(
     padding: EdgeInsets.symmetric(horizontal: 48),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +254,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
         const SizedBox(height: 12),
         Card(
           elevation: 12,
-          child: Container(
+          child: SizedBox(
             width: 500,
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -267,7 +266,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
                   Padding(
                     padding: EdgeInsets.all(5),
                     child: Text(
-                      _recipientProfileModel != null?_recipientProfileModel.address:'',
+                      recipientProfileModel != null?recipientProfileModel.address:'',
                       style: TextStyle(fontSize: 17),
                     ),),
                 ],
@@ -288,13 +287,13 @@ class _RecipientProfileState extends State<RecipientProfile> {
     userId = sharedPreferences.getString(Constants.user_id) ?? '';
     String email = sharedPreferences.getString(Constants.email) ?? '';
     String name = sharedPreferences.getString(Constants.name) ?? '';
-    String business_name = sharedPreferences.getString(Constants.business_name) ?? '';
+    String businessName = sharedPreferences.getString(Constants.business_name) ?? '';
     String contact = sharedPreferences.getString(Constants.contact) ?? '';
     String address = sharedPreferences.getString(Constants.address) ?? '';
     double lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
     double lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
 
-    RecipientProfileModel data = RecipientProfileModel(address: address, businessName: business_name, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_RECIPIENT, userId: userId);
+    RecipientProfileModel data = RecipientProfileModel(address: address, businessName: businessName, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_RECIPIENT, userId: userId);
 
 
     setState(() {
@@ -325,18 +324,10 @@ class _RecipientProfileState extends State<RecipientProfile> {
 
         if (!value.error)
         {
-          if (value.data != null)
-          {
-            setState(() {
-              recipientProfileModel  = value.data;
-            });
-          }
-          else
-          {
-            //Constants.showToast(Constants.empty);
-
-          }
-        }
+          setState(() {
+            recipientProfileModel  = value.data;
+          });
+                }
       }).catchError((onError)
       {
         setState(() {
@@ -347,8 +338,7 @@ class _RecipientProfileState extends State<RecipientProfile> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

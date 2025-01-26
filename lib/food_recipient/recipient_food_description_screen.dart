@@ -15,9 +15,9 @@ class FoodDescription extends StatefulWidget
 {
 
   late Data addedFoodModel;
-  bool _visible;
+  final bool _visible;
 
-  FoodDescription(this.addedFoodModel,this._visible);
+  FoodDescription(this.addedFoodModel,this._visible, {Key? key}) : super(key: key);
 
   @override
   _FoodDescriptionState createState() => _FoodDescriptionState(addedFoodModel, _visible);
@@ -253,7 +253,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
                         padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
                         child: SizedBox(
 
-                          child:Text(addedFoodModel.pickUpTime == null? "": addedFoodModel.pickUpTime, overflow: TextOverflow.ellipsis,
+                          child:Text(addedFoodModel.pickUpTime ?? "", overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -454,7 +454,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
                   margin: const EdgeInsets.fromLTRB(20, 0, 20, 18),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                    primary: status == Constants.STATUS_AVAILABLE? ColorUtils.primaryColor
+                    backgroundColor: status == Constants.STATUS_AVAILABLE? ColorUtils.primaryColor
                         : status == Constants.waiting_for_pickup? Colors.grey: status == Constants.pick_up_scheduled? ColorUtils.primaryColor : Colors.grey),
                     onPressed: () {
                       status == Constants.STATUS_AVAILABLE? acceptFoodApiCall(addedFoodModel.userId, _userId, addedFoodModel.id, addedFoodModel.business_name)
@@ -564,7 +564,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
     }
   }
 
-  void acceptFoodApiCall(donorUserId, recipientUserId, food_id, business_name)
+  void acceptFoodApiCall(donorUserId, recipientUserId, foodId, businessName)
   {
     setState(() {
       isLoading = true;
@@ -573,8 +573,8 @@ class _FoodDescriptionState extends State<FoodDescription> {
     Map body = {
       "donor_user_id":donorUserId,
       "recipient_user_id":recipientUserId,
-      "food_item_id": food_id,
-      "business_name": business_name
+      "food_item_id": foodId,
+      "business_name": businessName
     };
 
     // print(jsonEncode(body));
@@ -617,8 +617,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       setState(() {
         isLoading = false;
@@ -629,7 +628,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
 
   }
 
-  void foodDeliveredApiCall(donorUserId, recipientUserId, food_id, business_name)
+  void foodDeliveredApiCall(donorUserId, recipientUserId, foodId, businessName)
   {
     setState(() {
       isLoading = true;
@@ -639,7 +638,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
       // "donor_user_id":donorUserId,
       // "recipient_user_id":recipientUserId,
       // "volunteer_user_id": ,
-      "food_item_id": food_id,
+      "food_item_id": foodId,
       // "business_name": business_name
     };
 
@@ -683,8 +682,7 @@ class _FoodDescriptionState extends State<FoodDescription> {
       );
 
     }
-    on Exception catch(e)
-    {
+    on Exception {
       // print(e);
       Constants.showToast("Please try again");
     }

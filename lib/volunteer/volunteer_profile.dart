@@ -1,18 +1,15 @@
-import 'dart:convert';
 
-import 'package:closingtime/food_donor/data_model/donor_profile_model.dart';
 import 'package:closingtime/food_donor/profile_widget.dart';
-import 'package:closingtime/network/api_service.dart';
-import 'package:closingtime/registration/donor_registration.dart';
 import 'package:closingtime/registration/volunteer_registration.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/volunteer/data_model/volunteer_profile_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VolunteerProfile extends StatefulWidget {
+  const VolunteerProfile({Key? key}) : super(key: key);
+
   @override
   _VolunteerProfileState createState() => _VolunteerProfileState();
 }
@@ -109,7 +106,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
         const SizedBox(height: 12),
         Card(
           elevation: 10,
-          child: Container(
+          child: SizedBox(
             width: 500,
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -140,7 +137,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
                   Padding(
                     padding: EdgeInsets.all(5),
                     child: Text(
-                      volunteerProfileModel != null? "0 - ${volunteerProfileModel.serving_distance} miles":''
+                      volunteerProfileModel != null? "0 - ${volunteerProfileModel.servingDistance} miles":''
                       ,
                       style: TextStyle(fontSize: 17),
                     ),),
@@ -180,7 +177,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
         const SizedBox(height: 12),
         Card(
           elevation: 12,
-          child: Container(
+          child: SizedBox(
             width: 500,
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -210,13 +207,13 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
     userId = sharedPreferences.getString(Constants.user_id) ?? '';
     String email = sharedPreferences.getString(Constants.email) ?? '';
     String name = sharedPreferences.getString(Constants.name) ?? '';
-    String serving_distance = sharedPreferences.getString(Constants.serving_distance) ?? '';
+    String servingDistance = sharedPreferences.getString(Constants.serving_distance) ?? '';
     String contact = sharedPreferences.getString(Constants.contact) ?? '';
     String address = sharedPreferences.getString(Constants.address) ?? '';
     double lat = sharedPreferences.getDouble(Constants.lat) ?? 0.0;
     double lng = sharedPreferences.getDouble(Constants.lng) ?? 0.0;
 
-    VolunteerProfileModel data = VolunteerProfileModel(address: address, serving_distance: serving_distance, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_DONOR, userId: userId);
+    VolunteerProfileModel data = VolunteerProfileModel(address: address, servingDistance: servingDistance, code: "+1", contactNumber: contact, email: email, lat: lat, lng: lng, name: name, placeId: "", role: Constants.ROLE_DONOR, userId: userId);
 
     setState(() {
       _volunteerProfileModel = data;

@@ -2,15 +2,15 @@ import 'package:closingtime/utils/preview_food_image.dart';
 import 'package:flutter/material.dart';
 
 class FoodDescImageWidget extends StatefulWidget {
-  String _image;
-  FoodDescImageWidget(this._image);
+  final String _image;
+  const FoodDescImageWidget(this._image, {Key? key}) : super(key: key);
 
   @override
   _FoodDescImageWidgetState createState() => _FoodDescImageWidgetState(_image);
 }
 
 class _FoodDescImageWidgetState extends State<FoodDescImageWidget> {
-  String _image;
+  final String _image;
   _FoodDescImageWidgetState(this._image);
 
   @override
