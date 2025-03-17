@@ -1,4 +1,3 @@
-
 import 'package:closingtime/utils/location_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
@@ -8,12 +7,6 @@ class AutoCompleteGooglePlaces extends StatefulWidget {
 
   @override
   _AutoCompleteGooglePlacesClass createState() => _AutoCompleteGooglePlacesClass();
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
 }
 
 class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
@@ -23,119 +16,130 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
   @override
   void initState() {
     super.initState();
-
-    googlePlace = GooglePlace("AIzaSyC6BSkN2od9soYaSaiIou-Ctcop186rWPg");
-
+    googlePlace = GooglePlace("AIzaSyCtPSgM6f6rZiYy_h8CuAVl6xpCch3F2Q4"); // Replace with your API Key
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: '',
-        theme: ThemeData(
-        primarySwatch: Colors.blue,),
-    home: Scaffold(
-      appBar: AppBar(
-    title: const Text("Location details"),
-      backgroundColor: Colors.blue,
-      elevation: 0.0,
-      titleSpacing: 10.0,
-      centerTitle: true,
-      leading: InkWell(
-          onTap: () {
-            Navigator.pop(context, null);
-          },
-        child: Icon(
-        Icons.arrow_back_ios,
-        color: Colors.white,
-      ),
-      ),),
-      body: SafeArea(
-        child: Container(
-          margin: EdgeInsets.only(right: 20, left: 20, top: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: "Search your location",
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+      title: 'Google Places Autocomplete',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Location Details"),
+          backgroundColor: Colors.blue,
+          elevation: 0.0,
+          centerTitle: true,
+          leading: InkWell(
+            onTap: () => Navigator.pop(context, null),
+            child: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          ),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: "Search your location",
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black54, width: 2.0),
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.black54,
-                      width: 2.0,
-                    ),
-                  ),
-                ),
-                onChanged: (value) {
-
-                  if (value.isNotEmpty) {
-                    autoCompleteSearch(value);
-                  } else {
-                    if (predictions.isNotEmpty && mounted) {
-                      setState(() {
-                        predictions = [];
-                      });
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      autoCompleteSearch(value);
+                    } else {
+                      if (predictions.isNotEmpty && mounted) {
+                        setState(() => predictions = []);
+                      }
                     }
-                  }
-                },
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: predictions.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(
-                          Icons.pin_drop,
-                          color: Colors.white,
-                        ),
-                      ),
-                      title: Text(predictions[index].description ?? "No results found"),
-                      onTap: () {
-
-
-                        getDetails(predictions[index].description ?? "", predictions[index].placeId?? "");
-                      },
-                    );
                   },
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: predictions.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: const CircleAvatar(
+                          child: Icon(Icons.pin_drop, color: Colors.white),
+                        ),
+                        title: Text(predictions[index].description ?? "No results found"),
+                        onTap: () {
+                          getDetails(
+                            predictions[index].description ?? "",
+                            predictions[index].placeId ?? "",
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),);
+    );
   }
 
+  /// Fetches location suggestions based on user input.
   void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value, offset: 2, radius: 100000, components: [Component("country", "US")], region: "US");
+    try {
+      var result = await googlePlace.autocomplete.get(
+        value,
+        offset: 2,
+        radius: 100000,
+        components: [Component("country", "US")],
+        region: "US",
+      );
 
-    if (result != null && result.predictions != null && mounted) {
-      setState(() {
-        predictions = result.predictions!;
-      });
+      if (result == null) {
+        print("API Error: No response from Google API");
+        return;
+      }
+
+      if (result.predictions == null || result.predictions!.isEmpty) {
+        print("No predictions found.");
+        return;
+      }
+
+      print("Predictions: ${result.predictions}");
+
+      if (mounted) {
+        setState(() => predictions = result.predictions!);
+      }
+    } catch (e) {
+      print("Error fetching autocomplete results: $e");
     }
   }
 
+  /// Fetches place details after user selects a location.
   void getDetails(String desc, String placeId) async {
-    var result = await googlePlace.details.get(placeId);
-    if (result != null && result.result != null && mounted) {
+    try {
+      var result = await googlePlace.details.get(placeId);
 
-      // print(result.result!.addressComponents);
-      // print(result.result!.formattedAddress);
-      // print(result.result!.types);
+      if (result == null || result.result == null) {
+        print("Error: Failed to fetch place details.");
+        return;
+      }
 
-      Navigator.pop(context, LocationDetailsModel(desc, result.result!.geometry!.location!.lat?? 0.0, result.result!.geometry!.location!.lng?? 0.0, placeId));
+      double lat = result.result!.geometry?.location?.lat ?? 0.0;
+      double lng = result.result!.geometry?.location?.lng ?? 0.0;
+
+      // print("Location: $desc, Latitude: $lat, Longitude: $lng");
+
+      if (mounted) {
+        Navigator.pop(context, LocationDetailsModel(desc, lat, lng, placeId));
+      }
+    } catch (e) {
+      print("Error fetching place details: $e");
     }
   }
-
 }

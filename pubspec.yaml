@@ -55,6 +55,7 @@ dependencies:
   google_place: ^0.4.3
   package_info_plus: ^1.4.3+1
   new_version: ^0.3.1
+  path_provider: ^2.1.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -105,6 +106,7 @@ flutter:
     - assets/images/volunteer.png
     - assets/images/logo_white.png
     - assets/images/logo_blue.png
+    - assets/images/test_img.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

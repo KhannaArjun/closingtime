@@ -19,6 +19,12 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
 class DonateFood extends StatelessWidget
 {
 
@@ -761,54 +767,6 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     }
   }
 
-
-  void getUserId(context) async
-  {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
-    String userId = sharedPreferences.getString(Constants.user_id) ?? '';
-    String businessName = sharedPreferences.getString(Constants.business_name) ?? '';
-
-    if (_image == null)
-    {
-      if (_addedFoodModel != null)
-      {
-        if (_addedFoodModel!.image.isNotEmpty)
-        {
-          setState(() {
-            _isLoading = true;
-          });
-
-          modifyFoodApiCall(context, userId, businessName, _addedFoodModel!.image);
-        }
-        else{
-          Constants.showToast("Please upload the food image");
-        }
-      }
-      else
-      {
-        Constants.showToast("Please upload the food image");
-      }
-    }
-    else
-    {
-      setState(() {
-        _isLoading = true;
-      });
-
-      uploadImageToFirebase(context, userId, businessName);
-    }
-
-    // if (_image == null)
-    //   {
-    //     addFoodApiCall(context, userId, business_name, "");
-    //   }
-    // else
-    //   {
-    //     uploadImageToFirebase(context, userId, business_name);
-    //   }
-  }
-
   String _encodedString = "";
 
 
@@ -858,6 +816,48 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
     });
 
   }
+
+
+  void getUserId(context) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String userId = sharedPreferences.getString(Constants.user_id) ?? '';
+    String businessName = sharedPreferences.getString(Constants.business_name) ?? '';
+
+    if (_image == null) {
+      if (_addedFoodModel != null && _addedFoodModel!.image.isNotEmpty) {
+        setState(() {
+          _isLoading = true;
+        });
+        modifyFoodApiCall(context, userId, businessName, _addedFoodModel!.image);
+      } else {
+        // Load default image from assets
+        _image = await getDefaultImage();
+        setState(() {
+          _isLoading = true;
+        });
+
+        uploadImageToFirebase(context, userId, businessName);
+      }
+    } else {
+      setState(() {
+        _isLoading = true;
+      });
+
+      uploadImageToFirebase(context, userId, businessName);
+    }
+  }
+
+// Function to copy the asset image to a temporary directory
+  Future<File> getDefaultImage() async {
+    final byteData = await rootBundle.load('assets/images/test_img.png');
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/test_img.png');
+
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file;
+  }
+
 
   void getUploadedImageUrl(uploadTask, String userId, String businessName) async
   {
@@ -938,7 +938,6 @@ class _DonateFoodFormWidget extends State<DonateFoodFormWidget> {
 
   void addFoodApiCall(BuildContext context, userId, businessName, image)
   {
-
 
     Map body =
     {

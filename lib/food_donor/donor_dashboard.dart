@@ -447,11 +447,14 @@ class _DonorDashboardState extends State<DonorDashboard> {
       "user_id": userId
     };
 
+
+    print(jsonEncode(body));
+
     try
     {
       Future<AddedFoodListModel> addedFoodListModel = ApiService.addedFoodList(jsonEncode(body));
       addedFoodListModel.then((value){
-        // print(value.data);
+        print(value.data);
 
         if (!value.error)
         {
@@ -478,6 +481,8 @@ class _DonorDashboardState extends State<DonorDashboard> {
         }
       }).catchError((onError)
       {
+
+        print(onError);
         setState(() {
           isLoading = false;
         });
