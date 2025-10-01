@@ -19,9 +19,10 @@ class VolunteerRegistration extends StatelessWidget {
   // This widget is the root of your application.
 
   String _email = "";
+  String _displayName = "";
   final VolunteerProfileModel? _volunteerProfileModel;
 
-  VolunteerRegistration(this._email, this._volunteerProfileModel, {Key? key}) : super(key: key);
+  VolunteerRegistration(this._email, this._displayName, this._volunteerProfileModel, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

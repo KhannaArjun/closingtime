@@ -311,98 +311,88 @@ class _DonorDashboardState extends State<DonorDashboard> {
     );
   }
 
-  Widget _itemCard(BuildContext context, Data addedFoodModel)
-  {
+  Widget _itemCard(BuildContext context, Data addedFoodModel) {
+    final imageUrl = (addedFoodModel.image ?? '').isEmpty
+        ? "https://source.unsplash.com/user/c_v_r/1600x900"
+        : addedFoodModel.image!;
+
+    final name   = addedFoodModel.foodName ?? '';
+    final qty    = addedFoodModel.quantity ?? '';
+    final date   = addedFoodModel.pickUpDate ?? '';
+    final status = addedFoodModel.status ?? '';
+
     return SizedBox(
-        height: 140,
-        child: Card(
-            color: Colors.white,
-            elevation: 20,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: InkWell(
-              onTap: () async {
-              var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => DonorFoodDescription(addedFoodModel, false)));
-              if (result == true)
-              {
-              getUserId();
-              }
-              },
-              child: Column(
-                children: [
-                  Row(
-                    children: <Widget>[
-                      Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: CircleAvatar(
-                          backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):NetworkImage(addedFoodModel.image),
-                          radius: 40,
-                          backgroundColor: ColorUtils.primaryColor,
-                        ),
-                      ),
-
-                      SizedBox(
-
-                        height: 100,
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                child: Text(
-                                    addedFoodModel.foodName,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700
-                                  ),
-                                ),
-                              ),
-
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                child: Text('Qty: ${addedFoodModel.quantity}',textAlign: TextAlign.center,),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
-                                child: SizedBox(
-                                  child: Text('Pick up date ${addedFoodModel.pickUpDate}',
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      color: Color.fromARGB(255, 48, 48, 54)
-                                  ),),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-
-                    ],
+      height: 140,
+      child: Card(
+        color: Colors.white,
+        elevation: 20,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        child: InkWell(
+          onTap: () async {
+            var result = await Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => DonorFoodDescription(addedFoodModel, false)),
+            );
+            if (result == true) getUserId();
+          },
+          child: Column(
+            children: [
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(imageUrl),
+                      radius: 40,
+                      backgroundColor: ColorUtils.primaryColor,
+                    ),
                   ),
-
-                  addedFoodModel.status == "Available"?
-                  const SizedBox() :
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                        Text(
-                        addedFoodModel.status,
-                        style: const TextStyle(
-                          color: Colors.lightGreen,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),),
-
-                          const SizedBox(width: 8,),
+                  SizedBox(
+                    height: 100,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: Text(
+                              name,
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: Text('Qty: $qty', textAlign: TextAlign.center),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
+                            child: Text(
+                              'Pick up date $date',
+                              style: const TextStyle(fontSize: 15, color: Color.fromARGB(255, 48, 48, 54)),
+                            ),
+                          ),
                         ],
-                      )
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
+              status == "Available"
+                  ? const SizedBox()
+                  : Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    status,
+                    style: const TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ],
+          ),
         ),
+      ),
     );
   }
 

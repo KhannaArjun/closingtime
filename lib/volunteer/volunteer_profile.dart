@@ -153,7 +153,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
       children: [
         ElevatedButton.icon(
           onPressed: () async {
-            var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerRegistration("", volunteerProfileModel)));
+            var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerRegistration("", "", volunteerProfileModel)));
             if (result == true){
               getUserDetails();
             }

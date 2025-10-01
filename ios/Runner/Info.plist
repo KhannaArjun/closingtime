@@ -1,77 +1,98 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
 <dict>
-    <key>UIRequiresFullScreen</key>
-    <true/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>closingtime</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.257410732315-9nfqggb7guctjo0ki2dliqmc1dqb6uvg</string>
-			</array>
-		</dict>
-	</array>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>To capture Image</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Accessing user location to provide better user experience</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Accessing user location to provide better user experience</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To capture the image</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen.storyboard</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
-	<key>iOSAppStoreCountry</key>
-	<string>GB</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
+  <key>CADisableMinimumFrameDurationOnPhone</key>
+  <true/>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>$(DEVELOPMENT_LANGUAGE)</string>
+  <key>CFBundleExecutable</key>
+  <string>$(EXECUTABLE_NAME)</string>
+  <key>CFBundleIdentifier</key>
+  <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>closingtime</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+
+
+  <!-- Use Flutter’s pubspec versioning -->
+  <key>CFBundleShortVersionString</key>
+  <string>$(FLUTTER_BUILD_NAME)</string>
+  <key>CFBundleVersion</key>
+  <string>$(FLUTTER_BUILD_NUMBER)</string>
+
+  <key>CFBundleSignature</key>
+  <string>????</string>
+
+  <!-- Google Sign-In -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>com.googleusercontent.apps.257410732315-9nfqggb7guctjo0ki2dliqmc1dqb6uvg</string>
+      </array>
+    </dict>
+  </array>
+  <key>GIDClientID</key>
+  <string>YOUR_IOS_CLIENT_ID.apps.googleusercontent.com</string>
+
+  <key>LSRequiresIPhoneOS</key>
+  <true/>
+
+  <!-- Match your project minimum iOS -->
+  <key>MinimumOSVersion</key>
+  <string>13.0</string>
+
+  <!-- Privacy strings -->
+  <key>NSCameraUsageDescription</key>
+  <string>To capture images for donations.</string>
+
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>We use your location to show nearby donations and pickup addresses.</string>
+
+  <!-- Keep this only if you actually need background/always location -->
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>We use your location in the background to update pickup status and find nearby donations even when the app isn’t open.</string>
+
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>To select photos for donations.</string>
+
+  <key>UIApplicationSupportsIndirectInputEvents</key>
+  <true/>
+
+  <!-- Remove if not actively using background fetch or silent push -->
+  <!--
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+  </array>
+  -->
+
+  <key>UILaunchStoryboardName</key>
+  <string>LaunchScreen.storyboard</string>
+  <key>UIMainStoryboardFile</key>
+  <string>Main</string>
+  <key>UIRequiresFullScreen</key>
+  <true/>
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+  <key>UIViewControllerBasedStatusBarAppearance</key>
+  <false/>
+  <key>iOSAppStoreCountry</key>
+  <string>GB</string>
 </dict>
-</plist>

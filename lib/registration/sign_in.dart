@@ -6,6 +6,7 @@ import 'package:closingtime/login_providers/login_providers.dart';
 import 'package:closingtime/main.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/network/entity/login_model.dart';
+import 'package:closingtime/registration/volunteer_registration.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/volunteer/volunteer_dashboard.dart';
@@ -135,7 +136,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+      margin: EdgeInsets.fromLTRB(20, 30, 20, 0),
       child:
       Card(
 
@@ -154,9 +155,13 @@ class _LoginWidgetState extends State<LoginWidget> {
               onPressed: () {
 
                 _loginProvider.googleSignIn().then((value) {
-                  if (value.isNotEmpty)
+
+
+                  if (value['email'] != null || value['email'] != "")
                   {
-                    _email = value;
+                    _email = value['email']!;
+                    _displayName = value['displayName']!;
+                    // _email = value;
                     checkIsUserExists(context);
                   }
                   else
@@ -177,26 +182,25 @@ class _LoginWidgetState extends State<LoginWidget> {
             ),
 
 
+            // From your sign_in.dart
             SignInButton(
               Buttons.AppleDark,
               text: "Sign in with Apple",
               onPressed: () {
-                _loginProvider.signInWithApple().then((value)
-                    {
-                      if (value != null)
+                _loginProvider.signInWithApple().then((value) { // Assuming _loginProvider.signInWithApple() returns the email as a String?
+                  if (value['email'] != null || value['email'] != "") // Or however you check for a successful email retrieval
                       {
-
-                        _email = value;
-
-                        checkIsUserExists(context);
-                      }
-                      else
-                        {
-                          Constants.showToast("Please try again");
-                        }
-                    }
-                );
-                //LoginProvider.isLoggedIn();
+                    _email = value['email']!;
+                    checkIsUserExists(context);
+                  } else {
+                    // THIS BLOCK IS BEING EXECUTED
+                    Constants.showToast("Please try again");
+                  }
+                }).catchError((error) {
+                  // It's also good to catch errors from the Future itself
+                  print("Error during Apple Sign-In: $error");
+                  Constants.showToast("Apple Sign-In failed: $error");
+                });
               },
             ),
 
@@ -238,6 +242,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   String _email = "";
+  String _displayName = "";
 
   void loginApiCall()
   {
@@ -305,13 +310,14 @@ class _LoginWidgetState extends State<LoginWidget> {
       "firebase_token": fb_token
     };
 
-    // print(body);
+    print(body);
 
     Future<dynamic> response = ApiService.checkIsUserExists(jsonEncode(body));
 
-    response.then((value) {
+    response.then((value)
+    {
 
-      // print(value);
+      print(value);
 
       setState(() {
         _progressBarActive = false;
@@ -322,6 +328,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       if(value['message'].toString() == Constants.user_exists)
       {
         var data = value['data'];
+        data['role'] = Constants.ROLE_VOLUNTEER;
 
         if (data['role'] == Constants.ROLE_DONOR)
           {
@@ -350,14 +357,19 @@ class _LoginWidgetState extends State<LoginWidget> {
         {
           //Navigator.of(context).push( MaterialPageRoute(builder: (context) => RolePreferenceScreen(_email)));
 
-          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-              RolePreferenceScreen(_email)), (route) => false);
+          // Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+          //     RolePreferenceScreen(_email)), (route) => false);
+
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => VolunteerRegistration(_email, _displayName, null)),
+          );
         }
       }).catchError((onError)
     {
       setState(() {
         _progressBarActive = false;
       });
+      print(onError);
       Constants.showToast(Constants.something_went_wrong);
     }
     );
@@ -372,8 +384,6 @@ class _LoginWidgetState extends State<LoginWidget> {
     //   badge: true,
     //   sound: true,
     // );
-
-
 
     messaging.getToken().then((token){
 

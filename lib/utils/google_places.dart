@@ -16,7 +16,7 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
   @override
   void initState() {
     super.initState();
-    googlePlace = GooglePlace("AIzaSyCtPSgM6f6rZiYy_h8CuAVl6xpCch3F2Q4"); // Replace with your API Key
+    googlePlace = GooglePlace("AIzaSyCWze0LuZzMqxMMgmsTxGFqRp0VsYsSxlE"); // Replace with your API Key
   }
 
   @override
@@ -123,6 +123,16 @@ class _AutoCompleteGooglePlacesClass extends State<AutoCompleteGooglePlaces> {
   /// Fetches place details after user selects a location.
   void getDetails(String desc, String placeId) async {
     try {
+      print("--- getDetails ---");
+      print("Fetching details for Description: '$desc'");
+      print("Fetching details for Place ID: '$placeId'"); // Log the placeId
+
+      // Basic check for empty or obviously invalid placeId
+      if (placeId.isEmpty) {
+        print("Error: placeId is empty. Cannot fetch details.");
+        // Optionally show a user-facing error or handle gracefully
+        return;
+      }
       var result = await googlePlace.details.get(placeId);
 
       if (result == null || result.result == null) {

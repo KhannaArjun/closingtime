@@ -2,10 +2,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class Constants
 {
-  //static const String BASE_URL = "http://127.0.0.1:5000";
   //static const String BASE_URL = "https://closingtime.herokuapp.com";
   // static const String BASE_URL = "https://closingtime-prod.herokuapp.com"; // Prod
   static const String BASE_URL = "https://closingtimeapi.onrender.com"; // Prod
+  // static const String BASE_URL = "http://192.168.0.30:5004";
+
   static const String DEFAULT_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/closingtime-e1fe0.appspot.com/o/prod%2Ffood_images%2Fdefault_image.jpeg?alt=media&token=2aa742d7-5d33-4f1a-bf69-57bbce5a22a1";
   static const Map<String, String> HEADERS = {'Content-Type': 'application/json'};
 

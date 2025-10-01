@@ -176,17 +176,17 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                                         ),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                      child: Text(
-                                        'Qty: ${addedFoodModel.quantity}',
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.black
-                                        ),
-                                      ),
-                                    ),
+                                    // Padding(
+                                    //   padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+                                    //   child: Text(
+                                    //     'Qty: ${addedFoodModel.quantity}',
+                                    //     overflow: TextOverflow.ellipsis,
+                                    //     style: const TextStyle(
+                                    //         fontSize: 14,
+                                    //         color: Colors.black
+                                    //     ),
+                                    //   ),
+                                    // ),
 
                                     Visibility(
                                       visible: _visible,
@@ -322,77 +322,77 @@ class _DonorFoodDescriptionState extends State<DonorFoodDescription> {
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  // const SizedBox(
+                  //   height: 20,
+                  // ),
 
                   Column (
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
-                        child: SizedBox(
-                          child:Text('Ingredients Information', overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // const Padding(
+                      //   padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
+                      //   child: SizedBox(
+                      //     child:Text('Ingredients Information', overflow: TextOverflow.ellipsis,
+                      //       style: TextStyle(
+                      //         fontSize: 18,
+                      //         fontWeight: FontWeight.bold,
+                      //         color: Colors.black,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
 
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
-                        child: SizedBox(
-                          width: 260,
-                          child:Text( addedFoodModel.foodIngredients.isEmpty? "Not available": addedFoodModel.foodIngredients, overflow: TextOverflow.ellipsis,style:
-                          const TextStyle(
-                              fontSize: 18,
-                              color: Color.fromARGB(255, 48, 48, 54)
-                          ),),
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
+                      //   child: SizedBox(
+                      //     width: 260,
+                      //     child:Text( addedFoodModel.foodIngredients.isEmpty? "Not available": addedFoodModel.foodIngredients, overflow: TextOverflow.ellipsis,style:
+                      //     const TextStyle(
+                      //         fontSize: 18,
+                      //         color: Color.fromARGB(255, 48, 48, 54)
+                      //     ),),
+                      //   ),
+                      // ),
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 20,
-                  ),
-
-                  Column (
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
-                        child: SizedBox(
-                          child:Text('Allergen Information', overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
-                        child: SizedBox(
-                          width: 260,
-                          child:Text( addedFoodModel.allergen.isEmpty? "Not available": addedFoodModel.allergen, overflow: TextOverflow.ellipsis,style:
-                          const TextStyle(
-                              fontSize: 18,
-                              color: Color.fromARGB(255, 48, 48, 54)
-                          ),),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // const SizedBox(
+                  //   height: 20,
+                  // ),
+                  //
+                  // Column (
+                  //   mainAxisAlignment: MainAxisAlignment.start,
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //
+                  //     const Padding(
+                  //       padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
+                  //       child: SizedBox(
+                  //         child:Text('Allergen Information', overflow: TextOverflow.ellipsis,
+                  //           style: TextStyle(
+                  //             fontSize: 18,
+                  //             fontWeight: FontWeight.bold,
+                  //             color: Colors.black,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //
+                  //     Padding(
+                  //       padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
+                  //       child: SizedBox(
+                  //         width: 260,
+                  //         child:Text( addedFoodModel.allergen.isEmpty? "Not available": addedFoodModel.allergen, overflow: TextOverflow.ellipsis,style:
+                  //         const TextStyle(
+                  //             fontSize: 18,
+                  //             color: Color.fromARGB(255, 48, 48, 54)
+                  //         ),),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
 
                   const SizedBox(
                     height: 20,

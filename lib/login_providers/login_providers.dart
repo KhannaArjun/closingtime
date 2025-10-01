@@ -11,13 +11,15 @@ import 'package:crypto/crypto.dart';
 
 class LoginProvider
 {
-  Future<String> googleSignIn() async
+  Future<Map<String, String?>> googleSignIn() async
   {
     String email = "";
+    String displayName = "";
 
     GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: [
         'email',
+        'displayName'
       ],
     );
 
@@ -27,13 +29,26 @@ class LoginProvider
       if(user != null)
         {
           email = user.email;
+          if (user.displayName != null) user.displayName!;
+          {
+            displayName = user.displayName!;
+          }
         }
 
-      return email;
+      return {
+        'email': email,
+        'displayName': displayName,
+      };
+
+      // return email;
 
     } catch (error) {
       // print(error);
-      return email;
+      return {
+        'email': email,
+        'displayName': displayName,
+      };
+      // return email;
     }
 
   }
@@ -63,26 +78,23 @@ class LoginProvider
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
-
-  Future<String?> signInWithApple() async {
-    // To prevent replay attacks with the credential returned from Apple, we
-    // include a nonce in the credential request. When signing in in with
-    // Firebase, the nonce in the id token returned by Apple, is expected to
-    // match the sha256 hash of `rawNonce`.
-
+  Future<Map<String, String?>> signInWithApple() async {
     _firebaseAuth = FirebaseAuth.instance;
 
-    if(_firebaseAuth.currentUser != null)
-      {
-        return _firebaseAuth.currentUser!.email;
-      }
+    if (_firebaseAuth.currentUser != null) {
+      return {
+        'email': _firebaseAuth.currentUser!.email ?? _firebaseAuth.currentUser!.uid,
+        'displayName': _firebaseAuth.currentUser!.displayName ?? "",
+      };
+
+      // return _firebaseAuth.currentUser!.email ?? _firebaseAuth.currentUser!.uid;
+    }
 
     final rawNonce = generateNonce();
     final nonce = sha256ofString(rawNonce);
 
     try {
-      // Request credential for the currently signed in Apple account.
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
+      final cred = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
@@ -90,34 +102,67 @@ class LoginProvider
         nonce: nonce,
       );
 
-      // print(appleCredential.authorizationCode);
+      // 🛠️ Debug: log + decode identityToken payload
+      if (cred.identityToken == null) {
+        print('❌ identityToken is null (check iCloud/capability/cancel).');
 
-      // Create an `OAuthCredential` from the credential returned by Apple.
-      final oauthCredential = OAuthProvider("apple.com").credential(
-        idToken: appleCredential.identityToken,
+        return {
+          'email': "",
+          'displayName': "",
+        };
+
+        // return null;
+      }
+
+      final parts = cred.identityToken!.split('.');
+      final payload = json.decode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      print('🍏 Apple token payload: $payload');
+      print('aud: ${payload['aud']}');   // should equal your iOS Bundle ID
+      print('nonce: ${payload['nonce']}'); // should equal sha256ofString(rawNonce)
+      print('email: ${payload['email']}');
+
+      // Build Firebase OAuth credential
+      final oauth = OAuthProvider("apple.com").credential(
+        idToken: cred.identityToken,
         rawNonce: rawNonce,
+        accessToken: cred.authorizationCode
       );
 
-      // Sign in the user with Firebase. If the nonce we generated earlier does
-      // not match the nonce in `appleCredential.identityToken`, sign in will fail.
-      final authResult =
-      await _firebaseAuth.signInWithCredential(oauthCredential);
+      final userCred = await _firebaseAuth.signInWithCredential(oauth);
+      final user = userCred.user;
 
-      final displayName =
-          '${appleCredential.givenName} ${appleCredential.familyName}';
-      final userEmail = '${appleCredential.email}';
+      // Update displayName if present
+      final fullName = [
+        if (cred.givenName != null) cred.givenName!,
+        if (cred.familyName != null) cred.familyName!,
+      ].join(' ').trim();
+      if (fullName.isNotEmpty) {
+        await user!.updateDisplayName(fullName);
+      }
 
-      final firebaseUser = authResult.user;
+      // Update email only if provided
+      if (cred.email != null) {
+        await user!.updateEmail(cred.email!);
+      }
 
-      await firebaseUser!.updateDisplayName(displayName);
-      await firebaseUser.updateEmail(userEmail);
+      return {
+        'email': user?.email ?? cred.email ?? cred.userIdentifier,
+        'displayName': user?.displayName ?? fullName,
+      };
 
-      return userEmail;
-    } catch (exception) {
-      // print(exception);
-      return null;
+      // return user?.email ?? cred.email ?? cred.userIdentifier;
+    } catch (e, st) {
+      print('🔥 signInWithApple failed: $e\n$st');
+      return {
+        'email': "",
+        'displayName': "",
+      };
+      // return null;
     }
   }
+
 
   static void isLoggedIn() async
   {
