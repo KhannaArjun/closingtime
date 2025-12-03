@@ -1,6 +1,6 @@
-
 import 'package:closingtime/food_donor/profile_widget.dart';
 import 'package:closingtime/registration/volunteer_registration.dart';
+import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/volunteer/data_model/volunteer_profile_model.dart';
@@ -36,7 +36,27 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
     //final user = UserPreferences.myUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("My Profile")),
+      appBar: AppBar(
+        title: const Text("My Profile"),
+        backgroundColor: ColorUtils.volunteerPrimary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: ColorUtils.volunteerGradient,
+          ),
+        ),
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      backgroundColor: ColorUtils.volunteerSurface,
       body:
       // donorProfileModel == null? Container():
       showLoadingBar(),
@@ -57,7 +77,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
     else
     {
       return ListView(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         children: [
           const SizedBox(height: 30),
           ProfileWidget(
@@ -83,29 +103,44 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
     children: [
       Text(
         volunteerProfileModel != null? volunteerProfileModel.name:"",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+          color: ColorUtils.volunteerTextPrimary,
+        ),
       ),
       const SizedBox(height: 4),
       Text(
         volunteerProfileModel != null? volunteerProfileModel.email:"",
-        style: TextStyle(fontSize: 15, color: Colors.grey),
+        style: const TextStyle(
+          fontSize: 15,
+          color: ColorUtils.volunteerTextSecondary,
+        ),
       )
     ],
   );
 
 
   Widget buildPersonalDetails(VolunteerProfileModel? volunteerProfileModel) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 48),
+    padding: const EdgeInsets.symmetric(horizontal: 48),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Personal Details',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: ColorUtils.volunteerTextPrimary,
+          ),
         ),
         const SizedBox(height: 12),
         Card(
-          elevation: 10,
+          elevation: 4,
+          color: ColorUtils.volunteerCardBg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: SizedBox(
             width: 500,
             child: Padding(
@@ -144,7 +179,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
 
                 ],
               ),
-            ),), ),
+            ), ), ),
       ],
     ),
   );
@@ -158,6 +193,14 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
               getUserDetails();
             }
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: ColorUtils.volunteerPrimary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
           label: const Text('Edit Profile'),
           icon: const Icon(Icons.edit),
         )
@@ -166,17 +209,25 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
 
 
   Widget buildAddress(VolunteerProfileModel? volunteerProfileModel) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 48),
+    padding: const EdgeInsets.symmetric(horizontal: 48),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Address',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: ColorUtils.volunteerTextPrimary,
+          ),
         ),
         const SizedBox(height: 12),
         Card(
-          elevation: 12,
+          elevation: 4,
+          color: ColorUtils.volunteerCardBg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: SizedBox(
             width: 500,
             child: Padding(
@@ -193,7 +244,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
                     ),),
                 ],
               ),
-            ),), ),
+            ), ), ),
       ],
     ),
   );

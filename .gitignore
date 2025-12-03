@@ -30,8 +30,51 @@
 .pub-cache/
 .pub/
 /build/
-build/ios
-ios/build/ios
+build/
+*.lock
+
+# iOS related
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Profile.xcconfig
+**/ios/Flutter/Debug.xcconfig
+**/ios/Flutter/Release.xcconfig
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/.last_build_id
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/ServiceDefinitions.json
+ios/firebase_app_id_file.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/build/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Android related
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+*.jks
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/.gradle/
+android/build/
+android/gradle/
+android/gradlew
+android/gradlew.bat
+android/local.properties
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -42,7 +85,35 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Coverage
+coverage/
+
+# Test related
+test/.test_coverage.dart
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+
+# IDE - Xcode
+*.xcuserstate
+*.xcworkspace
+!default.xcworkspace
+project.xcworkspace/
+xcuserdata/
+
+# IDE - Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~

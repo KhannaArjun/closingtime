@@ -19,7 +19,7 @@ class LoginProvider
     GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: [
         'email',
-        'displayName'
+        'profile'
       ],
     );
 

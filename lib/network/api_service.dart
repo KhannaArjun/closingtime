@@ -183,6 +183,7 @@ import 'entity/login_model.dart';
     final response = await http
         .post(parseUri('/volunteer/getAvailableFoodList'),
         headers: Constants.HEADERS, body: body);
+    print(response.body);
 
     if (response.statusCode == 200)
     {
@@ -238,6 +239,8 @@ import 'entity/login_model.dart';
     final response = await http
         .post(parseUri('/volunteer/getFoodItemDetails'),
         headers: Constants.HEADERS, body: body);
+    
+    print(response.body);
 
     if (response.statusCode == 200)
     {
@@ -273,6 +276,24 @@ import 'entity/login_model.dart';
   {
     final response = await http
         .post(parseUri('/recipient/food_delivered'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      // print(response.statusCode);
+      throw Exception('Failed');
+    }
+  }
+
+  static Future<dynamic> handoverToShelter(body) async
+  {
+    final response = await http
+        .post(parseUri('/volunteer/handover_to_shelter'),
         headers: Constants.HEADERS, body: body);
 
     if (response.statusCode == 200)

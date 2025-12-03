@@ -29,10 +29,16 @@ class VolunteerRegistration extends StatelessWidget {
    return Scaffold(
         appBar: AppBar(
           title: CommonStyles.textFormStyleForAppBar("Volunteer Registration"),
-          backgroundColor: Colors.blue,
-          elevation: 0.0,
+          backgroundColor: ColorUtils.volunteerSecondary,
+          foregroundColor: Colors.white,
+          elevation: 0,
           titleSpacing: 10.0,
           centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: ColorUtils.volunteerAccentGradient,
+            ),
+          ),
           leading: InkWell(
             onTap: () {
               Navigator.pop(context);
@@ -59,7 +65,7 @@ class VolunteerRegistration extends StatelessWidget {
                   top: 50,
                   left: 10,
                   right: 10,
-                  child: VolunteerRegistrationFormWidget(_email, _volunteerProfileModel),
+                  child: VolunteerRegistrationFormWidget(_email, _displayName, _volunteerProfileModel),
                 )
               ],
             ),
@@ -71,21 +77,22 @@ class VolunteerRegistration extends StatelessWidget {
 
 class VolunteerRegistrationFormWidget extends StatefulWidget {
   String _email = "";
+  String _displayName = "";
   final VolunteerProfileModel? _volunteerProfileModel;
-  VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel, {Key? key}) : super(key: key);
+  VolunteerRegistrationFormWidget(this._email, this._displayName, this._volunteerProfileModel, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _VolunteerRegistrationFormWidget(_email, _volunteerProfileModel);
+    return _VolunteerRegistrationFormWidget(_email, _displayName, _volunteerProfileModel);
   }
 }
 
 class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWidget> {
 
-  String _email = "", fb_token = "";
+  String _email = "", _displayName = "", fb_token = "";
 
   final VolunteerProfileModel? _volunteerProfileModel;
-  _VolunteerRegistrationFormWidget(this._email, this._volunteerProfileModel);
+  _VolunteerRegistrationFormWidget(this._email, this._displayName, this._volunteerProfileModel);
 
   final _formKey = GlobalKey<FormState>();
 
@@ -113,7 +120,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
 
     super.initState();
 
-    _userPersonNameController = TextEditingController(text: _volunteerProfileModel == null? "" : _volunteerProfileModel!.name);
+    _userPersonNameController = TextEditingController(text: _volunteerProfileModel == null? _displayName : _volunteerProfileModel!.name);
     _userEmailController = TextEditingController(text: _volunteerProfileModel == null? _email : _volunteerProfileModel!.email);
     _userContactNumberController = TextEditingController(text:  _volunteerProfileModel == null? "" : _volunteerProfileModel!.contactNumber);
     _userAddressFieldController = TextEditingController(text:  _volunteerProfileModel == null? "" : _volunteerProfileModel!.address);
@@ -428,7 +435,7 @@ class _VolunteerRegistrationFormWidget extends State<VolunteerRegistrationFormWi
       alignment: Alignment.center,
       height: 60,
       child: Card(
-        color: miles.selected == true? ColorUtils.primaryColor : Colors.white,
+        color: miles.selected == true? ColorUtils.volunteerSecondary : Colors.white,
         elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),

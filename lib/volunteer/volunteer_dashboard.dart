@@ -1,6 +1,4 @@
-
 import 'package:closingtime/registration/sign_in.dart';
-import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/volunteer/data_model/volunteer_food_list_response.dart';
 import 'package:closingtime/volunteer/food_history_volunteer.dart';
 import 'package:closingtime/volunteer/volunteer_food_description_screen.dart';
@@ -16,47 +14,65 @@ import 'package:flutter/material.dart';
 import 'package:new_version/new_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:shimmer/shimmer.dart';
 
 
 class VolunteerDashboard extends StatefulWidget {
   const VolunteerDashboard({Key? key}) : super(key: key);
 
-
   @override
-  _VolunteerDashboardState createState() => _VolunteerDashboardState();
+  State<VolunteerDashboard> createState() => _VolunteerDashboardState();
 }
 
-class _VolunteerDashboardState extends State<VolunteerDashboard> {
+class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProviderStateMixin {
   static const appTitle = 'Volunteer Dashboard';
 
   List<Data> _addedFoodList = [];
+  List<Data> _filteredFoodList = [];
 
-  double _recipient_lat = 0.0, _recipient_lng = 0.0;
+  // Animation controllers
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    // FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-    // fcmSubscribe(firebaseMessaging);
+    
+    // Initialize animation controllers
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
 
     configureNotifications(context);
-
     checkVersion(context);
-
     getUserId();
   }
 
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
 
-  void checkVersion(context)async{
-    final newVersion= NewVersion();
-
-    // final status=await newVersion.getVersionStatus();
-
-    // print(status?.localVersion);
-    // print(status?.storeVersion);
-
-    // print(status?.canUpdate);
-
+  void checkVersion(context) async {
+    final newVersion = NewVersion();
     newVersion.showAlertIfNecessary(context: context);
   }
 
@@ -70,394 +86,352 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
   bool isDataEmpty = false;
   bool isLoading = false;
+  String _searchQuery = '';
+  String _selectedFilter = 'All';
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-
   Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    // Handle background messages
   }
 
   void configureNotifications(context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
       SnackBar snackBar = SnackBar(
-        content: const Text(
-          "New food added by donor",
-          style: TextStyle(
-            fontFamily: 'Vazir',
-            fontSize: 16.0,
-          ),
+        content: Row(
+          children: [
+            const Icon(Icons.notifications_active, color: Colors.white),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                "New food added by donor",
+                style: TextStyle(
+                  fontFamily: 'Raleway',
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+          ],
         ),
-        backgroundColor: ColorUtils.primaryColor,
+        backgroundColor: ColorUtils.volunteerPrimary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(45.0),
+          borderRadius: BorderRadius.circular(12),
         ),
-        elevation: 3.0,
-        duration: const Duration(minutes: 5),
+        elevation: 8,
+        duration: const Duration(seconds: 4),
         action: SnackBarAction(
           textColor: Colors.white,
           label: 'Refresh',
           onPressed: () {
-
             getUserId();
           },
         ),
       );
-      // _scaffoldKey.currentState!.showSnackBar(snackBar);
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      // print("onMessageOpenedApp: $message");
-
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerDashboard()));
-
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => const VolunteerDashboard()));
     });
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
   }
 
   String _username = "";
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(//forbidden swipe in iOS(my ThemeData(platform: TargetPlatform.iOS,)
-      onWillPop: ()async {
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         if (Navigator.of(context).userGestureInProgress) {
-          return false;
-        } else {
-          return true;
+          return;
         }
       },
-      child:
-      MaterialApp(
+      child: MaterialApp(
         title: appTitle,
-        home: Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: const Color(0xFFEEEDED),
-          appBar: AppBar(title: const Text(appTitle)),
-          body: RefreshIndicator(
-            onRefresh:  getUserId,
-            child:
-            Center(
-              child:
-              getWidget(),
-
-            ),),
-          drawer: Drawer(
-            // Add a ListView to the drawer.
-            child: ListView(
-              // Important: Remove any padding from the ListView.
-              padding: EdgeInsets.zero,
-              children: [
-
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                  ),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () {
-                          },
-                          child: CircleAvatar(
-                            radius: 45,
-                            backgroundColor: ColorUtils.primaryColor,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(50)),
-                              width: 100,
-                              height: 100,
-                              //   child: Icon(
-                              //     Icons.camera_alt,
-                              //     color: Colors.grey[800],
-                              //     size: 50,
-                              //
-                              // ),
-                              child: Image.asset('assets/images/user.png'),
-                            ),
-                          ),
-                        ),),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          children:  [
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text('Hello, $_username.',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                ),
-                ListTile(
-                  title: const Text('My Profile'),
-                  onTap: () {
-
-                    //Navigator.pop(context);
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerProfile()));
-
-                  },
-                ),
-                ListTile(
-                  title: const Text('History'),
-                  onTap: () {
-
-                    //Navigator.pop(context);
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerFoodHistory()));
-
-                  },
-                ),
-                ListTile(
-                  title: const Text('Logout'),
-                  onTap: () {
-
-                    if (_scaffoldKey.currentState!.isDrawerOpen) {
-                      _scaffoldKey.currentState!.openEndDrawer();
-                    }
-
-                    _showLogoutAlertDialog();
-
-                  },
-                ),
-              ],
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: ColorUtils.volunteerPrimary,
+            primary: ColorUtils.volunteerPrimary,
+            secondary: ColorUtils.volunteerSecondary,
+            brightness: Brightness.light,
+          ),
+          cardTheme: CardThemeData(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
-        ),),);
-  }
-
-  Widget promotionalCardUI()
-  {
-    return SizedBox(
-      height: 140,
-      child: Card(
-
-        color: Colors.blue[800],
-        elevation: 20,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
         ),
-        child: InkWell(
-          onTap: () async {
-
-          },
-          child: Column(
-            children: [
-              Row(
-                children: <Widget>[
-                  //  Padding(padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                  //   child:
-                  //     ClipRRect(
-                  //       borderRadius: BorderRadius.circular(20), // Image border
-                  //       child: SizedBox.fromSize(
-                  //         size: const Size.fromRadius(48), // Image radius
-                  //         child: Image.asset(
-                  //             "assets/images/logo_blue.png",
-                  //             fit: BoxFit.cover),
-                  //       ),
-                  //     ),
-                  // ),
-
-                  SizedBox(
-
-                    height: 100,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const <Widget>[
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                            child: Text(
-                              "Now you claim volunteer hours certificate",
-                              style: TextStyle(
-                                  fontSize: 18,
-
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700
-                              ),
-                            ),
-                          ),
-
-                  SizedBox(width: 8,),
-                ],
-              ),),),
-            ],),
-          ],),
+        home: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: ColorUtils.volunteerSurface,
+          appBar: AppBar(
+            title: const Text(appTitle),
+            backgroundColor: ColorUtils.volunteerPrimary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: ColorUtils.volunteerGradient,
+              ),
+            ),
+            // actions: [
+            //   IconButton(
+            //     icon: const Icon(Icons.search),
+            //     onPressed: () => _showSearchDialog(),
+            //   ),
+            //   IconButton(
+            //     icon: const Icon(Icons.filter_list),
+            //     onPressed: () => _showFilterBottomSheet(),
+            //   ),
+            // ],
+          ),
+          body: RefreshIndicator(
+            onRefresh: getUserId,
+            color: ColorUtils.volunteerPrimary,
+            child: getWidget(),
+          ),
+          drawer: _buildModernDrawer(),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => getUserId(),
+            backgroundColor: ColorUtils.volunteerSecondary,
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Refresh'),
+            elevation: 6,
+          ),
+        ),
       ),
-    ),
     );
   }
 
-  Widget getWidget()
-  {
-    if (isLoading == true)
-    {
-      return CommonStyles.loadingBar(context);
+  Widget _buildModernDrawer() {
+    return Drawer(
+      child: ListView(
+        children: [
+        DrawerHeader(
+          decoration: const BoxDecoration(
+            gradient: ColorUtils.volunteerGradient,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.volunteer_activism,
+                  color: ColorUtils.volunteerPrimary,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Hello, $_username',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // ListTile(
+        //   leading: const Icon(Icons.home),
+        //   title: const Text('Dashboard'),
+        //   onTap: () => Navigator.pop(context),
+        // ),
+        ListTile(
+          leading: Icon(Icons.person, color: ColorUtils.volunteerPrimary),
+          title: const Text('My Profile'),
+          onTap: () {
+            // Navigator.pop(context);
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const VolunteerProfile()));
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.history, color: ColorUtils.volunteerPrimary),
+          title: const Text('History'),
+          onTap: () {
+            // Navigator.pop(context);
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const VolunteerFoodHistory()));
+          },
+        ),
+        const Divider(),
+        ListTile(
+          leading: Icon(Icons.logout, color: ColorUtils.volunteerError),
+          title: Text('Logout', style: TextStyle(color: ColorUtils.volunteerError)),
+          onTap: () {
+            // Navigator.pop(context);
+            _showLogoutAlertDialog();
+          },
+        ),
+        ],
+      ),
+    );
+  }
+
+  Widget getWidget() {
+    if (isLoading) {
+      return _buildShimmerLoading();
     }
 
-    if(isDataEmpty == true)
-    {
-      return Column (
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text('List of donated foods will be shown here'),
-          GestureDetector(
-            onTap: () {
-
-              getUserId();
-
-            },
-            child: const Text("Refresh", style: TextStyle(color: ColorUtils.primaryColor, fontSize: 16),),
-          ),
-        ],
+    if (isDataEmpty) {
+      return _buildEmptyState();
+    } else {
+      return FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: _buildFoodList(_filteredFoodList),
+        ),
       );
     }
-    else {
-      return _buildFoodList(_addedFoodList, context);
-    }
   }
 
-  Widget _buildFoodList(List<Data> list, BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Color(0x00000000)
-      ),
-      child: ListView.builder(
-          padding: const EdgeInsets.all(10.0),
-          itemCount: list.length,
-          itemBuilder: (context, i) {
-
-            Data addedFoodModel = list[i];
-            return _itemCard(context, addedFoodModel);
-          }),
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            height: 140,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _itemCard(BuildContext context, Data addedFoodModel)
-  {
-    return SizedBox(
-      height: 140,
-      child: Card(
-        color: Colors.white,
-        elevation: 20,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.restaurant_menu,
+            size: 120,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No Food Available',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'List of donated foods will be shown here',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          // // const SizedBox(height: 24),
+          // // FilledButton.icon(
+          // //   onPressed: getUserId,
+          // //   icon: const Icon(Icons.refresh),
+          // //   label: const Text('Refresh'),
+          // //   style: FilledButton.styleFrom(
+          // //     backgroundColor: ColorUtils.primaryColor,
+          // //     foregroundColor: Colors.white,
+          // //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFoodList(List<Data> list) {
+    return Column(
+      children: [
+        _buildPromotionalCard(),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: list.length,
+            itemBuilder: (context, i) {
+              Data addedFoodModel = list[i];
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 300 + (i * 100)),
+                child: _buildModernFoodCard(context, addedFoodModel),
+              );
+            },
+          ),
         ),
-        child: InkWell(
-          onTap: () async {
+      ],
+    );
+  }
 
-            var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => VolunteerFoodDescription(addedFoodModel, false)));
-            if (result == true)
-            {
-              getUserId();
-            }
-
-          },
-          child: Column(
+  Widget _buildPromotionalCard() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            gradient: ColorUtils.volunteerAccentGradient,
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Row(
             children: [
-              Row(
-                children: <Widget>[
-                  Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                    child: CircleAvatar(
-                      backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):NetworkImage(addedFoodModel.image),
-                      radius: 40,
-                      backgroundColor: ColorUtils.primaryColor,
-                    ),
-                  ),
-
-                  SizedBox(
-
-                    height: 100,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                            child: Text(
-                              addedFoodModel.foodName,
-                              style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700
-                              ),
-                            ),
-                          ),
-
-                          Padding(
-                              padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-
-                                    const WidgetSpan(
-                                      child: Icon(Icons.location_pin, size: 18),
-                                    ),
-
-                                    TextSpan(
-                                        text:  '${addedFoodModel.distance} mi',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.black
-                                        )
-                                    ),
-
-                                  ],
-                                ),
-                              )
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 2),
-                            child: SizedBox(
-                              child: Text('Pick up date ${addedFoodModel.pickUpDate}',
-                                style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Color.fromARGB(255, 48, 48, 54)
-                                ),),
-                            ),
-                          )
-                        ],
+              const Icon(
+                Icons.celebration,
+                color: Colors.white,
+                size: 32,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Volunteer Certificate",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-
-                ],
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Claim your volunteer hours certificate now!",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children:  [
-                  Text(
-                    addedFoodModel.status == Constants.waiting_for_pickup? "Available" : addedFoodModel.status,
-                    style: const TextStyle(
-                      color: Colors.lightGreen,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),),
-
-                  SizedBox(width: 8,),
-                ],
-              )
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
@@ -465,11 +439,302 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
     );
   }
 
-  File fetchImage(String encodedString)
-  {
-    Uint8List bytes = base64Decode(encodedString);
-    //dart_image.Image image = await compute<List<int>, dart_image.Image>(dart_image.decodeImage, byteArray);
+  Widget _buildModernFoodCard(BuildContext context, Data addedFoodModel) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () async {
+            var result = await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => VolunteerFoodDescription(addedFoodModel, false),
+              ),
+            );
+            if (result == true) {
+              getUserId();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Food Image
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: addedFoodModel.image.isEmpty
+                        ? Image.network(
+                            "https://source.unsplash.com/400x400/?food",
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: ColorUtils.volunteerPrimary.withOpacity(0.1),
+                                child: Icon(
+                                  Icons.restaurant,
+                                  color: ColorUtils.volunteerPrimary,
+                                  size: 40,
+                                ),
+                              );
+                            },
+                          )
+                        : Image.network(
+                            addedFoodModel.image,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: ColorUtils.volunteerPrimary.withOpacity(0.1),
+                              child: Icon(
+                                Icons.restaurant,
+                                color: ColorUtils.volunteerPrimary,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        ),
+                ),
+                ),
+                const SizedBox(width: 16),
+                // Food Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        addedFoodModel.foodName,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${addedFoodModel.distance} mi',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.access_time,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Pick up ${addedFoodModel.pickUpDate}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(addedFoodModel.status)
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              addedFoodModel.status == Constants.waiting_for_pickup
+                                  ? "Available"
+                                  : addedFoodModel.status,
+                              style: TextStyle(
+                                color: _getStatusColor(addedFoodModel.status),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: ColorUtils.volunteerInfo.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '${addedFoodModel.quantity} servings',
+                              style: const TextStyle(
+                                color: ColorUtils.volunteerInfo,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Arrow Icon
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey[400],
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Available':
+      case 'waiting_for_pickup':
+        return ColorUtils.volunteerSuccess;
+      case 'Collected':
+        return ColorUtils.volunteerInfo;
+      case 'Delivered to Shelter':
+        return ColorUtils.volunteerAccent;
+      case 'expired':
+        return ColorUtils.volunteerError;
+      default:
+        return ColorUtils.volunteerWarning;
+    }
+  }
+
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Search Food'),
+          content: TextField(
+            decoration: const InputDecoration(
+              hintText: 'Search by food name...',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+                _filterFoodList();
+              });
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _searchQuery = '';
+                  _filterFoodList();
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Clear'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Filter by Status',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...['All', 'Available', 'Picked Up', 'Expired'].map((filter) {
+                return RadioListTile<String>(
+                  title: Text(filter),
+                  value: filter,
+                  groupValue: _selectedFilter,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedFilter = value!;
+                      _filterFoodList();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _filterFoodList() {
+    setState(() {
+      _filteredFoodList = _addedFoodList.where((food) {
+        final matchesSearch = food.foodName.toLowerCase()
+            .contains(_searchQuery.toLowerCase());
+        final matchesFilter = _selectedFilter == 'All' ||
+            food.status.toLowerCase().contains(_selectedFilter.toLowerCase());
+        return matchesSearch && matchesFilter;
+      }).toList();
+    });
+  }
+
+  File fetchImage(String encodedString) {
+    Uint8List bytes = base64Decode(encodedString);
     var file = File("decodedBezkoder.png");
     file.writeAsBytesSync(bytes);
     return file;
@@ -477,8 +742,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
 
   String _userId = "";
 
-  Future<void> getUserId() async
-  {
+  Future<void> getUserId() async {
     setState(() {
       isLoading = true;
     });
@@ -495,89 +759,60 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
       _username = name;
     });
 
-    //await Future.delayed(const Duration(seconds: 3));
-
-    _recipient_lat = userLat;
-    _recipient_lng = userLng;
-
     _userId = userId;
 
     volunteerFoodListApiCall(userId, userLat, userLng, servingDistance);
   }
 
-  void volunteerFoodListApiCall(userId, userLat, userLng, servingDistance)
-  {
-
+  void volunteerFoodListApiCall(userId, userLat, userLng, servingDistance) {
     Map body = {
-      "isFoodAccepted":true,
+      // "isFoodAccepted": true,
       "volunteer_lat": userLat,
       "volunteer_lng": userLng,
-      // "user_id": userId,
       "serving_distance": servingDistance
     };
 
-    // print(jsonEncode(body));
-
-    try
-    {
-      Future<VolunteerFoodListModel> addedFoodListModel = ApiService.getAvailableFoodListForVolunteer(jsonEncode(body));
-      addedFoodListModel.then((value){
-        // print(value.data);
-
-        if (!value.error)
-        {
-          if (value.data.isNotEmpty)
-          {
+    try {
+      Future<VolunteerFoodListModel> addedFoodListModel = 
+          ApiService.getAvailableFoodListForVolunteer(jsonEncode(body));
+      addedFoodListModel.then((value) {
+        print(value);
+        if (!value.error) {
+          if (value.data.isNotEmpty) {
             setState(() {
               _addedFoodList = value.data.reversed.toList();
+              _filteredFoodList = _addedFoodList;
               isDataEmpty = false;
               isLoading = false;
-
             });
-          }
-          else
-          {
-            //Constants.showToast(Constants.empty);
-
+            _fadeController.forward();
+            _slideController.forward();
+          } else {
             setState(() {
               isLoading = false;
               isDataEmpty = true;
-
             });
-
           }
         }
-      }).catchError((onError)
-      {
+      }).catchError((onError) {
         setState(() {
           isLoading = false;
         });
         Constants.showToast(Constants.something_went_wrong);
-      }
-      );
-
-    }
-    on Exception {
-      // print(e);
+      });
+    } on Exception {
       Constants.showToast("Please try again");
     }
   }
 
-
   Future<void> _showLogoutAlertDialog() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Logout'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('Do you want to logout?'),
-              ],
-            ),
-          ),
+          content: const Text('Do you want to logout?'),
           actions: <Widget>[
             TextButton(
               child: const Text('No'),
@@ -585,13 +820,15 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: ColorUtils.volunteerError,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                logoutApiCall();
+              },
               child: const Text('Yes'),
-              onPressed: () {
-                Navigator.of(context).pop();
-
-                logoutApiCall();
-              },
             ),
           ],
         );
@@ -599,38 +836,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
     );
   }
 
-  Future<void> _showFoodConfirmationAlertDialog(message) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmation'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('Thanks for accepting and status of the food changed now'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-
-            TextButton(
-              child: const Text('Okay'),
-              onPressed: () {
-                Navigator.of(context).pop();
-
-                logoutApiCall();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void logoutApiCall()
-  {
+  void logoutApiCall() {
     setState(() {
       isLoading = true;
     });
@@ -639,52 +845,39 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> {
       "user_id": _userId,
     };
 
-    try
-    {
+    try {
       Future<dynamic> response = ApiService.logout(jsonEncode(body));
-      response.then((value){
-
+      response.then((value) {
         setState(() {
           isLoading = false;
         });
 
-        if (value['message'] == Constants.success)
-        {
+        if (value['message'] == Constants.success) {
           removeSharedPreferences();
-          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-              LoginScreen()), (route) => false);
-        }
-        else
-        {
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        } else {
           Constants.showToast("Please try again");
-
         }
-      }).catchError((onError)
-      {
+      }).catchError((onError) {
         setState(() {
           isLoading = false;
         });
         Constants.showToast(Constants.something_went_wrong);
-      }
-      );
-
-    }
-    on Exception {
-      // print(e);
+      });
+    } on Exception {
       Constants.showToast("Please try again");
     }
-
   }
 
-
-  void removeSharedPreferences() async
-  {
+  void removeSharedPreferences() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    for(String key in sp.getKeys()) {
-      if(key != Constants.firebase_token) {
+    for (String key in sp.getKeys()) {
+      if (key != Constants.firebase_token) {
         sp.remove(key);
       }
     }
   }
-
 }

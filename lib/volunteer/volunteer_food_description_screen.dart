@@ -43,15 +43,22 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
     String donorId  = addedFoodModel.userId;
-    String recipientId = addedFoodModel.recipientUserId;
+    String? recipientId = null;
 
     status = addedFoodModel.status;
+    
+    print("=== Food Description Debug ===");
+    print("Current status: $status");
+    print("_visible parameter: $_visible");
+    print("Button should be visible: ${!_visible}");
+    print("Button enabled for status: ${status == Constants.waiting_for_pickup || status == Constants.pick_up_scheduled}");
+    print("Button text: ${_getButtonText(status)}");
 
-    getUserId(donorId, recipientId);
+    getUserId(donorId, null);
   }
 
 
-  Future<void> getUserId(String donorId, String recipientId) async
+  Future<void> getUserId(String donorId, String? recipientId) async
   {
 
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -75,24 +82,30 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     },
         child: Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: ColorUtils.volunteerSurface,
       appBar: AppBar(
         title: const Text(
           "Food details",
           style: TextStyle(
-              color: ColorUtils.primaryColor
+              color: Colors.white
           ),),
-        backgroundColor: Colors.white,
-        elevation: 0.0,
+        backgroundColor: ColorUtils.volunteerPrimary,
+        foregroundColor: Colors.white,
+        elevation: 0,
         titleSpacing: 10.0,
         centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: ColorUtils.volunteerGradient,
+          ),
+        ),
         leading: InkWell(
           onTap: () {
             Navigator.pop(context, reload);
           },
           child: const Icon(
             Icons.arrow_back_ios,
-            color: ColorUtils.primaryColor,
+            color: Colors.white,
           ),
         ),
       ),
@@ -111,315 +124,353 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
               FoodDescImageWidget(addedFoodModel.image),
 
-              const SizedBox(
-                height: 20,
-              ),
+              // Food Details Section - Only show if there's data
+              if (addedFoodModel.foodDesc.isNotEmpty || 
+                  addedFoodModel.foodIngredients.isNotEmpty || 
+                  addedFoodModel.allergen.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: ColorUtils.volunteerCardBg,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Food Description
+                      if (addedFoodModel.foodDesc.isNotEmpty) ...[
+                        const Text(
+                          'Food Description',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: ColorUtils.volunteerTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          addedFoodModel.foodDesc,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: ColorUtils.volunteerTextSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
 
+                      // Food Ingredients
+                      if (addedFoodModel.foodIngredients.isNotEmpty) ...[
+                        const Text(
+                          'Ingredients',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: ColorUtils.volunteerTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          addedFoodModel.foodIngredients,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: ColorUtils.volunteerTextSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+
+                      // Allergens
+                      if (addedFoodModel.allergen.isNotEmpty) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: ColorUtils.volunteerWarning,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Allergens',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: ColorUtils.volunteerTextPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          addedFoodModel.allergen,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: ColorUtils.volunteerWarning,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 20),
+
+              // Food Header: Name, Business, Distance, Status
               Container(
-                color: Colors.white,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: ColorUtils.volunteerCardBg,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Business Name
+                    Text(
+                      addedFoodModel.businessName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: ColorUtils.volunteerTextSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Food Name
+                    Text(
+                      addedFoodModel.foodName,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: ColorUtils.volunteerTextPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    // Distance and Status
                     Row(
-                      children: <Widget>[
-                        Padding(padding: const EdgeInsets.fromLTRB(5, 5, 0, 0),
-                          child: CircleAvatar(
-                            radius: 38,
-                            backgroundColor: ColorUtils.primaryColor,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(60)),
-                              width: 70,
-                              height: 70,
-                              child: Image.asset('assets/images/user.png'),
-                            ),
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 18,
+                          color: ColorUtils.volunteerSecondary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${addedFoodModel.distance} mi away',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: ColorUtils.volunteerTextSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-
-                        SizedBox(
-                          height: 120,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                  child:  Text( '${addedFoodModel.businessName} is donating',textAlign: TextAlign.center,overflow: TextOverflow.ellipsis,),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                                  child: Text(
-                                    addedFoodModel.foodName,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w700
-                                    ),
-                                  ),
-                                ),
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-
-                                      WidgetSpan(
-                                        child: Icon(Icons.location_pin, size: 18),
-                                      ),
-
-                                      TextSpan(
-                                          text:  '${addedFoodModel.distance} mi',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black
-                                          )
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                Visibility(
-                                  visible: _visible,
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(0, 5, 5, 0),
-                                    child: Text(
-                                      addedFoodModel.status == Constants.delivered? Constants.delivered : Constants.expired,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: addedFoodModel.status == Constants.delivered? Colors.green : Colors.red,
-                                      ),
-                                    ),
-                                  ),),
-                              ],
-                            ),),
-                        ),
+                        const Spacer(),
+                        
+                        // Status badge (if visible)
+                        if (_visible)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: (addedFoodModel.status == Constants.delivered
+                                  ? ColorUtils.volunteerSuccess
+                                  : ColorUtils.volunteerError).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              addedFoodModel.status == Constants.delivered 
+                                  ? Constants.delivered 
+                                  : Constants.expired,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: addedFoodModel.status == Constants.delivered
+                                    ? ColorUtils.volunteerSuccess
+                                    : ColorUtils.volunteerError,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 16),
 
-              // Container(
-              //   padding: const EdgeInsets.fromLTRB(10, 0, 5, 0),
-              //   child: Text( addedFoodModel.foodDesc,
-              //     textAlign: TextAlign.left,
-              //     style: const TextStyle(
-              //         fontSize: 15
-              //     ),
-              //   ),
-              // ),
-              //
-              // const SizedBox(
-              //   height: 15,
-              // ),
-
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
-                    child: SizedBox(
-                      child:Text('Pick up date', overflow: TextOverflow.ellipsis,style: TextStyle(
-                          fontSize: 18,
-                          color: Color.fromARGB(255, 48, 48, 54)
-                      ),),
+              // Pickup Date & Time
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: ColorUtils.volunteerCardBg,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
-                    child: SizedBox(
-
-                      child:Text(addedFoodModel.pickUpDate, overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 15,
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
-                    child: SizedBox(
-                      child:Text('Pick up time', overflow: TextOverflow.ellipsis,style: TextStyle(
-                          fontSize: 18,
-                          color: Color.fromARGB(255, 48, 48, 54)
-                      ),),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 2),
-                    child: SizedBox(
-
-                      child:Text(addedFoodModel.pickUpTime ?? "", overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(
-                height: 20,
-              ),
-
-
-              Card(
-                margin: EdgeInsets.all(20),
-                elevation: 10,
-                child:
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-
-                    const Text.rich(
-                      TextSpan(
-                        style: TextStyle(
-                          fontSize: 15,
-                        ),
-                        children: [
-
-                          WidgetSpan(
-                            child: Icon(Icons.location_pin,
-                              size: 16,),
-                          ),
-                          TextSpan(
-                            text:  'Your location',
-                          ),
-
-                        ],
-                      ),),
-
-
-                    getDottedText(),
-
-                    Text(
-                        '${addedFoodModel.distance} mi' ,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold
-                    ),),
-
-                    getDottedText(),
-
-
-                    Text.rich(
-                      TextSpan(
-                        style: TextStyle(
-                          fontSize: 15,
-                        ),
-                        children: [
-
-                        
-                          TextSpan(
-                            text:  'Donor',
-                          ),
-
-                        ],
-                      ),
-                    ),
-
-
-                    getDottedText(),
-
-                    Text(
-                        '${_volunteerFoodDescriptionModelData == null?"" : _volunteerFoodDescriptionModelData!.distance} mi ',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold
-                      ),),
-
-                    getDottedText(),
-
-                    Text.rich(
-                      TextSpan(
-                        style: TextStyle(
-                          fontSize: 15,
-                        ),
-                        children: [
-
-                          TextSpan(
-                            text:  'Recipient',
-                          ),
-
-                          WidgetSpan(
-                            child: Icon(Icons.location_pin,
-                              size: 16,),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 15,),
-
-                    Text.rich(
-                      TextSpan(
-                        style: TextStyle(
-                          fontSize: 15,
-                        ),
-                        children: [
-
-                          TextSpan(
-                            text:  'Total ride is approx. ',
-                          ),
-
-                          TextSpan(
-                            text: _volunteerFoodDescriptionModelData == null? "": '${double.parse(addedFoodModel.distance) + double.parse(_volunteerFoodDescriptionModelData!.distance)} mi',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            )
-                          ),
-
-
-                          TextSpan(
-                            text:  ' distance',
-                          ),
-
-                        ],
-                      ),
-                    ),
-
                   ],
                 ),
-              ),),),
-
-              const SizedBox(
-                height: 20,
-              ),
-
-              Container (
-                color: Colors.grey[200],
-                child:  const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 5, 0, 2),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child:Text("This food is for free 😊 \nStrictly no selling \n", overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black,
+                child: Row(
+                  children: [
+                    // Pickup Date
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                size: 16,
+                                color: ColorUtils.volunteerSecondary,
+                              ),
+                              const SizedBox(width: 6),
+                              const Text(
+                                'Pickup Date',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: ColorUtils.volunteerTextSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            addedFoodModel.pickUpDate,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: ColorUtils.volunteerTextPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    
+                    const SizedBox(width: 20),
+                    
+                    // Pickup Time
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: ColorUtils.volunteerSecondary,
+                              ),
+                              const SizedBox(width: 6),
+                              const Text(
+                                'Pickup Time',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: ColorUtils.volunteerTextSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            addedFoodModel.pickUpTime.isNotEmpty 
+                                ? addedFoodModel.pickUpTime 
+                                : "Not specified",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: ColorUtils.volunteerTextPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(
+                height: 16,
+              ),
+
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      ColorUtils.volunteerSuccess.withValues(alpha: 0.1),
+                      ColorUtils.volunteerPrimary.withValues(alpha: 0.1),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: ColorUtils.volunteerSuccess.withValues(alpha: 0.3),
+                    width: 2,
+                  ),
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.volunteer_activism,
+                      color: ColorUtils.volunteerSuccess,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            "This food is for FREE! 😊",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: ColorUtils.volunteerSuccess,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "Strictly no selling - Help feed the community",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: ColorUtils.volunteerTextSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -427,42 +478,14 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
                 height: 10,
               ),
 
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(28, 5, 0, 2),
-                    child: SizedBox(
-                      child:Text('Pick up address', overflow: TextOverflow.ellipsis,style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                        fontWeight: FontWeight.bold
-                      ),),
-                    ),
-                  ),
+              // Donor Details Section
+              buildDonorPickUpAddressDetails(),
 
-                 buildDonorPickUpAddressDetails(),
-
-                  const SizedBox(
-                    height: 30,
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(28, 5, 0, 2),
-                    child: SizedBox(
-                      child:Text('Delivery address', overflow: TextOverflow.ellipsis,style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold
-                      ),),
-                    ),
-                  ),
-
-                  buildRecipientDropAddressDetails(),
-
-                ],
-              ),
+              // Only show recipient section if recipient data exists
+              if (_volunteerFoodDescriptionModelData?.recipientName.isNotEmpty == true) ...[
+                const SizedBox(height: 20),
+                buildRecipientDropAddressDetails(),
+              ],
 
               const SizedBox(
                 height: 50,
@@ -484,13 +507,28 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
               margin: const EdgeInsets.fromLTRB(20, 0, 20, 18),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: status == Constants.waiting_for_pickup? ColorUtils.primaryColor : Colors.grey),
-                onPressed: ()
-                {
-                  status == Constants.waiting_for_pickup? _collectFood(addedFoodModel.userId, addedFoodModel.recipientUserId, addedFoodModel.id) : {};
-                },
+                    backgroundColor: (status == Constants.waiting_for_pickup || status == Constants.pick_up_scheduled)
+                        ? ColorUtils.volunteerPrimary
+                        : Colors.grey,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                ),
+                onPressed: (status == Constants.waiting_for_pickup || status == Constants.pick_up_scheduled)
+                    ? ()
+                    {
+                      print("Button pressed! Current status: $status");
+                      if (status == Constants.waiting_for_pickup) {
+                        _collectFood(addedFoodModel.userId, null, addedFoodModel.id);
+                      } else if (status == Constants.pick_up_scheduled) {
+                        _handoverToShelter(addedFoodModel.userId, addedFoodModel.id);
+                      }
+                    }
+                    : null,
                 child: Text(
-                  status == Constants.waiting_for_pickup? "Collect food" : status,
+                  _getButtonText(status),
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.white,
@@ -503,195 +541,227 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     ),);
   }
 
-  Widget getDottedText()
-  {
-    return
-      Text(
-          '⋮',
-       style: TextStyle(
-         fontSize: 15,
-         fontWeight: FontWeight.bold
-       ));
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    bool isMultiline = false,
+    bool isClickable = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: ColorUtils.volunteerSecondary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: ColorUtils.volunteerTextSecondary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(left: 26),
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              color: isClickable && value != "N/A" && value != "Not assigned yet"
+                  ? ColorUtils.volunteerPrimary
+                  : ColorUtils.volunteerTextPrimary,
+              fontWeight: FontWeight.w500,
+              decoration: isClickable && value != "N/A" && value != "Not assigned yet"
+                  ? TextDecoration.underline
+                  : TextDecoration.none,
+            ),
+            maxLines: isMultiline ? null : 1,
+            overflow: isMultiline ? null : TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 
 
-  Widget buildDonorPickUpAddressDetails() =>
-      Container(
-    padding: EdgeInsets.symmetric(horizontal: 28),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Card(
-          elevation: 10,
-          child: Container(
-
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Align(
-                    alignment: Alignment.center,
-              child: Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Donor Details",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),),
-
-                  const SizedBox(height: 12,),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Name",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                    _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.donorName : "",
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Business Name",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.donorBusinessName : "",
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Contact Number",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.donorContactNumber : "",
-
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Address",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.donorAddress : "",
-
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                ],
+  Widget buildDonorPickUpAddressDetails() => Container(
+    margin: const EdgeInsets.symmetric(horizontal: 16),
+    child: Card(
+      elevation: 6,
+      color: ColorUtils.volunteerCardBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Icon(
+                  Icons.store,
+                  color: ColorUtils.volunteerPrimary,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  "Pickup & Donor Information",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: ColorUtils.volunteerTextPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 3,
+              width: 60,
+              decoration: BoxDecoration(
+                gradient: ColorUtils.volunteerGradient,
+                borderRadius: BorderRadius.circular(2),
               ),
-            ),), ),
-      ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Name
+            _buildDetailRow(
+              icon: Icons.person,
+              label: "Name",
+              value: _volunteerFoodDescriptionModelData?.donorName ?? addedFoodModel.businessName,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Business Name
+            _buildDetailRow(
+              icon: Icons.business,
+              label: "Business Name",
+              value: _volunteerFoodDescriptionModelData?.donorBusinessName ?? addedFoodModel.businessName,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Contact Number
+            _buildDetailRow(
+              icon: Icons.phone,
+              label: "Contact Number",
+              value: _volunteerFoodDescriptionModelData?.donorContactNumber ?? "Contact via app",
+              isClickable: _volunteerFoodDescriptionModelData?.donorContactNumber.isNotEmpty == true,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Address
+            _buildDetailRow(
+              icon: Icons.location_on,
+              label: "Pickup Address",
+              value: _volunteerFoodDescriptionModelData?.donorAddress ?? addedFoodModel.pickUpAddress,
+              isMultiline: true,
+            ),
+          ],
+        ),
+      ),
     ),
   );
 
   Widget buildRecipientDropAddressDetails() => Container(
-    padding: EdgeInsets.symmetric(horizontal: 28),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Card(
-          elevation: 10,
-          child: SizedBox(
-            width: 500,
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                      child: Text(
-                        "Recipient Details",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),),),
-                  const SizedBox(height: 12,),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Name",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.recipientName : "",
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Business Name",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.recipientBusinessName : "",
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Contact Number",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.recipientContactNumber : "",
-
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
-                    child: Text(
-                      "Address",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),),
-
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _volunteerFoodDescriptionModelData != null? _volunteerFoodDescriptionModelData!.recipientAddress : "",
-                      style: TextStyle(fontSize: 17),
-                    ),),
-
-                ],
+    margin: const EdgeInsets.symmetric(horizontal: 16),
+    child: Card(
+      elevation: 6,
+      color: ColorUtils.volunteerCardBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Icon(
+                  Icons.local_shipping,
+                  color: ColorUtils.volunteerSecondary,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  "Delivery & Recipient Information",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: ColorUtils.volunteerTextPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 3,
+              width: 60,
+              decoration: BoxDecoration(
+                color: ColorUtils.volunteerSecondary,
+                borderRadius: BorderRadius.circular(2),
               ),
-            ),), ),
-      ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Name
+            _buildDetailRow(
+              icon: Icons.person,
+              label: "Name",
+              value: _volunteerFoodDescriptionModelData?.recipientName ?? "Not assigned yet",
+            ),
+
+            const SizedBox(height: 16),
+
+            // Business Name
+            _buildDetailRow(
+              icon: Icons.business,
+              label: "Business Name",
+              value: _volunteerFoodDescriptionModelData?.recipientBusinessName ?? "Not assigned yet",
+            ),
+
+            const SizedBox(height: 16),
+
+            // Contact Number
+            _buildDetailRow(
+              icon: Icons.phone,
+              label: "Contact Number",
+              value: _volunteerFoodDescriptionModelData?.recipientContactNumber ?? "Not assigned yet",
+              isClickable: _volunteerFoodDescriptionModelData?.recipientContactNumber.isNotEmpty == true,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Address
+            _buildDetailRow(
+              icon: Icons.location_on,
+              label: "Delivery Address",
+              value: _volunteerFoodDescriptionModelData?.recipientAddress ?? "Not assigned yet",
+              isMultiline: true,
+            ),
+          ],
+        ),
+      ),
     ),
   );
 
@@ -703,15 +773,20 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
     Map body = {
       "donor_user_id":donorUserId,
-      "recipient_user_id":recipientUserId,
     };
 
     // print(jsonEncode(body));
 
     try
     {
+      print("--- API Call Debug ---");
+      print("Request body: ${jsonEncode(body)}");
+      
       Future<VolunteerFoodDescriptionModel> response = ApiService.getFoodItemDetails(jsonEncode(body));
       response.then((obj){
+        print("API Response received");
+        print("Error: ${obj.error}");
+        print("Message: ${obj.message}");
 
         setState(() {
           isLoading = false;
@@ -721,24 +796,34 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
         {
           if (obj.message == Constants.success)
           {
+            print("Success! Setting donor data");
+            print("Donor name: ${obj.data.donorName}");
+            print("Donor business: ${obj.data.donorBusinessName}");
+            print("Donor contact: ${obj.data.donorContactNumber}");
+            print("Donor address: ${obj.data.donorAddress}");
 
             setState(() {
               _volunteerFoodDescriptionModelData = obj.data;
-
             });
           }
           else
           {
+            print("API returned error message: ${obj.message}");
             Constants.showToast(obj.message);
-
           }
+        }
+        else
+        {
+          print("API returned error flag true");
+          Constants.showToast("Failed to load donor details");
         }
       }).catchError((onError)
       {
+        print("API call failed with error: $onError");
         setState(() {
           isLoading = false;
         });
-        Constants.showToast(Constants.something_went_wrong);
+        Constants.showToast("Network error: ${onError.toString()}");
       }
       );
 
@@ -750,6 +835,19 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
   }
 
+  String _getButtonText(String status) {
+    switch (status) {
+      case Constants.STATUS_AVAILABLE:
+        return "Not yet assigned to recipient";
+      case Constants.waiting_for_pickup:
+        return "Collect food";
+      case Constants.pick_up_scheduled:
+        return "Mark as Delivered";
+      default:
+        return status;
+    }
+  }
+
   void _collectFood(donorUserId, recipientUserId, foodId)
   {
     setState(() {
@@ -758,7 +856,6 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
     Map body = {
       "donor_user_id":donorUserId,
-      "recipient_user_id":recipientUserId,
       "volunteer_user_id":_userId,
       "food_item_id": foodId
     };
@@ -806,4 +903,61 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     }
 
   }
+
+  void _handoverToShelter(donorUserId, foodId)
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "donor_user_id":donorUserId,
+      "volunteer_user_id":_userId,
+      "food_item_id": foodId
+    };
+
+    // print(jsonEncode(body));
+
+    try
+    {
+      Future<dynamic> response = ApiService.handoverToShelter(jsonEncode(body));
+      response.then((obj){
+
+        setState(() {
+          isLoading = false;
+        });
+
+        if (!obj['error'])
+        {
+          if (obj['message'] == Constants.success)
+          {
+            reload = true;
+
+            setState(() {
+              status = Constants.delivered;
+            });
+          }
+          else
+          {
+            Constants.showToast(obj['message']);
+
+          }
+        }
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
+
+    }
+    on Exception {
+      // print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
 }
+

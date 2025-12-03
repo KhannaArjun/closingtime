@@ -18,25 +18,23 @@ class CustomRaisedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Gradient gradient = LinearGradient(
-        colors: [ColorUtils.themeGradientStart, ColorUtils.themeGradientEnd]);
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(40.0)),
-          color: ColorUtils.button_color,
+          borderRadius: const BorderRadius.all(Radius.circular(40.0)),
+          gradient: ColorUtils.volunteerAccentGradient,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey,
-              offset: Offset(0.0, 1.5),
-              blurRadius: 1.5,
+              color: Colors.grey.withValues(alpha: 0.4),
+              offset: const Offset(0.0, 2.0),
+              blurRadius: 4.0,
             ),
           ]),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-            borderRadius: BorderRadius.all(Radius.circular(40.0)),
+            borderRadius: const BorderRadius.all(Radius.circular(40.0)),
             onTap: onPressed,
             child: Center(
               child: child,

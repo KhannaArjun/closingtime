@@ -58,20 +58,20 @@ class VolunteerFoodDescriptionModelData {
   late final String distance;
 
   VolunteerFoodDescriptionModelData.fromJson(Map<String, dynamic> json) {
-    code = json['code'];
-    donorAddress = json['donor_address'];
-    donorBusinessName = json['donor_business_name'];
-    donorContactNumber = json['donor_contact_number'];
-    donorLat = json['donor_lat'];
-    donorLng = json['donor_lng'];
-    donorName = json['donor_name'];
-    recipientAddress = json['recipient_address'];
-    recipientBusinessName = json['recipient_business_name'];
-    recipientContactNumber = json['recipient_contact_number'];
-    recipientLat = json['recipient_lat'];
-    recipientLng = json['recipient_lng'];
-    recipientName = json['recipient_name'];
-    distance = json['distance'];
+    code = json['code'] ?? '';
+    donorAddress = json['donor_address'] ?? '';
+    donorBusinessName = json['donor_business_name'] ?? '';
+    donorContactNumber = json['donor_contact_number'] ?? '';
+    donorLat = double.tryParse(json['donor_lat']?.toString() ?? '0') ?? 0.0;
+    donorLng = double.tryParse(json['donor_lng']?.toString() ?? '0') ?? 0.0;
+    donorName = json['donor_name'] ?? '';
+    recipientAddress = json['recipient_address'] ?? '';
+    recipientBusinessName = json['recipient_business_name'] ?? '';
+    recipientContactNumber = json['recipient_contact_number'] ?? '';
+    recipientLat = double.tryParse(json['recipient_lat']?.toString() ?? '0') ?? 0.0;
+    recipientLng = double.tryParse(json['recipient_lng']?.toString() ?? '0') ?? 0.0;
+    recipientName = json['recipient_name'] ?? '';
+    distance = json['distance'] ?? '';
   }
 
   Map<String, dynamic> toJson() {

@@ -32,8 +32,27 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFEEEDED),
-        appBar: AppBar(title: Text("History")),
+        backgroundColor: ColorUtils.volunteerSurface,
+        appBar: AppBar(
+          title: const Text("History"),
+          backgroundColor: ColorUtils.volunteerPrimary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: ColorUtils.volunteerGradient,
+            ),
+          ),
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
+          ),
+        ),
         body: RefreshIndicator(
           onRefresh:  getUserId,
           child:
@@ -92,7 +111,7 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
 
               getUserId();
             },
-            child: const Text("Refresh", style: TextStyle(color: ColorUtils.primaryColor, fontSize: 16),),
+            child: const Text("Refresh", style: TextStyle(color: ColorUtils.volunteerPrimary, fontSize: 16),),
           ),
         ],
       );
@@ -120,13 +139,13 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
 
   Widget _itemCard(BuildContext context, Data addedFoodModel)
   {
-    return SizedBox(
-      height: 140,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Card(
-        color: Colors.white,
-        elevation: 20,
+        color: ColorUtils.volunteerCardBg,
+        elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: InkWell(
           onTap: () async {
@@ -144,7 +163,7 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
                     child: CircleAvatar(
                       backgroundImage: addedFoodModel.image.isEmpty? NetworkImage("https://source.unsplash.com/user/c_v_r/1600x900"):NetworkImage(addedFoodModel.image),
                       radius: 40,
-                      backgroundColor: ColorUtils.primaryColor,
+                      backgroundColor: ColorUtils.volunteerPrimary,
                     ),
                   ),
 
@@ -195,13 +214,28 @@ class _VolunteerFoodHistoryState extends State<VolunteerFoodHistory> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    addedFoodModel.status == Constants.delivered? Constants.delivered : Constants.expired,
-                    style: TextStyle(
-                      color: addedFoodModel.status == Constants.delivered? Colors.lightGreen: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (addedFoodModel.status == Constants.delivered
+                          ? ColorUtils.volunteerSuccess
+                          : ColorUtils.volunteerError)
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      addedFoodModel.status == Constants.delivered
+                          ? Constants.delivered
+                          : Constants.expired,
+                      style: TextStyle(
+                        color: addedFoodModel.status == Constants.delivered
+                            ? ColorUtils.volunteerSuccess
+                            : ColorUtils.volunteerError,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(width: 8,),
                 ],

@@ -88,8 +88,8 @@ class CommonStyles {
         padding: _textFieldsNamePadding(),
         child: Text(
           label,
-          style: TextStyle(
-              color: ColorUtils.primaryColor,
+          style: const TextStyle(
+              color: ColorUtils.volunteerSecondary,
               fontSize: 14,
               fontFamily: 'Raleway',
               fontWeight: FontWeight.bold
@@ -102,13 +102,10 @@ class CommonStyles {
     return const EdgeInsets.fromLTRB(15, 0, 15, 0);
   }
 
-
   static _textFieldsNamePadding()
   {
     return const EdgeInsets.fromLTRB(15, 0, 15, 0);
   }
-
-
 
   static searchFieldStyle(String label, String hint) {
     return InputDecoration(
@@ -136,14 +133,13 @@ class CommonStyles {
   static layoutBackgroundShape()
   {
     return ClipRRect(
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular( 20),
+          bottomRight: Radius.circular(20),
           topLeft: Radius.circular(0),
           topRight: Radius.circular(0)),
       child: Container(
-        color: Colors.blue,
-
+        color: ColorUtils.volunteerPrimary,
       ),
     );
   }
@@ -173,10 +169,10 @@ static void showLoadingDialog(BuildContext context)
   static Widget loadingBar(BuildContext context)
   {
     return Container(
-      margin: EdgeInsets.all(20),
-      child: CircularProgressIndicator(
+      margin: const EdgeInsets.all(20),
+      child: const CircularProgressIndicator(
         backgroundColor: Colors.grey,
-        color: ColorUtils.primaryColor,
+        color: ColorUtils.volunteerPrimary,
         strokeWidth: 5,
       ),
     );

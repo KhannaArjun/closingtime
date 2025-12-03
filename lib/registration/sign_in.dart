@@ -7,6 +7,7 @@ import 'package:closingtime/main.dart';
 import 'package:closingtime/network/api_service.dart';
 import 'package:closingtime/network/entity/login_model.dart';
 import 'package:closingtime/registration/volunteer_registration.dart';
+import 'package:closingtime/utils/ColorUtils.dart';
 import 'package:closingtime/utils/CommonStyles.dart';
 import 'package:closingtime/utils/constants.dart';
 import 'package:closingtime/volunteer/volunteer_dashboard.dart';
@@ -26,9 +27,15 @@ class SignIn extends StatelessWidget {
     return MaterialApp(
       title: '',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: ColorUtils.volunteerPrimary,
+          primary: ColorUtils.volunteerPrimary,
+          secondary: ColorUtils.volunteerSecondary,
+          brightness: Brightness.light,
+        ),
       ),
-      home: LoginScreen(),
+      home: const LoginScreen(),
     );
   }
 }
@@ -77,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 top: 300,
                 left: 10,
                 right: 10,
-                child: LoginWidget(),
+                child: _progressBarActive ? CommonStyles.loadingBar(context) : LoginWidget(),
               )
             ],
           ),
@@ -108,6 +115,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   final _loginProvider = LoginProvider();
 
   String fb_token = "";
+  bool _isLoading = false;
 
 
   @override
@@ -136,23 +144,51 @@ class _LoginWidgetState extends State<LoginWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 30, 20, 0),
-      child:
-      Card(
-
-        elevation: 10,
-        child: Column(
-          children: <Widget>[
-
-            const SizedBox(
-              height: 50,
+      margin: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+      child: Stack(
+        children: [
+          Card(
+            elevation: 8,
+            color: ColorUtils.volunteerCardBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
+            child: Column(
+              children: <Widget>[
 
-            SignInButton(
+                const SizedBox(
+                  height: 40,
+                ),
 
-              Buttons.GoogleDark,
-              text: "Sign in with Google",
-              onPressed: () {
+                // Welcome Text
+                const Text(
+                  'Welcome',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: ColorUtils.volunteerSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Sign in to continue',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: ColorUtils.volunteerTextSecondary,
+                  ),
+                ),
+
+                const SizedBox(
+                  height: 40,
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SignInButton(
+
+                  Buttons.GoogleDark,
+                  text: "Sign in with Google",
+                  onPressed: _isLoading ? null : () {
 
                 _loginProvider.googleSignIn().then((value) {
 
@@ -172,21 +208,34 @@ class _LoginWidgetState extends State<LoginWidget> {
 
               },
 
-            ),
+            ),),
 
-            const Padding(
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-              child: Text(
-                  'or'
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                children: [
+                  Expanded(child: Divider(indent: 40, endIndent: 10, color: ColorUtils.volunteerSecondary.withValues(alpha: 0.3))),
+                  Text(
+                    'or',
+                    style: TextStyle(
+                      color: ColorUtils.volunteerSecondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Expanded(child: Divider(indent: 10, endIndent: 40, color: ColorUtils.volunteerSecondary.withValues(alpha: 0.3))),
+                ],
               ),
             ),
 
 
             // From your sign_in.dart
-            SignInButton(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SignInButton(
               Buttons.AppleDark,
               text: "Sign in with Apple",
-              onPressed: () {
+              onPressed: _isLoading ? null : () {
                 _loginProvider.signInWithApple().then((value) { // Assuming _loginProvider.signInWithApple() returns the email as a String?
                   if (value['email'] != null || value['email'] != "") // Or however you check for a successful email retrieval
                       {
@@ -202,9 +251,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                   Constants.showToast("Apple Sign-In failed: $error");
                 });
               },
-            ),
+            ),),
 
-            SizedBox(
+            const SizedBox(
               height: 50,
             ),
 
@@ -217,8 +266,50 @@ class _LoginWidgetState extends State<LoginWidget> {
             //   ),
             // )
 
-          ],
-        ),
+              ],
+            ),
+          ),
+          
+          // Loading Overlay
+          if (_isLoading)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const CircularProgressIndicator(
+                            color: ColorUtils.volunteerSecondary,
+                            strokeWidth: 4,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Signing in...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: ColorUtils.volunteerSecondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -282,7 +373,7 @@ class _LoginWidgetState extends State<LoginWidget> {
     );
   }
 
-  late final BuildContext ctx;
+  // late final BuildContext ctx;
   late final String _platform = "";
 
   void checkIsUserExists(BuildContext context)
@@ -297,12 +388,9 @@ class _LoginWidgetState extends State<LoginWidget> {
       }
 
 
-    ctx = context;
-
-    showLoaderDialog(ctx);
-
     setState(() {
       _progressBarActive = true;
+      _isLoading = true;
     });
 
     Map body = {
@@ -321,9 +409,8 @@ class _LoginWidgetState extends State<LoginWidget> {
 
       setState(() {
         _progressBarActive = false;
+        _isLoading = false;
       });
-
-      Navigator.pop(ctx);
 
       if(value['message'].toString() == Constants.user_exists)
       {
@@ -360,14 +447,17 @@ class _LoginWidgetState extends State<LoginWidget> {
           // Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
           //     RolePreferenceScreen(_email)), (route) => false);
 
+          print("Navigating to VolunteerRegistration...");
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => VolunteerRegistration(_email, _displayName, null)),
           );
+          print("Navigation completed");
         }
       }).catchError((onError)
     {
       setState(() {
         _progressBarActive = false;
+        _isLoading = false;
       });
       print(onError);
       Constants.showToast(Constants.something_went_wrong);

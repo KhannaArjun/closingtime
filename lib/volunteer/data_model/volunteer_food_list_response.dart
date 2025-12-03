@@ -27,9 +27,13 @@ class VolunteerFoodListModel {
 
 class Data {
   Data({
+    required this.address,
     required this.allergen,
+    required this.businessEmail,
     required this.businessName,
+    required this.createdAt,
     required this.distance,
+    required this.donationType,
     required this.foodDesc,
     required this.foodIngredients,
     required this.foodName,
@@ -42,14 +46,17 @@ class Data {
     required this.pickUpLat,
     required this.pickUpLng,
     required this.quantity,
-    required this.recipientUserId,
     required this.status,
-    required this.timestamp,
+    required this.token,
     required this.userId,
   });
+  late final String address;
   late final String allergen;
+  late final String businessEmail;
   late final String businessName;
+  late final String createdAt;
   late final String distance;
+  late final String donationType;
   late final String foodDesc;
   late final String foodIngredients;
   late final String foodName;
@@ -62,38 +69,44 @@ class Data {
   late final double pickUpLat;
   late final double pickUpLng;
   late final String quantity;
-  late final String recipientUserId;
   late final String status;
-  late final int timestamp;
+  late final String token;
   late final String userId;
 
   Data.fromJson(Map<String, dynamic> json){
-    allergen = json['allergen'];
-    businessName = json['business_name'];
-    distance = json['distance'];
-    foodDesc = json['food_desc'];
-    foodIngredients = json['food_ingredients'];
-    foodName = json['food_name'];
-    id = json['id'];
-    image = json['image'];
-    isFoodAccepted = json['isFoodAccepted'];
-    pickUpAddress = json['pick_up_address'];
-    pickUpDate = json['pick_up_date'];
-    pickUpTime = json['pick_up_time'];
-    pickUpLat = json['pick_up_lat'];
-    pickUpLng = json['pick_up_lng'];
-    quantity = json['quantity'];
-    recipientUserId = json['recipient_user_id'];
-    status = json['status'];
-    timestamp = json['timestamp'];
-    userId = json['user_id'];
+    address = json['address'] ?? '';
+    allergen = json['allergen'] ?? '';
+    businessEmail = json['business_email'] ?? '';
+    businessName = json['business_name'] ?? '';
+    createdAt = json['created_at'] ?? '';
+    distance = json['distance'] ?? '';
+    donationType = json['donation_type'] ?? '';
+    foodDesc = json['food_desc'] ?? '';
+    foodIngredients = json['food_ingredients'] ?? '';
+    foodName = json['food_name'] ?? '';
+    id = json['id'] ?? '';
+    image = json['image'] ?? '';
+    isFoodAccepted = json['isFoodAccepted'] ?? false;
+    pickUpAddress = json['pick_up_address'] ?? '';
+    pickUpDate = json['pick_up_date'] ?? '';
+    pickUpTime = json['pick_up_time'] ?? '';
+    pickUpLat = json['pick_up_lat'] ?? 0.0;
+    pickUpLng = json['pick_up_lng'] ?? 0.0;
+    quantity = json['quantity'] ?? '';
+    status = json['status'] ?? '';
+    token = json['token'] ?? '';
+    userId = json['user_id'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
+    data['address'] = address;
     data['allergen'] = allergen;
+    data['business_email'] = businessEmail;
     data['business_name'] = businessName;
+    data['created_at'] = createdAt;
     data['distance'] = distance;
+    data['donation_type'] = donationType;
     data['food_desc'] = foodDesc;
     data['food_ingredients'] = foodIngredients;
     data['food_name'] = foodName;
@@ -106,9 +119,8 @@ class Data {
     data['pick_up_lat'] = pickUpLat;
     data['pick_up_lng'] = pickUpLng;
     data['quantity'] = quantity;
-    data['recipient_user_id'] = recipientUserId;
     data['status'] = status;
-    data['timestamp'] = timestamp;
+    data['token'] = token;
     data['user_id'] = userId;
     return data;
   }
