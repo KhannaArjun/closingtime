@@ -290,6 +290,42 @@ import 'entity/login_model.dart';
     }
   }
 
+  static Future<dynamic> markPickedUp(body) async
+  {
+    final response = await http
+        .post(parseUri('/volunteer/mark_picked_up'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      // print(response.statusCode);
+      throw Exception('Failed');
+    }
+  }
+
+  static Future<dynamic> markDelivered(body) async
+  {
+    final response = await http
+        .post(parseUri('/volunteer/mark_delivered'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      // print(response.body);
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      // print(response.statusCode);
+      throw Exception('Failed');
+    }
+  }
+
   static Future<dynamic> handoverToShelter(body) async
   {
     final response = await http

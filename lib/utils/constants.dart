@@ -32,8 +32,9 @@ class Constants
   static const String success = "Success";
   static const String waiting_for_pickup = "Waiting for pickup";
   static const String pick_up_scheduled = "Pick up scheduled";
-  static const String collected = "Pick up scheduled";  // Updated to match API flow
-  static const String delivered_to_shelter = "Delivered";  // Updated to match API flow
+  static const String collected_food = "Collected food";  // After volunteer picks up
+  static const String collected = "Pick up scheduled";  // Legacy
+  static const String delivered_to_shelter = "Delivered";  // Legacy
   static const String delivered = "Delivered";
   static const String expired = "Pick up date passed / No response";
   static const String prod = "prod";

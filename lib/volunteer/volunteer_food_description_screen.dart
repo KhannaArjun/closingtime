@@ -507,7 +507,9 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
               margin: const EdgeInsets.fromLTRB(20, 0, 20, 18),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: (status == Constants.waiting_for_pickup || status == Constants.pick_up_scheduled)
+                    backgroundColor: (status == Constants.STATUS_AVAILABLE || 
+                                     status == Constants.pick_up_scheduled || 
+                                     status == Constants.collected_food)
                         ? ColorUtils.volunteerPrimary
                         : Colors.grey,
                     foregroundColor: Colors.white,
@@ -516,14 +518,21 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
                     ),
                     elevation: 4,
                 ),
-                onPressed: (status == Constants.waiting_for_pickup || status == Constants.pick_up_scheduled)
+                onPressed: (status == Constants.STATUS_AVAILABLE || 
+                           status == Constants.pick_up_scheduled || 
+                           status == Constants.collected_food)
                     ? ()
                     {
                       print("Button pressed! Current status: $status");
-                      if (status == Constants.waiting_for_pickup) {
+                      if (status == Constants.STATUS_AVAILABLE) {
+                        // Assign volunteer to collect and drop the food
                         _collectFood(addedFoodModel.userId, null, addedFoodModel.id);
                       } else if (status == Constants.pick_up_scheduled) {
-                        _handoverToShelter(addedFoodModel.userId, addedFoodModel.id);
+                        // Mark as picked up
+                        _markPickedUp(addedFoodModel.userId, addedFoodModel.id);
+                      } else if (status == Constants.collected_food) {
+                        // Mark as delivered
+                        _markDelivered(addedFoodModel.userId, addedFoodModel.id);
                       }
                     }
                     : null,
@@ -838,11 +847,13 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
   String _getButtonText(String status) {
     switch (status) {
       case Constants.STATUS_AVAILABLE:
-        return "Not yet assigned to recipient";
-      case Constants.waiting_for_pickup:
-        return "Collect food";
+        return "Let me collect and drop";
       case Constants.pick_up_scheduled:
+        return "Mark as Picked Up";
+      case Constants.collected_food:
         return "Mark as Delivered";
+      case Constants.delivered:
+        return "Delivered";
       default:
         return status;
     }
@@ -877,6 +888,13 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
           {
             reload = true;
 
+            // Show success message based on previous status
+            if (status == Constants.STATUS_AVAILABLE) {
+              Constants.showToast("You've been assigned! Please collect and deliver the food.");
+            } else {
+              Constants.showToast("Food collection confirmed!");
+            }
+
             setState(() {
               status = Constants.pick_up_scheduled;
             });
@@ -899,6 +917,112 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     }
     on Exception {
       // print(e);
+      Constants.showToast("Please try again");
+    }
+
+  }
+
+  void _markPickedUp(donorUserId, foodId)
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "donor_user_id":donorUserId,
+      "volunteer_user_id":_userId,
+      "food_item_id": foodId
+    };
+
+    try
+    {
+      Future<dynamic> response = ApiService.markPickedUp(jsonEncode(body));
+      response.then((obj){
+
+        setState(() {
+          isLoading = false;
+        });
+
+        if (!obj['error'])
+        {
+          if (obj['message'] == Constants.success)
+          {
+            reload = true;
+            Constants.showToast("Food picked up successfully!");
+
+            setState(() {
+              status = Constants.collected_food;
+            });
+          }
+          else
+          {
+            Constants.showToast(obj['message']);
+          }
+        }
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
+
+    }
+    on Exception {
+      Constants.showToast("Please try again");
+    }
+
+  }
+
+  void _markDelivered(donorUserId, foodId)
+  {
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "donor_user_id":donorUserId,
+      "volunteer_user_id":_userId,
+      "food_item_id": foodId
+    };
+
+    try
+    {
+      Future<dynamic> response = ApiService.markDelivered(jsonEncode(body));
+      response.then((obj){
+
+        setState(() {
+          isLoading = false;
+        });
+
+        if (!obj['error'])
+        {
+          if (obj['message'] == Constants.success)
+          {
+            reload = true;
+            Constants.showToast("Food delivered successfully! 🎉");
+
+            setState(() {
+              status = Constants.delivered;
+            });
+          }
+          else
+          {
+            Constants.showToast(obj['message']);
+          }
+        }
+      }).catchError((onError)
+      {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      }
+      );
+
+    }
+    on Exception {
       Constants.showToast("Please try again");
     }
 

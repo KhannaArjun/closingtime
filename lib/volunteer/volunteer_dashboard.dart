@@ -565,26 +565,80 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(addedFoodModel.status)
-                                  .withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              addedFoodModel.status == Constants.waiting_for_pickup
-                                  ? "Available"
-                                  : addedFoodModel.status,
-                              style: TextStyle(
-                                color: _getStatusColor(addedFoodModel.status),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(addedFoodModel.status)
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (addedFoodModel.status != Constants.STATUS_AVAILABLE)
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 4),
+                                        child: Icon(
+                                          Icons.person_check,
+                                          size: 14,
+                                          color: _getStatusColor(addedFoodModel.status),
+                                        ),
+                                      ),
+                                    Text(
+                                      addedFoodModel.status == Constants.waiting_for_pickup
+                                          ? "Available"
+                                          : addedFoodModel.status == Constants.STATUS_AVAILABLE
+                                              ? "Available"
+                                              : addedFoodModel.status,
+                                      style: TextStyle(
+                                        color: _getStatusColor(addedFoodModel.status),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+                              if (addedFoodModel.status != Constants.STATUS_AVAILABLE && 
+                                  addedFoodModel.status != Constants.waiting_for_pickup)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: ColorUtils.volunteerWarning.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          size: 12,
+                                          color: ColorUtils.volunteerWarning,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Assigned',
+                                          style: TextStyle(
+                                            color: ColorUtils.volunteerWarning,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -626,17 +680,18 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Available':
-      case 'waiting_for_pickup':
-        return ColorUtils.volunteerSuccess;
-      case 'Collected':
-        return ColorUtils.volunteerInfo;
-      case 'Delivered to Shelter':
-        return ColorUtils.volunteerAccent;
-      case 'expired':
-        return ColorUtils.volunteerError;
+      case Constants.STATUS_AVAILABLE:
+        return ColorUtils.volunteerSuccess; // Green - available
+      case Constants.pick_up_scheduled:
+        return ColorUtils.volunteerInfo; // Blue - scheduled
+      case Constants.collected_food:
+        return ColorUtils.volunteerAccent; // Orange/Purple - in transit
+      case Constants.delivered:
+        return ColorUtils.volunteerSuccess; // Green - completed
+      case Constants.expired:
+        return ColorUtils.volunteerError; // Red - expired
       default:
-        return ColorUtils.volunteerWarning;
+        return ColorUtils.volunteerWarning; // Amber - other
     }
   }
 
