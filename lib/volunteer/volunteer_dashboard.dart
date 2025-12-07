@@ -29,6 +29,11 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
 
   List<Data> _addedFoodList = [];
   List<Data> _filteredFoodList = [];
+  List<Data> _pendingFoodList = [];
+  List<Data> _activeFoodList = [];
+
+  // Tab controller
+  late TabController _tabController;
 
   // Animation controllers
   late AnimationController _fadeController;
@@ -39,6 +44,9 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
   @override
   void initState() {
     super.initState();
+    
+    // Initialize tab controller
+    _tabController = TabController(length: 2, vsync: this);
     
     // Initialize animation controllers
     _fadeController = AnimationController(
@@ -66,6 +74,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
 
   @override
   void dispose() {
+    _tabController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
     super.dispose();
@@ -180,6 +189,25 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
                 gradient: ColorUtils.volunteerGradient,
               ),
             ),
+            bottom: TabBar(
+              controller: _tabController,
+              indicatorColor: Colors.white,
+              indicatorWeight: 3,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 16,
+              ),
+              tabs: const [
+                Tab(text: 'Pending'),
+                Tab(text: 'Active'),
+              ],
+            ),
             // actions: [
             //   IconButton(
             //     icon: const Icon(Icons.search),
@@ -194,7 +222,13 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
           body: RefreshIndicator(
             onRefresh: getUserId,
             color: ColorUtils.volunteerPrimary,
-            child: getWidget(),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildTabContent(_pendingFoodList, 0),
+                _buildTabContent(_activeFoodList, 1),
+              ],
+            ),
           ),
           drawer: _buildModernDrawer(),
           floatingActionButton: FloatingActionButton.extended(
@@ -274,6 +308,77 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
             _showLogoutAlertDialog();
           },
         ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabContent(List<Data> list, int tabIndex) {
+    if (isLoading) {
+      return _buildShimmerLoading();
+    }
+
+    // If this specific tab's list is empty, show tab-specific empty state
+    // (This handles both cases: no data at all, or data exists but not in this tab)
+    if (list.isEmpty) {
+      return _buildEmptyStateForTab(tabIndex);
+    }
+
+    // Show the food list for this tab
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: _buildFoodList(list),
+      ),
+    );
+  }
+
+  Widget _buildEmptyStateForTab(int tabIndex) {
+    String title;
+    String message;
+    IconData icon;
+
+    if (tabIndex == 0) {
+      // Pending tab
+      title = 'No Pending Food';
+      message = 'No available food items to collect at the moment';
+      icon = Icons.pending_actions;
+    } else {
+      // Active tab
+      title = 'No Active Tasks';
+      message = 'You don\'t have any active food collection or delivery tasks';
+      icon = Icons.check_circle_outline;
+    }
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 120,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              message,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );
@@ -584,7 +689,7 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
                                       Padding(
                                         padding: const EdgeInsets.only(right: 4),
                                         child: Icon(
-                                          Icons.person_check,
+                                          Icons.check_circle,
                                           size: 14,
                                           color: _getStatusColor(addedFoodModel.status),
                                         ),
@@ -778,12 +883,26 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
 
   void _filterFoodList() {
     setState(() {
-      _filteredFoodList = _addedFoodList.where((food) {
+      // Filter by search query
+      List<Data> searchFiltered = _addedFoodList.where((food) {
         final matchesSearch = food.foodName.toLowerCase()
             .contains(_searchQuery.toLowerCase());
         final matchesFilter = _selectedFilter == 'All' ||
             food.status.toLowerCase().contains(_selectedFilter.toLowerCase());
         return matchesSearch && matchesFilter;
+      }).toList();
+
+      _filteredFoodList = searchFiltered;
+      
+      // Separate into Pending and Active
+      _pendingFoodList = searchFiltered.where((food) {
+        return food.status == Constants.STATUS_AVAILABLE;
+      }).toList();
+
+      _activeFoodList = searchFiltered.where((food) {
+        return food.status == Constants.pick_up_scheduled ||
+               food.status == Constants.collected_food ||
+               food.status == Constants.delivered;
       }).toList();
     });
   }
@@ -833,25 +952,32 @@ class _VolunteerDashboardState extends State<VolunteerDashboard> with TickerProv
       addedFoodListModel.then((value) {
         print(value);
         if (!value.error) {
-          if (value.data.isNotEmpty) {
-            setState(() {
-              _addedFoodList = value.data.reversed.toList();
-              _filteredFoodList = _addedFoodList;
-              isDataEmpty = false;
-              isLoading = false;
-            });
+          setState(() {
+            _addedFoodList = value.data.reversed.toList();
+            isDataEmpty = value.data.isEmpty;
+            isLoading = false;
+          });
+          _filterFoodList(); // Update pending and active lists
+          if (!isDataEmpty) {
             _fadeController.forward();
             _slideController.forward();
-          } else {
-            setState(() {
-              isLoading = false;
-              isDataEmpty = true;
-            });
           }
+        } else {
+          setState(() {
+            isLoading = false;
+            isDataEmpty = true;
+            _addedFoodList = [];
+            _pendingFoodList = [];
+            _activeFoodList = [];
+          });
         }
       }).catchError((onError) {
         setState(() {
           isLoading = false;
+          isDataEmpty = true;
+          _addedFoodList = [];
+          _pendingFoodList = [];
+          _activeFoodList = [];
         });
         Constants.showToast(Constants.something_went_wrong);
       });

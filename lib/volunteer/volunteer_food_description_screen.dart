@@ -526,13 +526,13 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
                       print("Button pressed! Current status: $status");
                       if (status == Constants.STATUS_AVAILABLE) {
                         // Assign volunteer to collect and drop the food
-                        _collectFood(addedFoodModel.userId, null, addedFoodModel.id);
+                        _collectFood(addedFoodModel.userId, addedFoodModel.id);
                       } else if (status == Constants.pick_up_scheduled) {
-                        // Mark as picked up
+                        // Mark as picked up (collected food)
                         _markPickedUp(addedFoodModel.userId, addedFoodModel.id);
                       } else if (status == Constants.collected_food) {
-                        // Mark as delivered
-                        _markDelivered(addedFoodModel.userId, addedFoodModel.id);
+                        // Show recipient selection dialog for delivery
+                        _showRecipientSelectionDialog(addedFoodModel.userId, addedFoodModel.id);
                       }
                     }
                     : null,
@@ -847,11 +847,11 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
   String _getButtonText(String status) {
     switch (status) {
       case Constants.STATUS_AVAILABLE:
-        return "Let me collect and drop";
+        return "Assign to me";
       case Constants.pick_up_scheduled:
-        return "Mark as Picked Up";
+        return "Collected food";
       case Constants.collected_food:
-        return "Mark as Delivered";
+        return "Delivered";
       case Constants.delivered:
         return "Delivered";
       default:
@@ -859,16 +859,17 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     }
   }
 
-  void _collectFood(donorUserId, recipientUserId, foodId)
+  void _collectFood(donorUserId, foodId)
   {
     setState(() {
       isLoading = true;
     });
 
     Map body = {
-      "donor_user_id":donorUserId,
-      "volunteer_user_id":_userId,
-      "food_item_id": foodId
+      "donor_user_id": donorUserId,
+      "volunteer_user_id": _userId,
+      "food_item_id": foodId,
+      "recipient_id": ""  // Empty string instead of null
     };
 
     // print(jsonEncode(body));
@@ -877,6 +878,10 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
     {
       Future<dynamic> response = ApiService.collectFood(jsonEncode(body));
       response.then((obj){
+        print("=== Collect Food API Response ===");
+        print("Error: ${obj['error']}");
+        print("Message: ${obj['message']}");
+        print("Full response: $obj");
 
         setState(() {
           isLoading = false;
@@ -884,7 +889,12 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
         if (!obj['error'])
         {
-          if (obj['message'] == Constants.success)
+          // Check if message indicates success (case-insensitive)
+          String message = obj['message']?.toString() ?? '';
+          bool isSuccess = message.toLowerCase().contains('success') || 
+                          message == Constants.success;
+          
+          if (isSuccess)
           {
             reload = true;
 
@@ -897,13 +907,23 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
             setState(() {
               status = Constants.pick_up_scheduled;
+              addedFoodModel.status = Constants.pick_up_scheduled;
             });
+            
+            print("=== Status Update ===");
+            print("Status updated to: $status");
+            print("addedFoodModel.status: ${addedFoodModel.status}");
+            print("Button text should now be: ${_getButtonText(status)}");
+            print("Button enabled check: ${status == Constants.STATUS_AVAILABLE || status == Constants.pick_up_scheduled || status == Constants.collected_food}");
           }
           else
           {
-            Constants.showToast(obj['message']);
-
+            print("API message doesn't indicate success: $message");
+            Constants.showToast(message.isNotEmpty ? message : Constants.something_went_wrong);
           }
+        } else {
+          print("API returned error: ${obj['message']}");
+          Constants.showToast(obj['message'] ?? Constants.something_went_wrong);
         }
       }).catchError((onError)
       {
@@ -975,16 +995,72 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
 
   }
 
-  void _markDelivered(donorUserId, foodId)
+  void _showRecipientSelectionDialog(donorUserId, foodId) async {
+    // Fetch recipients list
+    setState(() {
+      isLoading = true;
+    });
+
+    Map body = {
+      "volunteer_user_id": _userId,
+    };
+
+    try {
+      Future<dynamic> response = ApiService.getRecipientsList(jsonEncode(body));
+      response.then((obj) {
+        setState(() {
+          isLoading = false;
+        });
+
+        if (!obj['error'] && obj['data'] != null) {
+          List<dynamic> recipientsList = obj['data'];
+          
+          if (recipientsList.isEmpty) {
+            Constants.showToast("No recipients available");
+            return;
+          }
+
+          // Show recipient selection dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return _RecipientSelectionDialog(
+                recipients: recipientsList,
+                onRecipientSelected: (recipientId) {
+                  Navigator.of(context).pop();
+                  _markDelivered(donorUserId, foodId, recipientId);
+                },
+              );
+            },
+          );
+        } else {
+          Constants.showToast(obj['message'] ?? Constants.something_went_wrong);
+        }
+      }).catchError((onError) {
+        setState(() {
+          isLoading = false;
+        });
+        Constants.showToast(Constants.something_went_wrong);
+      });
+    } on Exception {
+      setState(() {
+        isLoading = false;
+      });
+      Constants.showToast("Please try again");
+    }
+  }
+
+  void _markDelivered(donorUserId, foodId, recipientId)
   {
     setState(() {
       isLoading = true;
     });
 
     Map body = {
-      "donor_user_id":donorUserId,
-      "volunteer_user_id":_userId,
-      "food_item_id": foodId
+      "donor_user_id": donorUserId,
+      "volunteer_user_id": _userId,
+      "food_item_id": foodId,
+      "recipient_id": recipientId
     };
 
     try
@@ -1082,6 +1158,278 @@ class _VolunteerFoodDescriptionState extends State<VolunteerFoodDescription> {
       Constants.showToast("Please try again");
     }
 
+  }
+}
+
+// Recipient Selection Dialog Widget
+class _RecipientSelectionDialog extends StatefulWidget {
+  final List<dynamic> recipients;
+  final Function(String) onRecipientSelected;
+
+  const _RecipientSelectionDialog({
+    required this.recipients,
+    required this.onRecipientSelected,
+  });
+
+  @override
+  State<_RecipientSelectionDialog> createState() => _RecipientSelectionDialogState();
+}
+
+class _RecipientSelectionDialogState extends State<_RecipientSelectionDialog> {
+  String? _selectedRecipientId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 600),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              decoration: const BoxDecoration(
+                gradient: ColorUtils.volunteerGradient,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.person_add,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Select Recipient',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            // Recipients List
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.recipients.length,
+                itemBuilder: (context, index) {
+                  final recipient = widget.recipients[index];
+                  final recipientId = recipient['user_id'] ?? recipient['id'] ?? '';
+                  final recipientName = recipient['name'] ?? recipient['recipient_name'] ?? 'Unknown';
+                  final recipientAddress = recipient['address'] ?? recipient['recipient_address'] ?? '';
+                  final businessName = recipient['business_name'] ?? recipient['businessName'] ?? '';
+                  final contactNumber = recipient['contact_number'] ?? recipient['contactNumber'] ?? '';
+
+                  final isSelected = _selectedRecipientId == recipientId;
+
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedRecipientId = recipientId;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? ColorUtils.volunteerPrimary.withOpacity(0.1)
+                            : ColorUtils.volunteerCardBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? ColorUtils.volunteerPrimary
+                              : Colors.grey.withOpacity(0.2),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Selection indicator
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected
+                                    ? ColorUtils.volunteerPrimary
+                                    : Colors.grey,
+                                width: 2,
+                              ),
+                              color: isSelected
+                                  ? ColorUtils.volunteerPrimary
+                                  : Colors.transparent,
+                            ),
+                            child: isSelected
+                                ? const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 16,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 16),
+                          // Recipient details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  recipientName,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorUtils.volunteerTextPrimary,
+                                  ),
+                                ),
+                                if (businessName.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    businessName,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: ColorUtils.volunteerTextSecondary,
+                                    ),
+                                  ),
+                                ],
+                                if (recipientAddress.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        size: 14,
+                                        color: ColorUtils.volunteerTextSecondary,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          recipientAddress,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: ColorUtils.volunteerTextSecondary,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                if (contactNumber.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.phone,
+                                        size: 14,
+                                        color: ColorUtils.volunteerTextSecondary,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        contactNumber,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: ColorUtils.volunteerTextSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Action buttons
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: ColorUtils.volunteerSurface,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: ColorUtils.volunteerPrimary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: ColorUtils.volunteerPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _selectedRecipientId != null
+                          ? () {
+                              widget.onRecipientSelected(_selectedRecipientId!);
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorUtils.volunteerPrimary,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 4,
+                      ),
+                      child: const Text(
+                        'Confirm',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

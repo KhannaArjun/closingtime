@@ -326,6 +326,22 @@ import 'entity/login_model.dart';
     }
   }
 
+  static Future<dynamic> getRecipientsList(body) async
+  {
+    final response = await http
+        .post(parseUri('/volunteer/getRecipientsList'),
+        headers: Constants.HEADERS, body: body);
+
+    if (response.statusCode == 200)
+    {
+      return jsonDecode(response.body);
+    }
+    else
+    {
+      throw Exception('Failed');
+    }
+  }
+
   static Future<dynamic> handoverToShelter(body) async
   {
     final response = await http
